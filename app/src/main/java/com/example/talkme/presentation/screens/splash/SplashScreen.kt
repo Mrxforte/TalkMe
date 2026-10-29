@@ -1,4 +1,4 @@
-package com.example.talkme.presentation.splash
+package com.example.talkme.presentation.screens.splash
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -15,74 +15,87 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.example.talkme.R
+import com.example.talkme.ui.theme.AppIcons
+import com.example.talkme.ui.theme.AppTypography
+import com.example.talkme.ui.theme.LocalDimensions
 import com.example.talkme.ui.theme.TalkMeTheme
+import kotlinx.coroutines.delay
 
+/**
+ * Startup Splash Screen displayed first when the application launches.
+ * Automatically transitions to the Onboarding Welcome Screen after a 2-second delay.
+ *
+ * @param onSplashFinished Callback triggered when splash timer expires.
+ * @param modifier Composable layout modifier.
+ */
 @Composable
 fun SplashScreen(
+    onSplashFinished: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val dimensions = LocalDimensions.current
+
+    LaunchedEffect(Unit) {
+        delay(2000L) // 2-second splash transition delay
+        onSplashFinished()
+    }
+
     Surface(
         modifier = modifier.fillMaxSize(),
-        color = Color(0xFFFAFAFC),
+        color = MaterialTheme.colorScheme.background,
     ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(horizontal = 24.dp, vertical = 24.dp),
+                .padding(dimensions.paddingHuge),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.SpaceBetween,
         ) {
-            Spacer(modifier = Modifier.height(1.dp))
+            Spacer(modifier = Modifier.height(dimensions.borderThin))
 
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 Box(
                     modifier = Modifier
-                        .size(76.dp)
-                        .clip(RoundedCornerShape(22.dp))
-                        .background(Color(0xFF5E4B8B)),
+                        .size(dimensions.logoSize)
+                        .clip(RoundedCornerShape(dimensions.cornerExtraLarge))
+                        .background(MaterialTheme.colorScheme.primary),
                     contentAlignment = Alignment.Center,
                 ) {
                     Icon(
-                        painter = painterResource(id = R.drawable.ic_book),
+                        painter = painterResource(id = AppIcons.Book),
                         contentDescription = stringResource(id = R.string.splash_logo_content_description),
-                        tint = Color.White,
-                        modifier = Modifier.size(38.dp),
+                        tint = MaterialTheme.colorScheme.onPrimary,
+                        modifier = Modifier.size(dimensions.iconExtraLarge),
                     )
                 }
 
-                Spacer(modifier = Modifier.height(20.dp))
+                Spacer(modifier = Modifier.height(dimensions.paddingExtraLarge))
 
                 Text(
                     text = stringResource(id = R.string.splash_title),
-                    style = MaterialTheme.typography.headlineSmall.copy(
-                        fontSize = 22.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color(0xFF1D1B20),
+                    style = AppTypography.SplashTitle.copy(
+                        color = MaterialTheme.colorScheme.onBackground,
                     ),
                     textAlign = TextAlign.Center,
                 )
 
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(dimensions.paddingSmall))
 
                 Text(
                     text = stringResource(id = R.string.splash_subtitle),
-                    style = MaterialTheme.typography.bodyMedium.copy(
-                        fontSize = 13.sp,
-                        color = Color(0xFF757575),
+                    style = AppTypography.SplashSubtitle.copy(
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                     ),
                     textAlign = TextAlign.Center,
                 )
@@ -90,13 +103,11 @@ fun SplashScreen(
 
             Text(
                 text = stringResource(id = R.string.splash_footer),
-                style = MaterialTheme.typography.labelSmall.copy(
-                    fontSize = 11.sp,
-                    color = Color(0xFF9E9E9E),
-                    letterSpacing = 1.2.sp,
+                style = AppTypography.SplashFooter.copy(
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                 ),
                 textAlign = TextAlign.Center,
-                modifier = Modifier.padding(bottom = 8.dp),
+                modifier = Modifier.padding(bottom = dimensions.paddingSmall),
             )
         }
     }
@@ -106,6 +117,6 @@ fun SplashScreen(
 @Composable
 fun SplashScreenPreview() {
     TalkMeTheme {
-        SplashScreen()
+        SplashScreen(onSplashFinished = {})
     }
 }

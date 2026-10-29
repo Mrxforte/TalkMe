@@ -4,7 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import com.example.talkme.presentation.splash.SplashScreen
+import com.example.talkme.presentation.navigation.AppNavGraph
 import com.example.talkme.ui.theme.TalkMeTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -16,7 +16,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             TalkMeTheme {
-                SplashScreen()
+                AppNavGraph()
             }
         }
     }
