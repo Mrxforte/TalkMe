@@ -1,6 +1,6 @@
 <div align="center">
 
-# 🗣️ TalkMe — Modern Android English Learning & Practice Application
+# 🗣️ TalkMe — Enterprise Android English Learning & Practice Application
 
 [![Android](https://img.shields.io/badge/Platform-Android-3DDC84?style=flat-square&logo=android&logoColor=white)](https://developer.android.com)
 [![Kotlin](https://img.shields.io/badge/Language-Kotlin_2.0-7F52FF?style=flat-square&logo=kotlin&logoColor=white)](https://kotlinlang.org)
@@ -17,103 +17,141 @@
 
 ## 🇬🇧 English
 
-### 📖 Overview
-**TalkMe** is an enterprise-grade, highly polished Android application designed for learning and practicing English through bite-sized lessons, interactive vocabulary spaced repetition, CEFR grammar catalogs, real-world scenario dialogues, quizzes, and live leaderboard rankings.
+### 📖 Comprehensive Project Overview
+**TalkMe** is an enterprise-grade Android application engineered for English language learning and practice. It provides immersive bite-sized lessons, spaced repetition vocabulary flashcards, CEFR-aligned grammar catalogs (A1–C2), real-world scenario dialogues, interactive quizzes, score summaries, rank progression, and live weekly leaderboards.
 
-Built from the ground up using modern Android development best practices, **TalkMe** features a strict **Clean Architecture + MVVM** structure, **Jetpack Compose** declarative UI, **Material Design 3**, **Dagger Hilt** dependency injection, and type-safe **Navigation Compose**.
-
----
-
-### 🏛️ Architectural Highlights
-- **Clean Architecture**: Separation of concerns across `data`, `domain`, and `presentation` layers, keeping business logic independent of the Android framework.
-- **Modular Presentation Hierarchy**: UI screens are cleanly organized under `presentation/screens/` (`splash`, `onboarding`, `home`, `courses`, `lesson`, `repeat`, `results`, `profile`), while generic reusable widgets reside in `presentation/components/`.
-- **Zero-Hardcoding Policy**: Absolutely zero hardcoded strings (`strings.xml`), colors (`Color.kt`), dimensions (`Dimensions.kt`), typography (`Type.kt`), or icons (`AppIcons.kt`).
-- **Pixel-Perfect Fidelity**: Matches professional Figma design specifications (CEFR path selector, interactive subtopic cards with rounded purple indicator dots, audio pronunciation speaker buttons, formula tables, and smooth progress bars).
+The application strictly implements **Clean Architecture** combined with **MVVM/MVI**, **Jetpack Compose** declarative UI, **Material Design 3**, **Dagger Hilt** compile-time dependency injection, and type-safe **Navigation Compose**. Every screen and widget is crafted to 100% pixel-perfect fidelity matching professional design specifications.
 
 ---
 
-### 🛠️ Technology Stack
-- **Min SDK**: 24 (Android 7.0+)
-- **Compile SDK**: 37
-- **Language**: Kotlin 2.0.21
-- **UI Framework**: Jetpack Compose (BOM 2026.02.01)
-- **Dependency Injection**: Dagger Hilt 2.60.1 + KSP 2.0.21-1.0.28
-- **Navigation**: Navigation Compose 2.8.8 (Type-safe routes & backstack preservation)
-- **Architecture Components**: ViewModel, StateFlow, Coroutines
+### 📂 Complete Project Folder & File Structure
+
+```
+com.example.talkme/
+├── App.kt                               # Application class annotated with @HiltAndroidApp
+├── MainActivity.kt                      # Main Activity hosting AppNavGraph with edge-to-edge support
+│
+├── data/                                # DATA LAYER (Repositories, Data Sources, Mappers, DTOs)
+│   ├── datasource/                      # Local Room DB and Remote API data sources
+│   ├── mapper/                          # Domain model to Data entity mappers
+│   ├── model/                           # Data Transfer Objects (DTOs) & Database Entities
+│   └── repository/                      # Concrete repository implementations
+│
+├── domain/                              # DOMAIN LAYER (Pure Kotlin Business Logic - Zero Android Dependencies)
+│   ├── model/                           # Pure business domain entities
+│   ├── repository/                      # Abstract repository interfaces
+│   └── usecase/                         # Single-responsibility business use cases
+│
+├── di/                                  # DEPENDENCY INJECTION LAYER
+│   └── AppModule.kt                     # Hilt DI module providing singletons and repository bindings
+│
+├── presentation/                        # PRESENTATION LAYER (UI, Navigation, ViewModels)
+│   ├── components/                      # Reusable Design System UI Widgets
+│   │   ├── TalkMeButton.kt              # Universal primary/secondary action button
+│   │   ├── TalkMeBadge.kt               # Universal level/category/streak chip
+│   │   ├── TalkMeCard.kt                # Universal surface card container
+│   │   ├── TalkMeHeader.kt              # Universal top navigation header with left back arrow
+│   │   ├── TalkMeTabRow.kt              # Universal segmented tab selector with checkmark support
+│   │   ├── TalkMeProgressBar.kt         # Universal smooth progress bar
+│   │   ├── TalkMeBottomBar.kt           # Universal bottom navigation bar
+│   │   ├── TalkMeOptionCard.kt          # Universal selectable choice & module item card
+│   │   ├── TalkMeBannerCard.kt          # Universal feature & practice banner container
+│   │   └── TalkMeSubtopicCard.kt        # Universal clickable subtopic card with purple indicator dot
+│   ├── navigation/                      # Navigation System
+│   │   ├── Screen.kt                    # Type-safe sealed route definitions
+│   │   └── NavGraph.kt                  # AppNavGraph hosting all screen destinations & tab state
+│   └── screens/                         # Modularized Feature Screens
+│       ├── splash/                      # Splash Screen (SplashScreen.kt)
+│       ├── onboarding/                  # Welcome & Onboarding Screen (OnboardingScreen.kt)
+│       ├── home/                        # Home Dashboard (HomeScreen.kt & home/components/)
+│       │   ├── CurrentLessonCard.kt     # Active lesson highlight card
+│       │   ├── GreetingHeader.kt        # User greeting & streak badge header
+│       │   ├── HomeBottomBar.kt         # Delegate to presentation/components
+│       │   ├── HomeHeader.kt            # App logo & user profile avatar header
+│       │   ├── SkillSection.kt          # 4 core language skills (Listening, Speaking, Reading, Writing)
+│       │   ├── VocabularyBannerCard.kt  # Spaced repetition vocabulary reminder banner
+│       │   └── WeeklyPlanSection.kt     # Weekly study goal & scenario task item
+│       ├── courses/                     # Courses Catalog (CoursesScreen.kt)
+│       ├── lesson/                      # Lesson & Exercise Workflow
+│       │   ├── LessonDetailScreen.kt    # Grammar rules, formula box, pronoun grid, audio examples
+│       │   ├── QuizScreen.kt            # Interactive quiz options & feedback cards
+│       │   ├── LessonResultScreen.kt    # Score breakdown (80%, 3:24 time, +20 XP) & rule tip
+│       │   └── LevelUnlockedScreen.kt   # Next stage / level unlocked celebration screen
+│       ├── repeat/                      # Spaced Repetition Practice (RepeatScreen.kt)
+│       ├── results/                     # Leaderboard & Analytics (ResultsScreen.kt)
+│       └── profile/                     # User Profile & Achievements (ProfileScreen.kt)
+│
+└── ui/theme/                            # DESIGN SYSTEM ENGINE & TOKENS
+    ├── Color.kt                         # Semantic color palette with full KDoc documentation
+    ├── Dimensions.kt                    # Standardized DP scale & LocalDimensions CompositionLocal
+    ├── AppIcons.kt                      # Centralized drawable icon repository (AppIcons.*)
+    ├── Type.kt                          # AppTypography text styles hierarchy & Material3 mapping
+    └── Theme.kt                         # Material3 theme configuration & status bar controller
+```
 
 ---
 
-### 🚀 Getting Started
+### ⚙️ How the Application Works (Detailed Technical Workflow)
 
-1. **Clone the repository**:
-   ```bash
-   git clone https://github.com/Mrxforte/TalkMe.git
-   ```
-2. **Open in Android Studio**:
-   - Recommended version: Android Studio Jellyfish / Koala or newer.
-   - Ensure Kotlin 2.0+ and KSP plugin support are enabled.
-3. **Sync Gradle & Run**:
-   - Click **Sync Project with Gradle Files**.
-   - Select an emulator or physical device and click **Run 'app'**.
+1. **Application Initialization & DI**:
+   - When the app starts, `App.kt` initializes the Dagger Hilt dependency graph via `@HiltAndroidApp`.
+   - `MainActivity.kt` (`@AndroidEntryPoint`) sets up edge-to-edge system window insets and hosts `TalkMeTheme` wrapping `AppNavGraph`.
+
+2. **Navigation & Screen Flow**:
+   - **Startup Sequence**: `Screen.Splash` renders a 2-second splash screen, then automatically navigates to `Screen.Onboarding` while clearing itself from the backstack (`popUpTo(Splash) { inclusive = true }`).
+   - **Onboarding Welcome**: `OnboardingScreen` presents the platform introduction with language selection ("O'zbekcha"), feature highlights, and start/login actions. Clicking either button navigates to `Screen.Home` and clears onboarding (`popUpTo(Onboarding) { inclusive = true }`).
+   - **Main Dashboard & Bottom Tabs**: `HomeScreen` acts as Tab 0. The bottom navigation bar (`TalkMeBottomBar`) enables switching between `Home` (Tab 0), `Courses` (Tab 1), `Repeat` (Tab 2), and `Results` (Tab 3) using `launchSingleTop = true` and `restoreState = true` to preserve backstack state.
+   - **Deep-Linking & Feature Flow**: From Home or Courses, users can tap active lessons to open `LessonDetailScreen` ("Present continuous"), take interactive exercises in `QuizScreen`, view score summaries in `LessonResultScreen`, unlock next stages in `LevelUnlockedScreen`, check rankings in `ResultsScreen`, or view stats in `ProfileScreen`.
+
+3. **Design System Token Resolution**:
+   - **Colors**: UI components never use hardcoded hex values. They query `MaterialTheme.colorScheme.*` or explicit semantic tokens from `Color.kt`.
+   - **Dimensions**: All paddings, margins, corner radii, and icon sizes are retrieved dynamically via `LocalDimensions.current`.
+   - **Typography**: Text elements use pre-defined text styles from `AppTypography` (`Type.kt`), eliminating ad-hoc `.sp` or `.fontWeight` overrides.
+   - **Icons**: Vector drawables are referenced exclusively through `AppIcons.*` (`AppIcons.Book`, `AppIcons.ChevronLeft`, `AppIcons.Search`, `AppIcons.Bookmark`, `AppIcons.Volume`, `AppIcons.AudioWave`, `AppIcons.Layers`, `AppIcons.Check`, `AppIcons.Share`, `AppIcons.School`, `AppIcons.Clock`).
 
 ---
 ---
 
 ## 🇷🇺 Русский
 
-### 📖 Обзор
-**TalkMe** — это современное Android-приложение корпоративного уровня для изучения и практики английского языка. Оно включает в себя интерактивные уроки, интервальное повторение словарного запаса, каталоги грамматики CEFR, диалоги из реальной жизни, теги уровня, квизы и таблицы лидеров.
+### 📖 Подробный обзор проекта
+**TalkMe** — это корпоративное Android-приложение для изучения английского языка. Оно включает пошаговые уроки, интервальное повторение слов, грамматические каталоги CEFR (A1–C2), диалоги из реальной жизни, теги уровня, квизы, сводки результатов и таблицы лидеров.
 
-Приложение спроектировано по принципам **Clean Architecture + MVVM**, использует декларативный UI **Jetpack Compose**, **Material Design 3**, внедрение зависимостей **Dagger Hilt** и безопасную навигацию **Navigation Compose**.
-
----
-
-### 🏛️ Архитектурные особенности
-- **Чистая архитектура (Clean Architecture)**: Четкое разделение на слои `data`, `domain` и `presentation`.
-- **Модульная структура UI**: Экраны сгруппированы в `presentation/screens/`, а переиспользуемые виджеты — в `presentation/components/`.
-- **Политика отсутствия хардкода**: Все строки вынесены в `strings.xml`, цвета в `Color.kt`, размеры в `Dimensions.kt`, шрифты в `Type.kt`, а иконки в `AppIcons.kt`.
+Приложение построено на базе **Clean Architecture + MVVM**, декларативного UI **Jetpack Compose**, **Material Design 3**, внедрения зависимостей **Dagger Hilt** и безопасной навигации **Navigation Compose**.
 
 ---
 
-### 🚀 Начало работы
+### 📂 Полная структура папок и файлов
+*(См. английскую версию выше для детализированного дерева каталогов с описанием каждого файла).*
 
-1. **Клонируйте репозиторий**:
-   ```bash
-   git clone https://github.com/Mrxforte/TalkMe.git
-   ```
-2. **Откройте в Android Studio** и выполните Sync Project with Gradle Files.
-3. **Запустите приложение** на эмуляторе или реальном устройстве.
+---
+
+### ⚙️ Как работает приложение (Технический процесс)
+1. **Инициализация и DI**: Класс `App.kt` запускает граф зависимостей Hilt. `MainActivity.kt` настраивает edge-to-edge отображение и корневую тему `TalkMeTheme`.
+2. **Навигация**: Цепочка запуска `Splash` (2 сек) -> `Onboarding` (Приветствие) -> `Home` (Главная панель с нижним меню). Вкладки нижнего меню сохраняют свое состояние благодаря `restoreState = true`.
+3. **Дизайн-система**: Никакого хардкода. Все цвета берутся из `Color.kt`, отступы из `Dimensions.kt`, шрифты из `Type.kt`, а иконки через `AppIcons.*`.
 
 ---
 ---
 
 ## 🇺🇿 O'zbekcha
 
-### 📖 Umumiy tavsif
-**TalkMe** — ingliz tilini qadam-baqadam, qisqa darslar, oraliqli takrorlash (spaced repetition), CEFR grammatika kataloglari, real hayotiy vaziyatlar va testlar orqali o'rganishga mo'ljallangan zamonaviy Android ilovasi.
+### 📖 To'liq loyiha tavsifi
+**TalkMe** — ingliz tilini o'rganish va amalda sinash uchun mo'ljallangan korxona darajasidagi (enterprise-grade) Android ilovasi. U qisqa darslar, so'zlarni oraliqli takrorlash (spaced repetition), CEFR grammatika kataloglari (A1–C2), real hayotiy dialoglar, interaktiv testlar va haftalik reyting jadvallarini o'z ichiga oladi.
 
-Loyiha **Clean Architecture + MVVM**, **Jetpack Compose**, **Material Design 3**, **Dagger Hilt** va **Navigation Compose** texnologiyalari asosida qurilgan bo'lib, korxona darajasidagi (enterprise-grade) talablarga to'liq javob beradi.
-
----
-
-### 🏛️ Arxitektura va Tuzilma
-- **Toza Arxitektura (Clean Architecture)**: `data`, `domain` va `presentation` qatlamlariga qat'iy bo'lingan.
-- **Modul UI Tuzilmasi**: Barcha ekranlar `presentation/screens/` ostida, umumiy komponentlar esa `presentation/components/` ostida joylashgan.
-- **Nollik Hardcoding Siyosati**: Matnlar `strings.xml` da, ranglar `Color.kt` da, o'lchamlar `Dimensions.kt` da, shriftlar `Type.kt` da va ikonka resurslari `AppIcons.kt` da markazlashtirilgan.
+Loyiha **Clean Architecture + MVVM**, **Jetpack Compose**, **Material Design 3**, **Dagger Hilt** va **Navigation Compose** texnologiyalari asosida professional darajada qurilgan.
 
 ---
 
-### 🚀 O'rnatish va Ishga Tushirish
+### 📂 To'liq Papka va Fayl Tuzilmasi
+*(Yuqoridagi inglizcha bo'limda barcha papka va fayllar batafsil keltirilgan).*
 
-1. **Loyihani klonlash**:
-   ```bash
-   git clone https://github.com/Mrxforte/TalkMe.git
-   ```
-2. **Android Studio'da ochish**:
-   - Android Studio Jellyfish / Koala yoki undan yangi versiyasidan foydalaning.
-   - Gradle sinxronizatsiyasini (`Sync Project with Gradle Files`) bajaring.
-3. **Ilovani ishga tushirish**:
-   - Emulator yoki real Android qurilmani tanlab, **Run 'app'** tugmasini bosing.
+---
+
+### ⚙️ Ilova Qanday Ishlaydi? (Texnologik Jarayon)
+1. **Ishga tushish va DI**: `App.kt` orqali Dagger Hilt ishga tushadi. `MainActivity.kt` esa ekran kengligini (edge-to-edge) boshqarib, `AppNavGraph` ni yuklaydi.
+2. **Navigatsiya oqimi**: `Splash` (2 soniya) ➔ `Onboarding` (Xush kelibsiz ekrani) ➔ `Home` (Asosiy panel). Pastki menyu (`TalkMeBottomBar`) orqali Kurslar, Takrorlash va Natijalar bo'limlariga o'tishda backstack holati saqlanadi.
+3. **Dizayn Tizimi (Design System)**: Ilovada hech qanday qattiq yozilgan (hardcoded) qiymatlar mavjud emas. Ranglar `Color.kt`, o'lchamlar `Dimensions.kt`, shriftlar `Type.kt` va ikonka resurslari `AppIcons.kt` orqali markazlashtirilgan.
 
 ---
 
