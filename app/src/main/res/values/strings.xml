@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">TalkMe</string>
+    <string name="splash_title">English Learning</string>
+    <string name="splash_subtitle">Kichik qadamlar, katta imkoniyatlar.</string>
+    <string name="splash_footer">INGLIZ TILI - O\'ZBEKCHA IZOH</string>
+    <string name="splash_logo_content_description">English Learning Logo</string>
+</resources>
