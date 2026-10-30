@@ -19,7 +19,7 @@ object VoiceProfileRegistry {
             iconEmoji = "👨",
             descriptionUz = "Haqiqiy botiq, salmoqli va chuqur katta yoshli erkak bas/bariton ovozi.",
             descriptionEn = "Deep, authentic adult male bass voice.",
-            acousticProfile = AcousticProfile(0.55f, 0.8f, 0.88f, 1.0f, "Deep", "male"),
+            acousticProfile = AcousticProfile(0.88f, 0.8f, 0.88f, 1.0f, "Deep", "male"),
             pauseProfile = PauseProfile(200, 300, 450, 480, 400, 750, 950)
         ),
         VoiceCharacter(

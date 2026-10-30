@@ -17,7 +17,7 @@ object CharacterVoiceCatalog {
             iconEmoji = "👨",
             descriptionUz = "Haqiqiy botiq, salmoqli va chuqur katta yoshli erkak bas/bariton ovozi.",
             baseRate = 0.88f,
-            basePitch = 0.55f, // Authentic Deep Adult Male Pitch
+            basePitch = 0.88f, // Configured pitch 0.88f
             preferredGender = "male"
         ),
         CharacterProfile(
