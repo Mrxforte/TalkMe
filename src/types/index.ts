@@ -101,6 +101,10 @@ export type VoiceFamily =
   | 'TEENAGE_BOY'
   | 'TEENAGE_GIRL';
 
+export type GeminiVoiceName = 'Puck' | 'Charon' | 'Kore' | 'Fenrir' | 'Zephyr';
+
+export type GeminiTtsModel = 'gemini-3.8-flash-lite-tts' | 'gemini-3.8-flash-tts';
+
 export interface CharacterProfile {
   id: string;
   family: VoiceFamily;
@@ -111,6 +115,8 @@ export interface CharacterProfile {
   baseRate: number;
   basePitch: number;
   preferredGender: 'male' | 'female';
+  geminiVoiceName: GeminiVoiceName;
+  geminiStylePrompt: string;
 }
 
 export type EngineSelectionMode = 'LOCAL_FIRST' | 'CLOUD_FIRST' | 'OFFLINE_ONLY' | 'AUTO';
@@ -121,6 +127,17 @@ export interface VoiceSettings {
   speechSpeed: number;
   speechPitch: number;
   audioCacheEnabled: boolean;
+  geminiModel?: GeminiTtsModel;
+}
+
+export interface TtsPlaybackStatus {
+  isSpeaking: boolean;
+  isLoading: boolean;
+  activeEngine: 'gemini-3.8-flash-lite-tts' | 'gemini-3.8-flash-tts' | 'web-speech-fallback';
+  activeVoiceName: string;
+  lastLatencyMs: number;
+  cachedHit: boolean;
+  cacheCount: number;
 }
 
 export interface SpeechTestReport {

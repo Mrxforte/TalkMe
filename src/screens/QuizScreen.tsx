@@ -9,7 +9,7 @@ import { CheckCircle2, XCircle, ChevronRight, HelpCircle } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
 export const QuizScreen: React.FC = () => {
-  const { navigate, goBack, playTts, awardXpAndDiamonds } = useApp();
+  const { navigate, goBack, playTts, awardXpAndDiamonds, selectedLevelId } = useApp();
 
   const [selectedOptionIndex, setSelectedOptionIndex] = useState<number>(1); // Default Option B
   const [hasSubmitted, setHasSubmitted] = useState<boolean>(true); // Pre-evaluated matching design
@@ -27,7 +27,7 @@ export const QuizScreen: React.FC = () => {
       spread: 70,
       origin: { y: 0.6 },
     });
-    awardXpAndDiamonds(20, 5, 'lvl_4');
+    awardXpAndDiamonds(20, 5, selectedLevelId);
     navigate('lesson_result');
   };
 

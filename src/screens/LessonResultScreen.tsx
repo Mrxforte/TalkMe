@@ -161,15 +161,15 @@ export const LessonResultScreen: React.FC = () => {
         {/* Action Buttons */}
         <div className="pt-2 space-y-2.5">
           <TalkMeButton
-            text="Keyingi Bosqichni Ochish"
+            text="Xaritada Keyingi Qulfni Ochish"
             trailingIcon={<Sparkles className="w-5 h-5" />}
-            onClick={() => navigate('level_unlocked')}
+            onClick={() => navigate('course_levels')}
           />
 
           <TalkMeButton
-            text="Kursga qaytish"
+            text="Yangi Bosqich Tafsiloti"
             variant="secondary"
-            onClick={() => navigate('courses')}
+            onClick={() => navigate('level_unlocked')}
           />
         </div>
       </div>

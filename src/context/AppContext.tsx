@@ -5,11 +5,12 @@ import {
   FsrsDailyStats,
   Rating,
   VoiceSettings,
+  TtsPlaybackStatus,
 } from '../types';
 import { INITIAL_VOCABULARY } from '../domain/fsrs/defaultVocab';
 import { defaultFsrsScheduler } from '../domain/fsrs/fsrsEngine';
 import { getProfileById } from '../domain/voice/catalog';
-import { ttsEngine } from '../domain/voice/ttsEngine';
+import { ttsEngine, DialogueTurn } from '../domain/voice/ttsEngine';
 
 interface AppContextType {
   currentScreen: ScreenRoute;
@@ -28,6 +29,8 @@ interface AppContextType {
   weeklyCompletedLessons: number;
   weeklyGoalLessons: number;
   completedLevelIds: string[];
+  recentlyCompletedLevelId: string | null;
+  clearRecentlyCompletedLevel: () => void;
   bookmarkedLessons: string[];
   toggleBookmark: (lessonId: string) => void;
   awardXpAndDiamonds: (xpBonus: number, diamondsBonus: number, levelId?: string) => void;
@@ -38,21 +41,28 @@ interface AppContextType {
   submitFsrsReview: (cardId: string, rating: Rating) => void;
   resetFsrsVocab: () => void;
 
-  // Voice AI Engine
+  // Voice AI Engine (Gemini 3.8 TTS)
   voiceSettings: VoiceSettings;
   updateVoiceSettings: (settings: Partial<VoiceSettings>) => void;
   resetVoiceSettings: () => void;
-  playTts: (text: string, overrideProfileId?: string) => Promise<boolean>;
+  playTts: (
+    text: string,
+    overrideProfileId?: string,
+    customStylePrompt?: string
+  ) => Promise<boolean>;
+  playDialogueTts: (turns: DialogueTurn[]) => Promise<boolean>;
   stopTts: () => void;
   isTtsSpeaking: boolean;
+  ttsStatus: TtsPlaybackStatus;
 }
 
 const DEFAULT_VOICE_SETTINGS: VoiceSettings = {
-  engineSelectionMode: 'LOCAL_FIRST',
+  engineSelectionMode: 'CLOUD_FIRST',
   selectedCharacterProfile: 'adult_male',
-  speechSpeed: 0.88,
-  speechPitch: 0.88,
+  speechSpeed: 0.92,
+  speechPitch: 1.0,
   audioCacheEnabled: true,
+  geminiModel: 'gemini-3.8-flash-lite-tts',
 };
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -82,6 +92,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     const saved = localStorage.getItem('talkme_completed_levels');
     return saved ? JSON.parse(saved) : ['lvl_1', 'lvl_2', 'lvl_3', 'lvl_chest_1'];
   });
+  const [recentlyCompletedLevelId, setRecentlyCompletedLevelId] = useState<string | null>(null);
 
   const [bookmarkedLessons, setBookmarkedLessons] = useState<string[]>(['lesson_present_continuous']);
 
@@ -91,18 +102,28 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     return saved ? JSON.parse(saved) : INITIAL_VOCABULARY;
   });
 
-  // Voice AI Settings state
+  // Voice AI Settings state (upgrade legacy LOCAL_FIRST to CLOUD_FIRST for Gemini 3.8 TTS)
   const [voiceSettings, setVoiceSettings] = useState<VoiceSettings>(() => {
-    const saved = localStorage.getItem('talkme_voice_settings');
-    return saved ? JSON.parse(saved) : DEFAULT_VOICE_SETTINGS;
+    const saved = localStorage.getItem('talkme_voice_settings_v2');
+    if (saved) {
+      try {
+        return { ...DEFAULT_VOICE_SETTINGS, ...JSON.parse(saved) };
+      } catch {
+        return DEFAULT_VOICE_SETTINGS;
+      }
+    }
+    return DEFAULT_VOICE_SETTINGS;
   });
 
   const [isTtsSpeaking, setIsTtsSpeaking] = useState<boolean>(false);
+  const [ttsStatus, setTtsStatus] = useState<TtsPlaybackStatus>(ttsEngine.getStatus());
 
   useEffect(() => {
-    const unsubscribe = ttsEngine.subscribe(setIsTtsSpeaking);
+    const unsubSpeak = ttsEngine.subscribe(setIsTtsSpeaking);
+    const unsubStatus = ttsEngine.subscribeStatus(setTtsStatus);
     return () => {
-      unsubscribe();
+      unsubSpeak();
+      unsubStatus();
     };
   }, []);
 
@@ -124,7 +145,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   }, [vocabList]);
 
   useEffect(() => {
-    localStorage.setItem('talkme_voice_settings', JSON.stringify(voiceSettings));
+    localStorage.setItem('talkme_voice_settings_v2', JSON.stringify(voiceSettings));
   }, [voiceSettings]);
 
   const navigate = (screen: ScreenRoute, params?: { courseId?: string; levelId?: string }) => {
@@ -159,8 +180,13 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     setDiamonds((prev) => prev + diamondsBonus);
     if (levelId && !completedLevelIds.includes(levelId)) {
       setCompletedLevelIds((prev) => [...prev, levelId]);
+      setRecentlyCompletedLevelId(levelId);
       setWeeklyCompletedLessons((prev) => Math.min(5, prev + 1));
     }
+  };
+
+  const clearRecentlyCompletedLevel = () => {
+    setRecentlyCompletedLevelId(null);
   };
 
   const submitFsrsReview = (cardId: string, rating: Rating) => {
@@ -176,7 +202,6 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         };
       })
     );
-    // Award 5 XP for completing an FSRS review
     setXp((prev) => prev + 5);
   };
 
@@ -196,11 +221,19 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     setVoiceSettings(DEFAULT_VOICE_SETTINGS);
   };
 
-  const playTts = (text: string, overrideProfileId?: string): Promise<boolean> => {
+  const playTts = (
+    text: string,
+    overrideProfileId?: string,
+    customStylePrompt?: string
+  ): Promise<boolean> => {
     const profile = overrideProfileId
       ? getProfileById(overrideProfileId)
       : getProfileById(voiceSettings.selectedCharacterProfile);
-    return ttsEngine.speak(text, voiceSettings, profile);
+    return ttsEngine.speak(text, voiceSettings, profile, customStylePrompt);
+  };
+
+  const playDialogueTts = (turns: DialogueTurn[]): Promise<boolean> => {
+    return ttsEngine.speakDialogue(turns, voiceSettings);
   };
 
   const stopTts = () => {
@@ -243,6 +276,8 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         weeklyCompletedLessons,
         weeklyGoalLessons,
         completedLevelIds,
+        recentlyCompletedLevelId,
+        clearRecentlyCompletedLevel,
         bookmarkedLessons,
         toggleBookmark,
         awardXpAndDiamonds,
@@ -254,8 +289,10 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         updateVoiceSettings,
         resetVoiceSettings,
         playTts,
+        playDialogueTts,
         stopTts,
         isTtsSpeaking,
+        ttsStatus,
       }}
     >
       {children}

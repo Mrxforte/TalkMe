@@ -1,0 +1,140 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 500" width="100%" height="100%">
+  <defs>
+    <!-- Background Gradient -->
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#FAF5FF" />
+      <stop offset="45%" stop-color="#EDE9FE" />
+      <stop offset="100%" stop-color="#EFF6FF" />
+    </linearGradient>
+
+    <!-- Studio Floor -->
+    <linearGradient id="floorGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.9" />
+      <stop offset="100%" stop-color="#DDD6FE" stop-opacity="0.85" />
+    </linearGradient>
+
+    <!-- Filters -->
+    <filter id="softGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="8" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+    <filter id="cardShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="6" stdDeviation="6" flood-color="#6B21A8" flood-opacity="0.14" />
+    </filter>
+    <filter id="avatarShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="12" stdDeviation="12" flood-color="#4C1D95" flood-opacity="0.2" />
+    </filter>
+
+    <!-- Avatar Gradients -->
+    <!-- Boy Avatar -->
+    <linearGradient id="boySkin" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FED7AA" />
+      <stop offset="100%" stop-color="#FB923C" />
+    </linearGradient>
+    <linearGradient id="boyHair" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#3B82F6" />
+      <stop offset="100%" stop-color="#1D4ED8" />
+    </linearGradient>
+
+    <!-- Girl Avatar -->
+    <linearGradient id="girlHair" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#EC4899" />
+      <stop offset="100%" stop-color="#BE185D" />
+    </linearGradient>
+
+    <!-- 3D Speech Bubble Gradient -->
+    <linearGradient id="bubbleGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF" />
+      <stop offset="100%" stop-color="#F3E8FF" />
+    </linearGradient>
+  </defs>
+
+  <!-- Studio Background -->
+  <rect width="400" height="500" fill="url(#bgGrad)" />
+
+  <!-- Ambient bokeh bubbles -->
+  <circle cx="70" cy="80" r="55" fill="#FFFFFF" opacity="0.65" filter="url(#softGlow)" />
+  <circle cx="340" cy="110" r="70" fill="#FFFFFF" opacity="0.55" filter="url(#softGlow)" />
+  <circle cx="60" cy="420" r="60" fill="#EDE9FE" opacity="0.6" filter="url(#softGlow)" />
+  <circle cx="340" cy="400" r="65" fill="#FCE7F3" opacity="0.6" filter="url(#softGlow)" />
+
+  <!-- Floating white 3D cards at top -->
+  <g transform="translate(40, 45)" filter="url(#cardShadow)">
+    <rect width="125" height="58" rx="14" fill="#FFFFFF" opacity="0.95" />
+    <text x="14" y="24" font-family="system-ui, -apple-system, sans-serif" font-weight="800" font-size="11" fill="#7C3AED">Kishilik / Personal</text>
+    <text x="14" y="44" font-family="system-ui, -apple-system, sans-serif" font-weight="700" font-size="11" fill="#64748B">I, You, He, She, It</text>
+  </g>
+
+  <g transform="translate(235, 45)" filter="url(#cardShadow)">
+    <rect width="125" height="58" rx="14" fill="#FFFFFF" opacity="0.95" />
+    <text x="14" y="24" font-family="system-ui, -apple-system, sans-serif" font-weight="800" font-size="11" fill="#0284C7">Egalik / Possessive</text>
+    <text x="14" y="44" font-family="system-ui, -apple-system, sans-serif" font-weight="700" font-size="10.5" fill="#64748B">My, Your, His, Her</text>
+  </g>
+
+  <!-- Studio Ground Base -->
+  <ellipse cx="200" cy="395" rx="150" ry="40" fill="#4C1D95" opacity="0.12" filter="url(#softGlow)" />
+  <ellipse cx="200" cy="380" rx="140" ry="36" fill="url(#floorGrad)" />
+
+  <!-- ========================================================
+       CENTERPIECE: 3D CLAY AVATARS WITH INTERACTIVE PRONOUN BUBBLES
+       ======================================================== -->
+  <g transform="translate(200, 260)" filter="url(#avatarShadow)">
+    <!-- 1. LEFT AVATAR ("HE") -->
+    <g transform="translate(-75, 20)">
+      <ellipse cx="0" cy="42" rx="35" ry="12" fill="#4C1D95" opacity="0.25" filter="url(#softGlow)" />
+      <!-- Torso -->
+      <path d="M -30 40 Q -25 15 0 15 Q 25 15 30 40 Z" fill="#3B82F6" />
+      <!-- Head -->
+      <circle cx="0" cy="-6" r="28" fill="url(#boySkin)" />
+      <!-- Blue Hair -->
+      <path d="M -26 -16 Q 0 -42 26 -16 Q 16 -32 -6 -28 Z" fill="url(#boyHair)" />
+      <!-- Eyes & Smile -->
+      <circle cx="-9" cy="-6" r="3.5" fill="#1E293B" />
+      <circle cx="9" cy="-6" r="3.5" fill="#1E293B" />
+      <path d="M -6 6 Q 0 12 6 6" stroke="#1E293B" stroke-width="2.5" stroke-linecap="round" fill="none" />
+      <!-- He Tag -->
+      <g transform="translate(-24, 46)" filter="url(#cardShadow)">
+        <rect width="48" height="22" rx="11" fill="#3B82F6" stroke="#93C5FD" stroke-width="1.5" />
+        <text x="24" y="15" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-weight="900" font-size="11" fill="#FFFFFF">HE</text>
+      </g>
+    </g>
+
+    <!-- 2. RIGHT AVATAR ("SHE") -->
+    <g transform="translate(75, 20)">
+      <ellipse cx="0" cy="42" rx="35" ry="12" fill="#4C1D95" opacity="0.25" filter="url(#softGlow)" />
+      <!-- Torso -->
+      <path d="M -30 40 Q -25 15 0 15 Q 25 15 30 40 Z" fill="#EC4899" />
+      <!-- Head -->
+      <circle cx="0" cy="-6" r="28" fill="url(#boySkin)" />
+      <!-- Pink Hair with buns -->
+      <circle cx="-26" cy="-18" r="10" fill="url(#girlHair)" />
+      <circle cx="26" cy="-18" r="10" fill="url(#girlHair)" />
+      <path d="M -28 -14 Q 0 -40 28 -14 Q 14 -28 0 -26 Z" fill="url(#girlHair)" />
+      <!-- Eyes & Smile -->
+      <circle cx="-9" cy="-6" r="3.5" fill="#1E293B" />
+      <circle cx="9" cy="-6" r="3.5" fill="#1E293B" />
+      <path d="M -6 6 Q 0 12 6 6" stroke="#1E293B" stroke-width="2.5" stroke-linecap="round" fill="none" />
+      <!-- She Tag -->
+      <g transform="translate(-26, 46)" filter="url(#cardShadow)">
+        <rect width="52" height="22" rx="11" fill="#EC4899" stroke="#FBCFE8" stroke-width="1.5" />
+        <text x="26" y="15" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-weight="900" font-size="11" fill="#FFFFFF">SHE</text>
+      </g>
+    </g>
+
+    <!-- 3. CENTER FLOATING BIG 3D SPEECH BUBBLE ("WE / YOU") -->
+    <g transform="translate(0, -65)" filter="url(#cardShadow)">
+      <ellipse cx="0" cy="0" rx="65" ry="40" fill="url(#bubbleGrad)" stroke="#C084FC" stroke-width="2.5" />
+      <!-- Bubble Pointer -->
+      <polygon points="-8,38 8,38 0,52" fill="#F3E8FF" />
+      <!-- Text inside bubble -->
+      <text x="0" y="-8" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-weight="900" font-size="20" fill="#6D28D9">YOU &amp; WE</text>
+      <text x="0" y="16" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-weight="800" font-size="12" fill="#A855F7">Olmoshlar</text>
+    </g>
+  </g>
+
+  <!-- Bottom title card -->
+  <g transform="translate(100, 436)" filter="url(#cardShadow)">
+    <rect width="200" height="42" rx="21" fill="#FFFFFF" stroke="#DDD6FE" stroke-width="2" />
+    <text x="100" y="26" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-weight="900" font-size="14" fill="#6B21A8">PRONOUNS (OLMOSH)</text>
+  </g>
+</svg>

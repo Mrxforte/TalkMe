@@ -190,13 +190,15 @@ export const ProfileScreen: React.FC = () => {
             <div className="flex items-center justify-between">
               <div>
                 <h4 className="text-sm font-extrabold text-[#5E4B8B]">
-                  Aktiv Dvigatel: Sherpa-ONNX Local
+                  Aktiv Dvigatel: Gemini 3.8 Flash TTS
                 </h4>
-                <p className="text-xs text-[#757575]">Oflayn local AI model (Locale.US)</p>
+                <p className="text-xs text-[#757575]">
+                  Tabiiy mobil AI ovoz (24kHz WAV · en-US)
+                </p>
               </div>
 
               <TalkMeBadge
-                text="OFFLINE"
+                text="GEMINI 3.8"
                 containerColor="bg-[#E8F8EE]"
                 textColor="text-[#27AE60]"
               />

@@ -134,7 +134,7 @@ export const LessonDetailScreen: React.FC = () => {
 
           {/* Example 1 Card */}
           <TalkMeCard className="group">
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between gap-2">
               <div>
                 <p className="text-base font-bold text-[#1D1B20]">
                   I <span className="text-[#5E4B8B] font-extrabold underline decoration-[#5E4B8B]/30">am studying</span> English.
@@ -144,20 +144,36 @@ export const LessonDetailScreen: React.FC = () => {
                 </p>
               </div>
 
-              <button
-                onClick={() => playTts(example1En)}
-                type="button"
-                className="w-11 h-11 rounded-full bg-[#F1EDFA] text-[#5E4B8B] flex items-center justify-center hover:bg-[#5E4B8B] hover:text-white transition-all cursor-pointer active:scale-95 shadow-xs shrink-0"
-                title="Tinglash"
-              >
-                <Volume2 className="w-5 h-5" />
-              </button>
+              <div className="flex items-center gap-1.5 shrink-0">
+                <button
+                  onClick={() =>
+                    playTts(
+                      example1En,
+                      undefined,
+                      'Speak slowly, clearly, and patiently word by word for a mobile English learner'
+                    )
+                  }
+                  type="button"
+                  className="px-2.5 h-9 rounded-full bg-[#FFF4E5] text-amber-700 text-[11px] font-extrabold flex items-center justify-center hover:bg-amber-200 transition-all cursor-pointer active:scale-95"
+                  title="Sekin talaffuz (Gemini 3.8)"
+                >
+                  🐢 Sekin
+                </button>
+                <button
+                  onClick={() => playTts(example1En)}
+                  type="button"
+                  className="w-11 h-11 rounded-full bg-[#F1EDFA] text-[#5E4B8B] flex items-center justify-center hover:bg-[#5E4B8B] hover:text-white transition-all cursor-pointer active:scale-95 shadow-xs"
+                  title="Tabiiy ovozda tinglash (Gemini 3.8)"
+                >
+                  <Volume2 className="w-5 h-5" />
+                </button>
+              </div>
             </div>
           </TalkMeCard>
 
           {/* Example 2 Card */}
           <TalkMeCard className="group">
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between gap-2">
               <div>
                 <p className="text-base font-bold text-[#1D1B20]">
                   She <span className="text-[#5E4B8B] font-extrabold underline decoration-[#5E4B8B]/30">is reading</span> a book now.
@@ -167,14 +183,30 @@ export const LessonDetailScreen: React.FC = () => {
                 </p>
               </div>
 
-              <button
-                onClick={() => playTts(example2En)}
-                type="button"
-                className="w-11 h-11 rounded-full bg-[#F1EDFA] text-[#5E4B8B] flex items-center justify-center hover:bg-[#5E4B8B] hover:text-white transition-all cursor-pointer active:scale-95 shadow-xs shrink-0"
-                title="Tinglash"
-              >
-                <Volume2 className="w-5 h-5" />
-              </button>
+              <div className="flex items-center gap-1.5 shrink-0">
+                <button
+                  onClick={() =>
+                    playTts(
+                      example2En,
+                      undefined,
+                      'Speak slowly, clearly, and patiently word by word for a mobile English learner'
+                    )
+                  }
+                  type="button"
+                  className="px-2.5 h-9 rounded-full bg-[#FFF4E5] text-amber-700 text-[11px] font-extrabold flex items-center justify-center hover:bg-amber-200 transition-all cursor-pointer active:scale-95"
+                  title="Sekin talaffuz (Gemini 3.8)"
+                >
+                  🐢 Sekin
+                </button>
+                <button
+                  onClick={() => playTts(example2En)}
+                  type="button"
+                  className="w-11 h-11 rounded-full bg-[#F1EDFA] text-[#5E4B8B] flex items-center justify-center hover:bg-[#5E4B8B] hover:text-white transition-all cursor-pointer active:scale-95 shadow-xs"
+                  title="Tabiiy ovozda tinglash (Gemini 3.8)"
+                >
+                  <Volume2 className="w-5 h-5" />
+                </button>
+              </div>
             </div>
           </TalkMeCard>
         </div>

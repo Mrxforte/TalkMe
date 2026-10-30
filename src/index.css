@@ -29,3 +29,337 @@
 .duo-btn-3d:active {
   transform: translateY(4px);
 }
+
+/* 3D Nature & Landscape Animations */
+@keyframes riverFlow {
+  0% {
+    stroke-dashoffset: 0;
+  }
+  100% {
+    stroke-dashoffset: -120;
+  }
+}
+
+@keyframes riverFlowSlow {
+  0% {
+    stroke-dashoffset: 0;
+  }
+  100% {
+    stroke-dashoffset: 80;
+  }
+}
+
+@keyframes windmillSpin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes cloudDriftLeft {
+  0% {
+    transform: translateX(0px);
+  }
+  50% {
+    transform: translateX(18px);
+  }
+  100% {
+    transform: translateX(0px);
+  }
+}
+
+@keyframes cloudDriftRight {
+  0% {
+    transform: translateX(0px);
+  }
+  50% {
+    transform: translateX(-22px);
+  }
+  100% {
+    transform: translateX(0px);
+  }
+}
+
+@keyframes waterPulse {
+  0%, 100% {
+    opacity: 0.35;
+    transform: scale(0.96);
+  }
+  50% {
+    opacity: 0.85;
+    transform: scale(1.06);
+  }
+}
+
+@keyframes boatBobbing {
+  0%, 100% {
+    transform: translateY(0px) rotate(-1deg);
+  }
+  50% {
+    transform: translateY(-4px) rotate(2deg);
+  }
+}
+
+@keyframes waterfallDrop {
+  0% {
+    stroke-dashoffset: 0;
+  }
+  100% {
+    stroke-dashoffset: 60;
+  }
+}
+
+.anim-river-flow {
+  animation: riverFlow 6s linear infinite;
+}
+
+.anim-river-slow {
+  animation: riverFlowSlow 9s linear infinite;
+}
+
+.anim-waterfall {
+  animation: waterfallDrop 1.8s linear infinite;
+}
+
+.anim-windmill {
+  transform-box: fill-box;
+  transform-origin: center center;
+  animation: windmillSpin 7s linear infinite;
+}
+
+.anim-windmill-fast {
+  transform-box: fill-box;
+  transform-origin: center center;
+  animation: windmillSpin 4s linear infinite;
+}
+
+.anim-cloud-left {
+  animation: cloudDriftLeft 9s ease-in-out infinite;
+}
+
+.anim-cloud-right {
+  animation: cloudDriftRight 11s ease-in-out infinite;
+}
+
+.anim-boat {
+  transform-box: fill-box;
+  transform-origin: center center;
+  animation: boatBobbing 3.5s ease-in-out infinite;
+}
+
+.anim-ripple {
+  transform-box: fill-box;
+  transform-origin: center center;
+  animation: waterPulse 2.8s ease-in-out infinite;
+}
+
+/* 3D Padlock & Chain Animations */
+@keyframes lockRattle {
+  0%, 100% {
+    transform: translate3d(0, 0, 0) rotate(0deg) scale(1);
+  }
+  15% {
+    transform: translate3d(-5px, -2px, 0) rotate(-14deg) scale(1.08);
+  }
+  30% {
+    transform: translate3d(5px, 1px, 0) rotate(13deg) scale(1.08);
+  }
+  45% {
+    transform: translate3d(-4px, -1px, 0) rotate(-10deg) scale(1.06);
+  }
+  60% {
+    transform: translate3d(4px, 1px, 0) rotate(9deg) scale(1.05);
+  }
+  75% {
+    transform: translate3d(-2px, 0, 0) rotate(-5deg) scale(1.02);
+  }
+  90% {
+    transform: translate3d(2px, 0, 0) rotate(3deg) scale(1.01);
+  }
+}
+
+@keyframes lockUnlockSequence {
+  0% {
+    transform: scale(1) rotate(0deg);
+    opacity: 1;
+  }
+  12% {
+    transform: scale(1.14) rotate(-12deg);
+  }
+  24% {
+    transform: scale(1.18) rotate(12deg);
+  }
+  36% {
+    transform: scale(1.22) rotate(-10deg);
+  }
+  48% {
+    transform: scale(1.28) rotate(8deg);
+    opacity: 1;
+  }
+  68% {
+    transform: scale(1.42) translateY(-10px) rotate(-6deg);
+    opacity: 0.95;
+  }
+  100% {
+    transform: scale(0.3) translateY(24px) rotate(18deg);
+    opacity: 0;
+  }
+}
+
+@keyframes shacklePopUp {
+  0%, 35% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  55% {
+    transform: translateY(-11px) rotate(22deg);
+  }
+  100% {
+    transform: translateY(-14px) rotate(32deg);
+  }
+}
+
+@keyframes chainSnapLeft {
+  0%, 30% {
+    transform: translate(0, 0) rotate(0deg) scale(1);
+    opacity: 1;
+  }
+  60% {
+    transform: translate(-22px, -8px) rotate(-28deg) scale(1.12);
+    opacity: 0.9;
+  }
+  100% {
+    transform: translate(-44px, 14px) rotate(-55deg) scale(0.5);
+    opacity: 0;
+  }
+}
+
+@keyframes chainSnapRight {
+  0%, 30% {
+    transform: translate(0, 0) rotate(0deg) scale(1);
+    opacity: 1;
+  }
+  60% {
+    transform: translate(22px, -8px) rotate(28deg) scale(1.12);
+    opacity: 0.9;
+  }
+  100% {
+    transform: translate(44px, 14px) rotate(55deg) scale(0.5);
+    opacity: 0;
+  }
+}
+
+@keyframes unlockShockwave {
+  0% {
+    transform: scale(0.5);
+    opacity: 0;
+  }
+  40% {
+    transform: scale(1.1);
+    opacity: 0.95;
+  }
+  100% {
+    transform: scale(2.35);
+    opacity: 0;
+  }
+}
+
+@keyframes roadLightSurge {
+  0% {
+    stroke-dashoffset: 180;
+    opacity: 0.3;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    stroke-dashoffset: 0;
+    opacity: 1;
+  }
+}
+
+.anim-lock-rattle {
+  animation: lockRattle 0.52s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+}
+
+.anim-lock-unlock {
+  animation: lockUnlockSequence 1.35s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.anim-shackle-pop {
+  transform-box: fill-box;
+  transform-origin: right bottom;
+  animation: shacklePopUp 1.35s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.anim-chain-left {
+  transform-box: fill-box;
+  transform-origin: center center;
+  animation: chainSnapLeft 1.2s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.anim-chain-right {
+  transform-box: fill-box;
+  transform-origin: center center;
+  animation: chainSnapRight 1.2s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.anim-unlock-shockwave {
+  animation: unlockShockwave 1.15s ease-out forwards;
+}
+
+.anim-road-surge {
+  stroke-dasharray: 18 12;
+  animation: roadLightSurge 1.2s ease-out forwards;
+}
+
+/* Pixar-Style Lawn Grass & Foliage Breeze Animations */
+@keyframes grassSway {
+  0%, 100% {
+    transform: rotate(-3.5deg) skewX(-2deg);
+  }
+  50% {
+    transform: rotate(4.5deg) skewX(3deg);
+  }
+}
+
+@keyframes treeCanopyBreeze {
+  0%, 100% {
+    transform: translateY(0px) rotate(-1deg) scale(1);
+  }
+  50% {
+    transform: translateY(-2px) rotate(1.5deg) scale(1.02);
+  }
+}
+
+@keyframes sunbeamShimmer {
+  0%, 100% {
+    opacity: 0.22;
+  }
+  50% {
+    opacity: 0.42;
+  }
+}
+
+.anim-grass-sway {
+  transform-box: fill-box;
+  transform-origin: bottom center;
+  animation: grassSway 3.4s ease-in-out infinite;
+}
+
+.anim-grass-sway-delayed {
+  transform-box: fill-box;
+  transform-origin: bottom center;
+  animation: grassSway 4.1s ease-in-out 1.2s infinite;
+}
+
+.anim-tree-breeze {
+  transform-box: fill-box;
+  transform-origin: bottom center;
+  animation: treeCanopyBreeze 4.8s ease-in-out infinite;
+}
+
+.anim-sunbeam {
+  animation: sunbeamShimmer 5.5s ease-in-out infinite;
+}
