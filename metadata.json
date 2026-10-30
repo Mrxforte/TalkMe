@@ -1,0 +1,6 @@
+{
+  "name": "TalkMe",
+  "description": "Ingliz tilini o'rganish platformasi: FSRS algoritmi, 6 ta approved AI ovoz personaji, interaktiv grammatika katalogi va Duolingo uslubidagi bosqichlar xaritasi.",
+  "permissions": [],
+  "capabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
