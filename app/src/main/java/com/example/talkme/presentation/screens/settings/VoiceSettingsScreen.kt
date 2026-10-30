@@ -12,11 +12,15 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
@@ -32,6 +36,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -39,6 +44,7 @@ import androidx.compose.ui.unit.dp
 import com.example.talkme.R
 import com.example.talkme.domain.settings.VoiceSettings
 import com.example.talkme.domain.voice.catalog.CharacterVoiceCatalog
+import com.example.talkme.domain.voice.model.CharacterProfile
 import com.example.talkme.domain.voice.model.EngineSelectionMode
 import com.example.talkme.domain.voice.model.VoiceFamily
 import com.example.talkme.domain.voice.testing.SampleStory
@@ -53,8 +59,8 @@ import com.example.talkme.ui.theme.SuccessGreen
 import com.example.talkme.ui.theme.TalkMeTheme
 
 /**
- * Reactive Voice AI Settings & Speech Testing Screen connected to DataStore preferences.
- * Includes 200 distinct character voice profiles across 8 major families with real-time speech synthesis.
+ * World-Class Reactive Voice AI Settings & Speech Testing Screen with intuitive UX,
+ * character search, 200 voice profiles catalog, individual voice audition buttons, and DataStore preferences.
  *
  * @param settings Current active VoiceSettings state.
  * @param onBackClick Navigation back handler.
@@ -84,14 +90,26 @@ fun VoiceSettingsScreen(
     var testReportText by remember { mutableStateOf("") }
     var isTestPlaying by remember { mutableStateOf(false) }
 
+    var searchQuery by remember { mutableStateOf("") }
     val families = VoiceFamily.entries
-    var selectedFamilyIndex by remember { mutableIntStateOf(0) }
-    val activeFamily = families[selectedFamilyIndex]
+    var selectedFamilyIndex by remember { mutableIntStateOf(0) } // 0: All, or specific family
+    var showAllFamilies by remember { mutableStateOf(true) }
 
-    val activeFamilyProfiles = CharacterVoiceCatalog.getProfilesByFamily(activeFamily)
     val currentProfile = CharacterVoiceCatalog.allProfiles.find {
-        it.id == settings.selectedCharacterProfile || it.nameUz == settings.selectedCharacterProfile
-    } ?: activeFamilyProfiles.first()
+        it.id == settings.selectedCharacterProfile || it.nameUz == settings.selectedCharacterProfile || it.nameEn == settings.selectedCharacterProfile
+    } ?: CharacterVoiceCatalog.allProfiles.first()
+
+    // Filter profiles based on search query and family selection
+    val filteredProfiles = CharacterVoiceCatalog.allProfiles.filter { profile ->
+        val matchesSearch = searchQuery.isBlank() ||
+                profile.nameUz.contains(searchQuery, ignoreCase = true) ||
+                profile.nameEn.contains(searchQuery, ignoreCase = true) ||
+                profile.descriptionUz.contains(searchQuery, ignoreCase = true)
+
+        val matchesFamily = showAllFamilies || profile.family == families[selectedFamilyIndex]
+
+        matchesSearch && matchesFamily
+    }
 
     val isLocalFirst = settings.engineSelectionMode == EngineSelectionMode.LOCAL_FIRST
 
@@ -150,10 +168,150 @@ fun VoiceSettingsScreen(
 
             Spacer(modifier = Modifier.height(dimensions.paddingMedium))
 
-            // 2. Character Voice Profile Selection (8 Families x 25 Profiles = 200 Total)
+            // 2. FEATURED ACTIVE VOICE CARD (Aktiv Personaj Profil)
             TalkMeCard(
                 containerColor = MaterialTheme.colorScheme.primaryContainer,
                 borderColor = MaterialTheme.colorScheme.primary,
+                cornerRadius = dimensions.cornerExtraLarge,
+            ) {
+                Column {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text(
+                                text = currentProfile.iconEmoji,
+                                style = AppTypography.GreetingTitle,
+                            )
+                            Spacer(modifier = Modifier.width(dimensions.paddingSmall))
+                            Column {
+                                Text(
+                                    text = currentProfile.nameUz,
+                                    style = AppTypography.CardTitle.copy(
+                                        color = MaterialTheme.colorScheme.primary,
+                                        fontWeight = FontWeight.Bold,
+                                    ),
+                                )
+                                Text(
+                                    text = currentProfile.nameEn,
+                                    style = AppTypography.CardSubtitle,
+                                )
+                            }
+                        }
+
+                        TalkMeBadge(
+                            text = currentProfile.family.titleUz,
+                            containerColor = MaterialTheme.colorScheme.surface,
+                            textColor = MaterialTheme.colorScheme.primary,
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(dimensions.paddingSmall))
+
+                    Text(
+                        text = currentProfile.descriptionUz,
+                        style = AppTypography.CardSubtitle.copy(
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        ),
+                    )
+
+                    Spacer(modifier = Modifier.height(dimensions.paddingMedium))
+
+                    // Instant Audition Button for Active Voice
+                    TalkMeButton(
+                        text = "Aktiv Ovozni Sinab Ko'rish",
+                        trailingIconRes = AppIcons.Volume,
+                        onClick = {
+                            onRunQuickTestClick("Hello! I am ${currentProfile.nameEn}, your AI voice character.")
+                        },
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(dimensions.paddingLarge))
+
+            // 3. 200 CHARACTER VOICES CATALOG & SEARCH UX
+            Text(
+                text = "Personaj Ovozlar Katalogi (200 Ovoz)",
+                style = AppTypography.SectionTitle,
+            )
+
+            Spacer(modifier = Modifier.height(dimensions.paddingSmall))
+
+            // Search Input Field
+            OutlinedTextField(
+                value = searchQuery,
+                onValueChange = { searchQuery = it },
+                label = { Text("Personaj nomi yoki xarakterini izlash...") },
+                trailingIcon = {
+                    Icon(
+                        painter = painterResource(id = AppIcons.Search),
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.primary,
+                    )
+                },
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true,
+                textStyle = AppTypography.CardTitle,
+            )
+
+            Spacer(modifier = Modifier.height(dimensions.paddingMedium))
+
+            // Family Filter Category Horizontal Tabs
+            LazyRow(
+                horizontalArrangement = Arrangement.spacedBy(dimensions.paddingSmall),
+            ) {
+                item {
+                    val isAllSelected = showAllFamilies
+                    Box(
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(dimensions.cornerSmall))
+                            .background(if (isAllSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surface)
+                            .clickable { showAllFamilies = true }
+                            .padding(horizontal = dimensions.paddingMedium, vertical = dimensions.paddingSmall),
+                    ) {
+                        Text(
+                            text = "🌐 Barchasi (200)",
+                            style = AppTypography.CardSubtitle.copy(
+                                color = if (isAllSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant,
+                                fontWeight = if (isAllSelected) FontWeight.Bold else FontWeight.Normal,
+                            ),
+                        )
+                    }
+                }
+
+                items(families.size) { index ->
+                    val family = families[index]
+                    val isSelected = !showAllFamilies && selectedFamilyIndex == index
+
+                    Box(
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(dimensions.cornerSmall))
+                            .background(if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surface)
+                            .clickable {
+                                selectedFamilyIndex = index
+                                showAllFamilies = false
+                            }
+                            .padding(horizontal = dimensions.paddingMedium, vertical = dimensions.paddingSmall),
+                    ) {
+                        Text(
+                            text = "${family.iconEmoji} ${family.titleUz}",
+                            style = AppTypography.CardSubtitle.copy(
+                                color = if (isSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant,
+                                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
+                            ),
+                        )
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(dimensions.paddingMedium))
+
+            // Filtered Character Cards Grid Container
+            TalkMeCard(
+                containerColor = MaterialTheme.colorScheme.surface,
             ) {
                 Column {
                     Row(
@@ -162,91 +320,40 @@ fun VoiceSettingsScreen(
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
                         Text(
-                            text = "200 Ta Personaj Ovozlar Katalogi",
-                            style = AppTypography.CardTitle.copy(color = MaterialTheme.colorScheme.primary),
+                            text = if (showAllFamilies) "Barcha Personajlar" else families[selectedFamilyIndex].titleUz,
+                            style = AppTypography.CardTitle,
                         )
 
                         TalkMeBadge(
-                            text = "${activeFamilyProfiles.size} Ovoz",
-                            containerColor = MaterialTheme.colorScheme.surface,
+                            text = "${filteredProfiles.size} ta mos ovoz",
+                            containerColor = MaterialTheme.colorScheme.primaryContainer,
                             textColor = MaterialTheme.colorScheme.primary,
                         )
                     }
 
-                    Spacer(modifier = Modifier.height(dimensions.paddingSmall))
-
-                    // 8 Family Category Horizontal Tabs
-                    LazyRow(
-                        horizontalArrangement = Arrangement.spacedBy(dimensions.paddingSmall),
-                    ) {
-                        items(families.size) { index ->
-                            val family = families[index]
-                            val isSelected = index == selectedFamilyIndex
-
-                            Box(
-                                modifier = Modifier
-                                    .clip(RoundedCornerShape(dimensions.cornerSmall))
-                                    .background(if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surface)
-                                    .clickable { selectedFamilyIndex = index }
-                                    .padding(horizontal = dimensions.paddingMedium, vertical = dimensions.paddingSmall),
-                            ) {
-                                Text(
-                                    text = "${family.iconEmoji} ${family.titleUz}",
-                                    style = AppTypography.CardSubtitle.copy(
-                                        color = if (isSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant,
-                                        fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
-                                    ),
-                                )
-                            }
-                        }
-                    }
-
                     Spacer(modifier = Modifier.height(dimensions.paddingMedium))
 
-                    // 25 Profiles Chips LazyRow for Active Family
-                    LazyRow(
-                        horizontalArrangement = Arrangement.spacedBy(dimensions.paddingSmall),
-                    ) {
-                        items(activeFamilyProfiles) { profile ->
-                            val isSelected = profile.id == currentProfile.id
-
-                            Box(
-                                modifier = Modifier
-                                    .clip(RoundedCornerShape(dimensions.cornerSmall))
-                                    .background(if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surface)
-                                    .border(dimensions.borderThin, if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline, RoundedCornerShape(dimensions.cornerSmall))
-                                    .clickable {
-                                        onCharacterProfileChanged(profile.id)
-                                    }
-                                    .padding(horizontal = dimensions.paddingMedium, vertical = dimensions.paddingSmall),
-                            ) {
-                                Text(
-                                    text = "${profile.iconEmoji} ${profile.nameUz}",
-                                    style = AppTypography.CardSubtitle.copy(
-                                        color = if (isSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onBackground,
-                                        fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
-                                    ),
-                                )
-                            }
-                        }
+                    // Render First 12 Matching Profiles with Audition Buttons
+                    val displayedProfiles = filteredProfiles.take(12)
+                    displayedProfiles.forEach { profile ->
+                        val isSelected = profile.id == currentProfile.id
+                        CharacterItemCard(
+                            profile = profile,
+                            isSelected = isSelected,
+                            onSelect = { onCharacterProfileChanged(profile.id) },
+                            onPreviewAudio = {
+                                onCharacterProfileChanged(profile.id)
+                                onRunQuickTestClick("Hello! This is ${profile.nameEn}.")
+                            },
+                        )
+                        Spacer(modifier = Modifier.height(dimensions.paddingSmall))
                     }
-
-                    Spacer(modifier = Modifier.height(dimensions.paddingMedium))
-
-                    // Active Profile Description Box
-                    Text(
-                        text = "${currentProfile.iconEmoji} ${currentProfile.nameUz} (${currentProfile.nameEn}): ${currentProfile.descriptionUz}",
-                        style = AppTypography.CardSubtitle.copy(
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            fontWeight = FontWeight.SemiBold,
-                        ),
-                    )
                 }
             }
 
-            Spacer(modifier = Modifier.height(dimensions.paddingMedium))
+            Spacer(modifier = Modifier.height(dimensions.paddingLarge))
 
-            // 3. Speech Parameters (Human Natural Speech Rate & Pitch Sliders)
+            // 4. Speech Parameters (Speed & Pitch Sliders)
             TalkMeCard(
                 containerColor = MaterialTheme.colorScheme.surface,
             ) {
@@ -301,7 +408,7 @@ fun VoiceSettingsScreen(
 
             Spacer(modifier = Modifier.height(dimensions.paddingMedium))
 
-            // 4. Audio Cache Settings
+            // 5. Audio Cache Settings
             TalkMeCard(
                 containerColor = MaterialTheme.colorScheme.surface,
             ) {
@@ -329,7 +436,7 @@ fun VoiceSettingsScreen(
 
             Spacer(modifier = Modifier.height(dimensions.paddingLarge))
 
-            // 5. Built-in Long Text Testing & Sample Texts
+            // 6. Built-in Long Text Testing & Sample Texts
             Text(
                 text = stringResource(id = R.string.section_speech_test),
                 style = AppTypography.SectionTitle,
@@ -362,7 +469,7 @@ fun VoiceSettingsScreen(
                     Spacer(modifier = Modifier.height(dimensions.paddingSmall))
 
                     Text(
-                        text = "Category: ${SampleStory.CATEGORY} · Tanlangan Personaj: ${currentProfile.nameUz} · Est. ~${"%.1f".format(SampleStory.estimatedDurationMinutes)} min",
+                        text = "Category: ${SampleStory.CATEGORY} · Personaj: ${currentProfile.nameUz} · Est. ~${"%.1f".format(SampleStory.estimatedDurationMinutes)} min",
                         style = AppTypography.CardSubtitle,
                     )
 
@@ -425,6 +532,80 @@ fun VoiceSettingsScreen(
             )
 
             Spacer(modifier = Modifier.height(dimensions.paddingHuge))
+        }
+    }
+}
+
+/**
+ * Reusable Character Profile Card Item with Instant Audition Play Button.
+ */
+@Composable
+fun CharacterItemCard(
+    profile: CharacterProfile,
+    isSelected: Boolean,
+    onSelect: () -> Unit,
+    onPreviewAudio: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val dimensions = LocalDimensions.current
+
+    val containerColor = if (isSelected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surface
+    val borderColor = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline.copy(alpha = 0.3f)
+
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(dimensions.cornerSmall))
+            .background(containerColor)
+            .border(dimensions.borderThin, borderColor, RoundedCornerShape(dimensions.cornerSmall))
+            .clickable(onClick = onSelect)
+            .padding(dimensions.paddingMedium),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Row(
+            modifier = Modifier.weight(1f),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Text(
+                text = profile.iconEmoji,
+                style = AppTypography.SectionTitle,
+            )
+
+            Spacer(modifier = Modifier.width(dimensions.paddingSmall))
+
+            Column {
+                Text(
+                    text = profile.nameUz,
+                    style = AppTypography.CardTitle.copy(
+                        color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onBackground,
+                        fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
+                    ),
+                )
+
+                Text(
+                    text = "${profile.nameEn} · ${"%.2f".format(profile.baseRate)}x rate",
+                    style = AppTypography.CardSubtitle.copy(
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    ),
+                )
+            }
+        }
+
+        Box(
+            modifier = Modifier
+                .size(36.dp)
+                .clip(CircleShape)
+                .background(if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant)
+                .clickable(onClick = onPreviewAudio),
+            contentAlignment = Alignment.Center,
+        ) {
+            Icon(
+                painter = painterResource(id = AppIcons.Volume),
+                contentDescription = null,
+                tint = if (isSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.primary,
+                modifier = Modifier.size(dimensions.iconSmall),
+            )
         }
     }
 }
