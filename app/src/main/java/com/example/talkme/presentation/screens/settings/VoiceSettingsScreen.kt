@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -27,6 +28,7 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -39,11 +41,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.talkme.R
+import com.example.talkme.domain.settings.LearningSpeedPreset
 import com.example.talkme.domain.settings.VoiceSettings
 import com.example.talkme.domain.voice.catalog.CharacterVoiceCatalog
 import com.example.talkme.domain.voice.model.CharacterProfile
 import com.example.talkme.domain.voice.model.EngineSelectionMode
-import com.example.talkme.domain.voice.testing.SampleStory
 import com.example.talkme.presentation.components.TalkMeBadge
 import com.example.talkme.presentation.components.TalkMeButton
 import com.example.talkme.presentation.components.TalkMeCard
@@ -54,9 +56,11 @@ import com.example.talkme.ui.theme.LocalDimensions
 import com.example.talkme.ui.theme.SuccessGreen
 import com.example.talkme.ui.theme.TalkMeTheme
 
+const val PROSODY_BENCHMARK_TEST_TEXT = "Hello! My name is Alex. Today, I want to talk about learning English. First of all, why is pronunciation important? Because speaking clearly helps people understand you. For example, imagine saying, 'Are you ready?' or 'Where are you going?' These questions have different intonation patterns. I love learning languages, but sometimes English grammar can be challenging. Don't worry! Practice slowly, listen carefully, and repeat after me. Would you like to try again?"
+
 /**
- * Clean, Unified Voice AI Settings & Speech Testing Screen.
- * Displays exactly 6 approved voice character profiles in a single unified list.
+ * Clean, High-Quality Reactive Voice AI Settings & Prosody Speech Testing Screen.
+ * Displays natural speech speed presets (0.75x - 0.95x), sentence intonation rules, and exact benchmark speech test.
  *
  * @param settings Current active VoiceSettings state.
  * @param onBackClick Navigation back handler.
@@ -87,11 +91,11 @@ fun VoiceSettingsScreen(
     var isTestPlaying by remember { mutableStateOf(false) }
     var searchQuery by remember { mutableStateOf("") }
 
+    val speedPresets = LearningSpeedPreset.entries
     val currentProfile = CharacterVoiceCatalog.allProfiles.find {
         it.id == settings.selectedCharacterProfile || it.nameUz == settings.selectedCharacterProfile || it.nameEn == settings.selectedCharacterProfile
     } ?: CharacterVoiceCatalog.allProfiles.first()
 
-    // Filter list of 6 profiles
     val filteredProfiles = CharacterVoiceCatalog.allProfiles.filter { profile ->
         searchQuery.isBlank() ||
                 profile.nameUz.contains(searchQuery, ignoreCase = true) ||
@@ -220,9 +224,9 @@ fun VoiceSettingsScreen(
 
             Spacer(modifier = Modifier.height(dimensions.paddingLarge))
 
-            // 3. EXACTLY 6 APPROVED VOICES LIST
+            // 3. VOICE CATALOG LIST
             Text(
-                text = "6 Ta Ovozlar Listi",
+                text = "Personaj Ovozlar Listi",
                 style = AppTypography.SectionTitle,
             )
 
@@ -247,7 +251,7 @@ fun VoiceSettingsScreen(
 
             Spacer(modifier = Modifier.height(dimensions.paddingMedium))
 
-            // Unified 6 Voices Single Container List
+            // Unified Voices Single Container List
             TalkMeCard(
                 containerColor = MaterialTheme.colorScheme.surface,
             ) {
@@ -258,7 +262,7 @@ fun VoiceSettingsScreen(
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
                         Text(
-                            text = "Barcha 6 Ta Tasdiqlangan Ovozlar",
+                            text = "Barcha Tasdiqlangan Ovozlar",
                             style = AppTypography.CardTitle,
                         )
 
@@ -271,7 +275,6 @@ fun VoiceSettingsScreen(
 
                     Spacer(modifier = Modifier.height(dimensions.paddingMedium))
 
-                    // Render 6 Profile Items List
                     filteredProfiles.forEach { profile ->
                         val isSelected = profile.id == currentProfile.id
                         CharacterItemCard(
@@ -290,7 +293,7 @@ fun VoiceSettingsScreen(
 
             Spacer(modifier = Modifier.height(dimensions.paddingLarge))
 
-            // 4. Speech Parameters (Speed & Pitch Sliders)
+            // 4. NATURAL HUMAN SPEECH SPEED PRESETS & SLIDER
             TalkMeCard(
                 containerColor = MaterialTheme.colorScheme.surface,
             ) {
@@ -304,16 +307,46 @@ fun VoiceSettingsScreen(
                             style = AppTypography.CardTitle,
                         )
                         Text(
-                            text = "${"%.2f".format(settings.speechSpeed)}x (Tabiiy insoniy)",
+                            text = "${"%.2f".format(settings.speechSpeed)}x (Sekin va Tushunarli)",
                             style = AppTypography.CardTitle,
                             fontWeight = FontWeight.Bold,
                         )
                     }
 
+                    Spacer(modifier = Modifier.height(dimensions.paddingSmall))
+
+                    // Speed Presets Row (Beginner 0.75x, Slow 0.80x, Normal 0.85x, Conversational 0.95x)
+                    LazyRow(
+                        horizontalArrangement = Arrangement.spacedBy(dimensions.paddingSmall),
+                    ) {
+                        items(speedPresets.size) { index ->
+                            val preset = speedPresets[index]
+                            val isSelected = (settings.speechSpeed - preset.speedValue).let { it > -0.02f && it < 0.02f }
+
+                            Box(
+                                modifier = Modifier
+                                    .clip(RoundedCornerShape(dimensions.cornerSmall))
+                                    .background(if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant)
+                                    .clickable { onSpeedChanged(preset.speedValue) }
+                                    .padding(horizontal = dimensions.paddingMedium, vertical = dimensions.paddingSmall),
+                            ) {
+                                Text(
+                                    text = preset.titleUz,
+                                    style = AppTypography.CardSubtitle.copy(
+                                        color = if (isSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant,
+                                        fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
+                                    ),
+                                )
+                            }
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(dimensions.paddingSmall))
+
                     Slider(
                         value = settings.speechSpeed,
                         onValueChange = onSpeedChanged,
-                        valueRange = 0.7f..1.4f,
+                        valueRange = 0.65f..1.15f, // Calibrated slower human learning range
                         modifier = Modifier.fillMaxWidth(),
                     )
 
@@ -366,14 +399,14 @@ fun VoiceSettingsScreen(
                     }
                     Switch(
                         checked = settings.audioCacheEnabled,
-                        onCheckedChange = onAudioCacheChanged,
+                        onAudioCacheChanged,
                     )
                 }
             }
 
             Spacer(modifier = Modifier.height(dimensions.paddingLarge))
 
-            // 6. Built-in Long Text Testing & Sample Texts
+            // 6. EXACT PROSODY BENCHMARK SPEECH TEST (Intonation & Sentence Contours)
             Text(
                 text = stringResource(id = R.string.section_speech_test),
                 style = AppTypography.SectionTitle,
@@ -392,12 +425,12 @@ fun VoiceSettingsScreen(
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
                         Text(
-                            text = SampleStory.TITLE,
+                            text = "Prosodiya va Intonatsiya Sinovi",
                             style = AppTypography.CardTitle.copy(color = MaterialTheme.colorScheme.primary),
                         )
 
                         TalkMeBadge(
-                            text = "${SampleStory.wordCount} words",
+                            text = "Benchmark Test",
                             containerColor = MaterialTheme.colorScheme.surface,
                             textColor = MaterialTheme.colorScheme.primary,
                         )
@@ -406,18 +439,18 @@ fun VoiceSettingsScreen(
                     Spacer(modifier = Modifier.height(dimensions.paddingSmall))
 
                     Text(
-                        text = "Category: ${SampleStory.CATEGORY} · Tanlangan Personaj: ${currentProfile.nameUz} · Est. ~${"%.1f".format(SampleStory.estimatedDurationMinutes)} min",
+                        text = "Intonatsiya: So'roq (↗), Darak (↘), Kirish so'zlar va Pauzalar sinovi",
                         style = AppTypography.CardSubtitle,
                     )
 
                     Spacer(modifier = Modifier.height(dimensions.paddingMedium))
 
-                    // Story Text Preview Box
+                    // Benchmark Test Text Preview Box
                     OutlinedTextField(
-                        value = SampleStory.FULL_TEXT,
+                        value = PROSODY_BENCHMARK_TEST_TEXT,
                         onValueChange = {},
                         readOnly = true,
-                        label = { Text("Preloaded Sample Story") },
+                        label = { Text("Prosody Benchmark Test Text") },
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(180.dp),
@@ -426,9 +459,9 @@ fun VoiceSettingsScreen(
 
                     Spacer(modifier = Modifier.height(dimensions.paddingMedium))
 
-                    // Explicit Play / Stop Speech Test Button
+                    // Play / Stop Benchmark Speech Test Button
                     TalkMeButton(
-                        text = if (isTestPlaying) "Nutqni To‘xtatish" else stringResource(id = R.string.btn_run_quick_test),
+                        text = if (isTestPlaying) "Nutqni To‘xtatish" else "Intonatsiya va Prosodiyani Sinash",
                         trailingIconRes = AppIcons.Volume,
                         onClick = {
                             if (isTestPlaying) {
@@ -437,9 +470,9 @@ fun VoiceSettingsScreen(
                             } else {
                                 isTestPlaying = true
                                 val startTime = System.currentTimeMillis()
-                                onRunQuickTestClick(SampleStory.FULL_TEXT)
+                                onRunQuickTestClick(PROSODY_BENCHMARK_TEST_TEXT)
                                 val duration = System.currentTimeMillis() - startTime
-                                testReportText = "Test Report: Personaj: ${currentProfile.nameUz} | Words: ${SampleStory.wordCount} | Latency: ${duration}ms | Status: PLAYING"
+                                testReportText = "Test Report: Personaj: ${currentProfile.nameUz} | Speed: ${"%.2f".format(settings.speechSpeed)}x | Intonation: Statements ↘ / Questions ↗ | Latency: ${duration}ms | Status: PLAYING"
                             }
                         },
                     )

@@ -4,6 +4,8 @@ import android.content.Context
 import android.speech.tts.TextToSpeech
 import android.speech.tts.Voice
 import android.util.Log
+import com.example.talkme.data.catalog.VoiceProfileRegistry
+import com.example.talkme.data.processor.TextProsodyAnalyzer
 import com.example.talkme.domain.repository.TextToSpeechRepository
 import com.example.talkme.domain.voice.catalog.CharacterVoiceCatalog
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -13,20 +15,22 @@ import javax.inject.Singleton
 
 /**
  * Android Framework Implementation of TextToSpeechRepository using native android.speech.tts.TextToSpeech.
- * Features robust male/female voice selection, pitch modulation, long-text sentence chunking, and reliable speech.
+ * Features sentence-aware intonation contours, natural pause planning, and distinct character voice modulation.
  *
  * @param context Injected Application Context.
+ * @param prosodyAnalyzer Injected TextProsodyAnalyzer for sentence intonation and pause planning.
  */
 @Singleton
 class TextToSpeechRepositoryImpl @Inject constructor(
     @param:ApplicationContext private val context: Context,
+    private val prosodyAnalyzer: TextProsodyAnalyzer,
 ) : TextToSpeechRepository, TextToSpeech.OnInitListener {
 
     private var tts: TextToSpeech? = null
     private var isInitialized = false
     private val pendingTextQueue = mutableListOf<String>()
 
-    private var currentSpeed: Float = 1.0f
+    private var currentSpeed: Float = 0.85f // Slower natural default
     private var currentPitch: Float = 1.0f
     private var currentCharacterProfile: String = "adult_male"
 
@@ -51,7 +55,7 @@ class TextToSpeechRepositoryImpl @Inject constructor(
             if (result != TextToSpeech.LANG_MISSING_DATA && result != TextToSpeech.LANG_NOT_SUPPORTED) {
                 isInitialized = true
                 applyCharacterVoiceProfile(currentCharacterProfile, currentSpeed, currentPitch)
-                Log.d(TAG, "TextToSpeech engine initialized successfully.")
+                Log.d(TAG, "TextToSpeech engine initialized successfully with Prosody Engine.")
 
                 synchronized(pendingTextQueue) {
                     val pendingText = pendingTextQueue.lastOrNull()
@@ -100,7 +104,6 @@ class TextToSpeechRepositoryImpl @Inject constructor(
             val genderKey = profile.preferredGender.lowercase()
             val matchedVoice: Voice = when (genderKey) {
                 "male" -> {
-                    // Search for male voice markers or pick distinct male voice index
                     englishVoices.firstOrNull {
                         it.name.contains("iom", ignoreCase = true) ||
                         it.name.contains("tpf", ignoreCase = true) ||
@@ -108,7 +111,6 @@ class TextToSpeechRepositoryImpl @Inject constructor(
                     } ?: englishVoices.elementAtOrNull(1) ?: englishVoices.first()
                 }
                 "female" -> {
-                    // Search for female voice markers or pick distinct female voice index
                     englishVoices.firstOrNull {
                         it.name.contains("sfg", ignoreCase = true) ||
                         it.name.contains("iol", ignoreCase = true) ||
@@ -142,28 +144,26 @@ class TextToSpeechRepositoryImpl @Inject constructor(
     private fun speakInternal(text: String) {
         tts?.stop()
 
-        if (text.length > 300) {
-            val sentences = text.split(Regex("(?<=[.!?])\\s+|\\n+"))
-            var isFirstChunk = true
-            var currentChunk = StringBuilder()
+        val character = VoiceProfileRegistry.getCharacterById(currentCharacterProfile)
+        val prosodySegments = prosodyAnalyzer.analyzeText(text, character)
 
-            for (sentence in sentences) {
-                if (sentence.isBlank()) continue
+        if (prosodySegments.isNotEmpty()) {
+            var isFirst = true
+            prosodySegments.forEach { segment ->
+                val effectiveSpeed = (character.acousticProfile.baseRate * currentSpeed * segment.rateMultiplier).coerceIn(0.5f, 2.0f)
+                val effectivePitch = (character.acousticProfile.basePitch * currentPitch * segment.pitchMultiplier).coerceIn(0.4f, 2.0f)
 
-                if (currentChunk.length + sentence.length > 250) {
-                    val queueMode = if (isFirstChunk) TextToSpeech.QUEUE_FLUSH else TextToSpeech.QUEUE_ADD
-                    val chunkText = currentChunk.toString().trim()
-                    tts?.speak(chunkText, queueMode, null, "TalkMe_TTS_${System.currentTimeMillis()}")
-                    isFirstChunk = false
-                    currentChunk = StringBuilder()
+                tts?.setSpeechRate(effectiveSpeed)
+                tts?.setPitch(effectivePitch)
+
+                val queueMode = if (isFirst) TextToSpeech.QUEUE_FLUSH else TextToSpeech.QUEUE_ADD
+                tts?.speak(segment.text, queueMode, null, "TalkMe_TTS_${segment.segmentIndex}_${System.currentTimeMillis()}")
+                isFirst = false
+
+                // Add planned natural silent pause between sentence clauses
+                if (segment.plannedPauseMs > 0) {
+                    tts?.playSilentUtterance(segment.plannedPauseMs, TextToSpeech.QUEUE_ADD, "TalkMe_Pause_${segment.segmentIndex}")
                 }
-                currentChunk.append(sentence).append(" ")
-            }
-
-            if (currentChunk.isNotEmpty()) {
-                val queueMode = if (isFirstChunk) TextToSpeech.QUEUE_FLUSH else TextToSpeech.QUEUE_ADD
-                val chunkText = currentChunk.toString().trim()
-                tts?.speak(chunkText, queueMode, null, "TalkMe_TTS_${System.currentTimeMillis()}")
             }
         } else {
             tts?.speak(text, TextToSpeech.QUEUE_FLUSH, null, "TalkMe_TTS_${System.currentTimeMillis()}")
