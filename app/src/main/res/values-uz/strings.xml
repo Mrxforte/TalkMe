@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">TalkMe</string>
+    <string name="cd_navigate_back">Orqaga qaytish</string>
+    <string name="cd_bookmark_lesson">Darsni saqlash</string>
+    <string name="cd_voice_settings">Ovoz sozlamalari</string>
+    <string name="cd_play_audio">Talaffuzni tinglash</string>
+    <string name="cd_play_slow_audio">Sekin talaffuzni tinglash</string>
+    <string name="lang_interface_title">Ilova va tushuntirish tili</string>
+    <string name="lang_learning_title">O‘rganilayotgan til: Ingliz tili</string>
+    <string name="lang_english_variant_us">Amerika inglizchasi (en-US)</string>
+    <string name="lang_english_variant_gb">Britaniya inglizchasi (en-GB)</string>
+    <string name="lang_pack_validator_ok">Barcha til paketlari tekshirildi (100%)</string>
+    <string name="lesson_a0_first_title">Hello! Welcome to TalkMe!</string>
+    <string name="lesson_a0_first_subtitle">1-Dars: Salom! TalkMe ilovasiga xush kelibsiz! (A0)</string>
+    <string name="lesson_a0_confidence_message">Bu juda oson ekan. Men buni uddalay olaman!</string>
+    <string name="tab_rule">Qoida</string>
+    <string name="tab_example">Misol</string>
+    <string name="tab_exercise">Mashq</string>
+    <string name="action_start_learning">O‘rganishni boshlash</string>
+    <string name="action_check_answer">Tekshirish</string>
+    <string name="action_next_exercise">Keyingisi</string>
+    <string name="action_retry_exercise">Qayta urinish</string>
+    <string name="feedback_correct">Barakalla! Javob to‘g‘ri.</string>
+    <string name="feedback_incorrect">Diqqat bilan qayta urinib ko‘ring.</string>
+    <string name="lesson_03_title">3-Dars: Vowels and Consonants</string>
+    <string name="lesson_03_subtitle">A0 • Unli (A, E, I, O, U) va undosh harflar</string>
+    <string name="lesson_03_vowels_header">VOWELS — 5 ta asosiy unli harf</string>
+    <string name="lesson_03_consonants_header">CONSONANTS — 21 ta undosh harf</string>
+    <string name="lesson_03_basket_game_title">1-O‘yin: Harflarni savatchalarga joylashtir!</string>
+    <string name="lesson_03_find_vowels_title">2-O‘yin: Unli harflarni top! (Find the Vowels!)</string>
+    <string name="lesson_03_owl_game_title">3-O‘yin: Boyqushga yordam ber! (Help the Owl!)</string>
+    <string name="lesson_03_listen_game_title">6-O‘yin: Eshit va tanla! (Listen and Choose!)</string>
+    <string name="lesson_04_title">4-Dars: Phonics and Spelling</string>
+    <string name="lesson_04_subtitle">A0 • Harf tovushlari va 10 ta kundalik so‘z imlosi</string>
+    <string name="lesson_04_words_header">SPELLING — 10 ta kundalik inglizcha so‘z</string>
+    <string name="lesson_04_build_word_title">1-O‘yin: So‘zni yasa! (Build the Word)</string>
+    <string name="lesson_04_missing_letter_title">2-O‘yin: Tushib qolgan harfni top!</string>
+    <string name="action_hear_letter">Harf</string>
+    <string name="action_hear_word">So‘z</string>
+    <string name="action_hear_spelling">Harflab</string>
+</resources>
+

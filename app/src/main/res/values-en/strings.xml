@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">TalkMe</string>
+    <string name="cd_navigate_back">Navigate back</string>
+    <string name="cd_bookmark_lesson">Bookmark lesson</string>
+    <string name="cd_voice_settings">Voice settings</string>
+    <string name="cd_play_audio">Listen to pronunciation</string>
+    <string name="cd_play_slow_audio">Listen slowly</string>
+    <string name="lang_interface_title">Interface &amp; Explanation Language</string>
+    <string name="lang_learning_title">Learning Language: English</string>
+    <string name="lang_english_variant_us">American English (en-US)</string>
+    <string name="lang_english_variant_gb">British English (en-GB)</string>
+    <string name="lang_pack_validator_ok">All language packs validated (100%)</string>
+    <string name="lesson_a0_first_title">Hello! Welcome to TalkMe!</string>
+    <string name="lesson_a0_first_subtitle">Lesson 1: Your Very First Step in English (A0)</string>
+    <string name="lesson_a0_confidence_message">This is easy. I can do it!</string>
+    <string name="tab_rule">Rule</string>
+    <string name="tab_example">Example</string>
+    <string name="tab_exercise">Practice</string>
+    <string name="action_start_learning">Start Learning</string>
+    <string name="action_check_answer">Check Answer</string>
+    <string name="action_next_exercise">Next</string>
+    <string name="action_retry_exercise">Try Again</string>
+    <string name="feedback_correct">Great job! Correct answer.</string>
+    <string name="feedback_incorrect">Take your time and try again.</string>
+    <string name="lesson_03_title">Lesson 3: Vowels and Consonants</string>
+    <string name="lesson_03_subtitle">A0 • Vowels (A, E, I, O, U) &amp; Consonants</string>
+    <string name="lesson_03_vowels_header">VOWELS — The 5 Main Vowel Letters</string>
+    <string name="lesson_03_consonants_header">CONSONANTS — The 21 Consonant Letters</string>
+    <string name="lesson_03_basket_game_title">Game 1: Put the Letters in the Baskets!</string>
+    <string name="lesson_03_find_vowels_title">Game 2: Find the Vowels!</string>
+    <string name="lesson_03_owl_game_title">Game 3: Help the Owl!</string>
+    <string name="lesson_03_listen_game_title">Game 6: Listen and Choose!</string>
+    <string name="lesson_04_title">Lesson 4: Phonics and Spelling</string>
+    <string name="lesson_04_subtitle">A0 • Letter Sounds &amp; Spelling 10 Everyday Words</string>
+    <string name="lesson_04_words_header">SPELLING — 10 Everyday English Words</string>
+    <string name="lesson_04_build_word_title">Game 1: Build the Word</string>
+    <string name="lesson_04_missing_letter_title">Game 2: Find the Missing Letter</string>
+    <string name="action_hear_letter">Letter</string>
+    <string name="action_hear_word">Word</string>
+    <string name="action_hear_spelling">Spell</string>
+</resources>
+

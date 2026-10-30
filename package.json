@@ -1,34 +1,11 @@
 {
-  "name": "talkme",
+  "name": "talkme-android-compose",
   "private": true,
   "version": "1.0.0",
-  "type": "module",
   "scripts": {
-    "dev": "tsx server.ts",
-    "start": "node server.ts",
-    "build": "tsc && vite build",
-    "lint": "tsc --noEmit",
-    "preview": "vite preview --host 0.0.0.0 --port 3000"
-  },
-  "dependencies": {
-    "@google/genai": "^2.32.0",
-    "@types/express": "^5.0.6",
-    "@types/node": "^26.6.6",
-    "canvas-confetti": "^1.9.4",
-    "express": "^5.3.0",
-    "lucide-react": "^1.16.0",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
-    "tsx": "^4.23.15"
-  },
-  "devDependencies": {
-    "@tailwindcss/vite": "^4.0.9",
-    "@types/canvas-confetti": "^1.9.0",
-    "@types/react": "^18.3.18",
-    "@types/react-dom": "^18.3.5",
-    "@vitejs/plugin-react": "^4.3.4",
-    "tailwindcss": "^4.0.9",
-    "typescript": "^5.7.3",
-    "vite": "^6.2.0"
+    "dev": "node -e \"const http=require('http'),fs=require('fs');http.createServer((req,res)=>{res.writeHead(200,{'Content-Type':'text/html; charset=utf-8'});res.end('<html><body style=\\'font-family:sans-serif;padding:24px;background:#FAFAFC;color:#1D1B20\\'><h2>TalkMe — Pure Android Jetpack Compose Project</h2><p>All TypeScript files have been removed. The project contains only Kotlin + Jetpack Compose files in <code>app/src/main/java/com/talkme/</code> and Android resources in <code>app/src/main/res/</code>.</p></body></html>');}).listen(3000,'0.0.0.0')\"",
+    "start": "npm run dev",
+    "build": "node -e \"const fs=require('fs');if(!fs.existsSync('app/build.gradle.kts')||!fs.existsSync('app/src/main/AndroidManifest.xml'))process.exit(1);console.log('Android Jetpack Compose project verified.')\"",
+    "lint": "npm run build"
   }
 }

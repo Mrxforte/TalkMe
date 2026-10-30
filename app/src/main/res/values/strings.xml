@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">TalkMe</string>
+
+    <!-- Navigation & Common Actions -->
+    <string name="cd_navigate_back">Orqaga qaytish</string>
+    <string name="cd_bookmark_lesson">Darsni saqlash</string>
+    <string name="cd_voice_settings">Ovoz sozlamalari</string>
+    <string name="cd_share_result">Natijani ulashish</string>
+    <string name="cd_play_audio">Talaffuzni tinglash</string>
+    <string name="cd_play_slow_audio">Sekin talaffuzni tinglash</string>
+    <string name="cd_formula_layers">Formula tuzilishi</string>
+    <string name="cd_completed_check">Bajarildi</string>
+
+    <!-- Multilingual & Language Pack Settings -->
+    <string name="lang_interface_title">Ilova va tushuntirish tili (Interface Language)</string>
+    <string name="lang_learning_title">O‘rganilayotgan til (Learning Language)</string>
+    <string name="lang_english_variant_us">American English (en-US)</string>
+    <string name="lang_english_variant_gb">British English (en-GB)</string>
+    <string name="lang_pack_validator_ok">Barcha til paketlari tekshirildi (100%)</string>
+    <string name="lesson_a0_first_title">Hello! Welcome to TalkMe!</string>
+    <string name="lesson_a0_first_subtitle">1-Dars: Salom! TalkMe ilovasiga xush kelibsiz! (A0)</string>
+    <string name="lesson_a0_confidence_message">Bu juda oson ekan. Men buni uddalay olaman!</string>
+
+    <!-- Lesson Detail Screen Segment Tabs & Universal 10 Sections -->
+    <string name="tab_rule">Qoida</string>
+    <string name="tab_example">Misol</string>
+    <string name="tab_exercise">Mashq</string>
+    <string name="section_1_intro">1. Kirish</string>
+    <string name="section_2_rules">2. Qoidalar</string>
+    <string name="section_3_examples">3. Misollar</string>
+    <string name="section_4_fill_blanks">4. Bo‘sh joy</string>
+    <string name="section_5_word_builder">5. So‘z terish</string>
+    <string name="section_6_vocabulary">6. Lug‘at</string>
+    <string name="section_7_grammar">7. Gap tuzish</string>
+    <string name="section_8_listening">8. Tinglash</string>
+    <string name="section_9_mixed">9. Aralash mashq</string>
+    <string name="section_10_final_test">10. Yakuniy Test</string>
+
+    <!-- Lesson Introduction & Rule Cards -->
+    <string name="action_start_learning">O‘rganishni boshlash</string>
+    <string name="label_learning_objectives">Ushbu darsda o‘rganasiz:</string>
+    <string name="label_formula_structure">Formula va Olmoshlar jadvali</string>
+    <string name="label_when_to_use">Qachon ishlatiladi:</string>
+    <string name="label_common_mistake">Ko‘p uchraydigan xato:</string>
+    <string name="label_memory_tip">Eslab qolish siri:</string>
+    <string name="action_expand_details">Qo‘shimcha tushuntirish</string>
+    <string name="action_collapse_details">Yopish</string>
+    <string name="action_slow_speech">Sekin</string>
+    <string name="action_continue_examples">Misollarga o‘tish</string>
+    <string name="action_continue_practice">Mashqlarni boshlash</string>
+
+    <!-- Exercises & Word Builder -->
+    <string name="action_check_answer">Tekshirish</string>
+    <string name="action_next_exercise">Keyingisi</string>
+    <string name="action_retry_exercise">Qayta urinish</string>
+    <string name="action_shuffle_letters">Harflarni aralashtirish</string>
+    <string name="action_show_hint">Maslahat</string>
+    <string name="feedback_correct">Barakalla! Javob to‘g‘ri.</string>
+    <string name="feedback_incorrect">Diqqat bilan qayta urinib ko‘ring.</string>
+    <string name="status_word_learned">O‘rganildi</string>
+    <string name="action_mark_learned">O‘rgandim</string>
+
+    <!-- Lesson Result Screen -->
+    <string name="result_screen_title">Dars Natijasi</string>
+    <string name="chip_lesson_completed">Dars yakunlandi</string>
+    <string name="result_congrats_title">Ajoyib natija!</string>
+    <string name="stat_label_score">Natija</string>
+    <string name="stat_label_time">Vaqt</string>
+    <string name="stat_label_xp">XP Ball</string>
+    <string name="stat_label_vocab">Lug‘at</string>
+    <string name="weekly_plan_title">Haftalik reja</string>
+    <string name="rule_correction_tip_title">Bir joyini mustahkamlaymiz</string>
+    <string name="exam_prep_card_title">Imtihonga tayyorgarlik</string>
+    <string name="action_continue_next_lesson">Keyingi darsga o‘tish</string>
+    <string name="action_retry_test">Testni qayta ishlash</string>
+    <string name="action_repeat_lesson">Darsni takrorlash</string>
+
+    <!-- Voice Settings Screen (Free 6-Character TTS & Gemini AI TTS) -->
+    <string name="voice_settings_title">Ovoz va TTS Sozlamalari</string>
+    <string name="voice_settings_subtitle">Oddiy Free TTS (6 ta personaj) yoki Gemini AI TTS</string>
+    <string name="voice_primary_tier_label">Asosiy TTS Tizimini Tanlang</string>
+    <string name="voice_tier_free_title">Mening Free TTS (Oddiy)</string>
+    <string name="voice_tier_free_desc">Oddiy userlar uchun bepul 6 ta personaj ovozi (Sherpa-ONNX / Tizim)</string>
+    <string name="voice_tier_gemini_title">Gemini 3.8 AI TTS</string>
+    <string name="voice_tier_gemini_desc">Bulutli 24kHz tabiiy AI ovozlar (Charon, Kore, Puck, Zephyr, Fenrir)</string>
+    <string name="voice_section_characters_title">6 ta Personaj Ovozlari (Character Voices)</string>
+    <string name="voice_section_characters_subtitle">Oddiy Free TTS va Gemini AI uchun maxsus sozlangan 6 xil ovoz</string>
+    <string name="voice_section_routing_title">Dvigatel Yo‘nalishi (EngineRegistry Rejimi)</string>
+    <string name="voice_mode_local_first">LOCAL_FIRST — Mening Free TTS (6 Personaj Asosiy)</string>
+    <string name="voice_mode_offline_only">OFFLINE_ONLY — 100% Oflayn Free TTS</string>
+    <string name="voice_mode_cloud_first">CLOUD_FIRST — Gemini 3.8 AI TTS (Asosiy)</string>
+    <string name="voice_mode_auto">AUTO — Avto Gibrid Rejim</string>
+    <string name="voice_action_audition">Eshitish</string>
+    <string name="voice_action_test_story">Hikoyani tanlangan ovozda tinglash</string>
+
+    <!-- Splash & Onboarding Screens -->
+    <string name="splash_tagline">Interaktiv Ingliz Tili va AI Ovoz Akademiyasi</string>
+    <string name="onboarding_badge">Yangi Avlod Dars Tizimi</string>
+    <string name="onboarding_title">Ingliz tilini tushunib va eshitib o‘rganing</string>
+    <string name="onboarding_subtitle">10 bosqichli universal dars arxitekturasi, 6 ta personaj ovozi va Gemini 3.8 AI TTS bir joyda.</string>
+    <string name="onboarding_feature_1_title">10 Bosqichli Interaktiv Darslar</string>
+    <string name="onboarding_feature_1_desc">Qoida, jonli misollar, harflardan so‘z terish, tinglash va yakuniy test.</string>
+    <string name="onboarding_feature_2_title">6 ta Personaj va Gemini 3.8 TTS</string>
+    <string name="onboarding_feature_2_desc">Bepul oflayn Sherpa-ONNX (6 xil ovoz) yoki bulutli Gemini 3.8 tabiiy talaffuzi.</string>
+    <string name="onboarding_feature_3_title">FSRS-6 Aqlli Takrorlash</string>
+    <string name="onboarding_feature_3_desc">Yodlangan so‘zlarni xotirada uzoq saqlash uchun ilmiy kartochkalar tizimi.</string>
+
+    <!-- Home Dashboard Screen -->
+    <string name="home_greeting_subtitle">Kunlik o‘quv rejangiz</string>
+    <string name="home_streak_days">7 kunlik faollik</string>
+    <string name="home_xp_total">1,450 XP</string>
+    <string name="home_current_lesson_badge">Hozirgi Dars • A0–A1</string>
+    <string name="home_current_lesson_title">Hello! Welcome to TalkMe! (1-Dars)</string>
+    <string name="home_current_lesson_desc">Noldan boshlovchilar uchun 6 ta asosiy so‘z, oddiy grammatika va 10 bosqichli interaktiv mashqlar.</string>
+    <string name="home_nav_section_title">O‘quv Bo‘limlari</string>
+    <string name="home_nav_courses_title">Grammatika Kurslari</string>
+    <string name="home_nav_courses_sub">2 ustunli mavzular katalogi</string>
+    <string name="home_nav_repeat_title">FSRS-6 Takrorlash</string>
+    <string name="home_nav_repeat_sub">Xotirani mustahkamlash kartochkalari</string>
+    <string name="home_nav_voicestudio_title">Ovoz Studiyasi</string>
+    <string name="home_nav_voicestudio_sub">6 ta personaj va Sample 01</string>
+    <string name="home_nav_settings_title">TTS Sozlamalari</string>
+    <string name="home_nav_settings_sub">Free TTS va Gemini 3.8 rejimi</string>
+    <string name="home_nav_profile_title">Profil va Reyting</string>
+    <string name="home_nav_profile_sub">Yutuqlar va haftalik peshqadamlar</string>
+
+    <!-- Courses Catalog Screen (2-Column Grid) -->
+    <string name="courses_screen_title">Grammatika Kurslari</string>
+    <string name="courses_screen_subtitle">CEFR A0 dan C1 gacha tizimli darslar</string>
+    <string name="courses_filter_all">Barchasi</string>
+    <string name="courses_filter_beginner">A0–A1 Boshlang‘ich</string>
+    <string name="courses_filter_elementary">A2–B1 O‘rta</string>
+    <string name="course_1_title">Hello! Welcome to TalkMe!</string>
+    <string name="course_1_subtitle">1-Dars: Salomlashish va 6 ta so‘z</string>
+    <string name="course_1_meta">A0 • 10 bosqich</string>
+    <string name="course_2_title">To Be &amp; Pronouns</string>
+    <string name="course_2_subtitle">Olmoshlar va am / is / are</string>
+    <string name="course_2_meta">A1 • 10 bosqich</string>
+    <string name="course_3_title">Present Simple</string>
+    <string name="course_3_subtitle">Doimiy harakatlar va -s qo‘shimchasi</string>
+    <string name="course_3_meta">A1 • 10 bosqich</string>
+    <string name="course_4_title">Articles &amp; Plurals</string>
+    <string name="course_4_subtitle">A / An / The va ko‘plik shakllari</string>
+    <string name="course_4_meta">A1 • 10 bosqich</string>
+    <string name="course_5_title">Prepositions of Place</string>
+    <string name="course_5_subtitle">In, On, Under, Next to</string>
+    <string name="course_5_meta">A2 • 10 bosqich</string>
+    <string name="course_6_title">Past Simple Mastery</string>
+    <string name="course_6_subtitle">To‘g‘ri va noto‘g‘ri fe’llar</string>
+    <string name="course_6_meta">A2 • 10 bosqich</string>
+
+    <!-- Repeat Screen (FSRS-6 Spaced Repetition) -->
+    <string name="repeat_screen_title">FSRS-6 Aqlli Takrorlash</string>
+    <string name="repeat_screen_subtitle">Xotira barqarorligi bo‘yicha navbatdagi so‘zlar</string>
+    <string name="repeat_cards_remaining">Bugungi navbat: 5 ta so‘z</string>
+    <string name="repeat_stability_label">Barqarorlik (S): 4.8 kun</string>
+    <string name="repeat_difficulty_label">Qiyinlik (D): 3.2</string>
+    <string name="repeat_tap_to_reveal">Tarjima va misolni ko‘rish</string>
+    <string name="repeat_hide_translation">Tarjimani yashirish</string>
+    <string name="repeat_grade_again">Qayta (10d)</string>
+    <string name="repeat_grade_hard">Qiyin (1k)</string>
+    <string name="repeat_grade_good">Yaxshi (4k)</string>
+    <string name="repeat_grade_easy">Oson (9k)</string>
+
+    <!-- Profile & Leaderboard Screen -->
+    <string name="profile_screen_title">O‘quvchi Profili</string>
+    <string name="profile_screen_subtitle">O‘zlashtirish ko‘rsatkichlari va faol ovoz</string>
+    <string name="profile_student_name">Azizbek Karimov</string>
+    <string name="profile_student_level">CEFR A1 • Faol O‘quvchi</string>
+    <string name="profile_stat_words">48 so‘z</string>
+    <string name="profile_voice_card_title">Faol Ovoz Tizimi</string>
+    <string name="profile_voice_card_desc">Mening Free TTS (6 ta personaj) + Gemini 3.8 AI TTS gibrid rejimi</string>
+    <string name="profile_leaderboard_title">Haftalik Peshqadamlar</string>
+    <string name="profile_leader_1_name">1. Azizbek Karimov (Siz)</string>
+    <string name="profile_leader_1_xp">1,450 XP</string>
+    <string name="profile_leader_2_name">2. Madina Rustamova</string>
+    <string name="profile_leader_2_xp">1,390 XP</string>
+    <string name="profile_leader_3_name">3. Javohir Tursunov</string>
+    <string name="profile_leader_3_xp">1,280 XP</string>
+
+    <!-- Lesson 3 (Vowels and Consonants) & Lesson 4 (Phonics and Spelling) -->
+    <string name="lesson_03_title">3-Dars: Vowels and Consonants</string>
+    <string name="lesson_03_subtitle">A0 • Unli (A, E, I, O, U) va undosh harflar</string>
+    <string name="lesson_03_vowels_header">VOWELS — 5 ta asosiy unli harf</string>
+    <string name="lesson_03_consonants_header">CONSONANTS — 21 ta undosh harf</string>
+    <string name="lesson_03_basket_game_title">1-O‘yin: Harflarni savatchalarga joylashtir!</string>
+    <string name="lesson_03_find_vowels_title">2-O‘yin: Unli harflarni top! (Find the Vowels!)</string>
+    <string name="lesson_03_owl_game_title">3-O‘yin: Boyqushga yordam ber! (Help the Owl!)</string>
+    <string name="lesson_03_listen_game_title">6-O‘yin: Eshit va tanla! (Listen and Choose!)</string>
+    <string name="lesson_04_title">4-Dars: Phonics and Spelling</string>
+    <string name="lesson_04_subtitle">A0 • Harf tovushlari va 10 ta kundalik so‘z imlosi</string>
+    <string name="lesson_04_words_header">SPELLING — 10 ta kundalik inglizcha so‘z</string>
+    <string name="lesson_04_build_word_title">1-O‘yin: So‘zni yasa! (Build the Word)</string>
+    <string name="lesson_04_missing_letter_title">2-O‘yin: Tushib qolgan harfni top!</string>
+    <string name="action_hear_letter">Harf</string>
+    <string name="action_hear_word">So‘z</string>
+    <string name="action_hear_spelling">Harflab</string>
+</resources>
+

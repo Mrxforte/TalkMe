@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">TalkMe</string>
+    <string name="cd_navigate_back">뒤로 가기</string>
+    <string name="cd_bookmark_lesson">수업 북마크</string>
+    <string name="cd_voice_settings">음성 설정</string>
+    <string name="cd_play_audio">발음 듣기</string>
+    <string name="cd_play_slow_audio">천천히 발음 듣기</string>
+    <string name="lang_interface_title">인터페이스 및 설명 언어</string>
+    <string name="lang_learning_title">학습 언어: 영어 (English)</string>
+    <string name="lang_english_variant_us">미국식 영어 (en-US)</string>
+    <string name="lang_english_variant_gb">영국식 영어 (en-GB)</string>
+    <string name="lang_pack_validator_ok">모든 언어 팩 무결성 검증 완료 (100%)</string>
+    <string name="lesson_a0_first_title">Hello! Welcome to TalkMe!</string>
+    <string name="lesson_a0_first_subtitle">1강: 안녕하세요! TalkMe에 오신 것을 환영합니다! (A0)</string>
+    <string name="lesson_a0_confidence_message">생각보다 정말 쉽네요! 저도 할 수 있어요!</string>
+    <string name="tab_rule">규칙</string>
+    <string name="tab_example">예문</string>
+    <string name="tab_exercise">연습</string>
+    <string name="action_start_learning">학습 시작하기</string>
+    <string name="action_check_answer">정답 확인</string>
+    <string name="action_next_exercise">다음</string>
+    <string name="action_retry_exercise">다시 시도</string>
+    <string name="feedback_correct">정답입니다! 참 잘했어요.</string>
+    <string name="feedback_incorrect">천천히 다시 한번 시도해 보세요.</string>
+    <string name="lesson_03_title">3강: Vowels and Consonants (모음과 자음)</string>
+    <string name="lesson_03_subtitle">A0 • 모음 5개와 자음 21개 쉽게 구분하기</string>
+    <string name="lesson_03_vowels_header">VOWELS — 5개의 핵심 모음</string>
+    <string name="lesson_03_consonants_header">CONSONANTS — 21개의 자음</string>
+    <string name="lesson_03_basket_game_title">게임 1: 바구니에 글자 담기!</string>
+    <string name="lesson_03_find_vowels_title">게임 2: 모음을 찾아라! (Find the Vowels!)</string>
+    <string name="lesson_03_owl_game_title">게임 3: 부엉이를 도와줘! (Help the Owl!)</string>
+    <string name="lesson_03_listen_game_title">게임 6: 듣고 고르기! (Listen and Choose!)</string>
+    <string name="lesson_04_title">4강: Phonics and Spelling (파닉스와 철자)</string>
+    <string name="lesson_04_subtitle">A0 • 알파벳 소리와 필수 단어 10개 철자 익히기</string>
+    <string name="lesson_04_words_header">SPELLING — 일상 필수 영어 단어 10개</string>
+    <string name="lesson_04_build_word_title">게임 1: 단어 만들기! (Build the Word)</string>
+    <string name="lesson_04_missing_letter_title">게임 2: 빠진 글자 찾기!</string>
+    <string name="action_hear_letter">글자</string>
+    <string name="action_hear_word">단어</string>
+    <string name="action_hear_spelling">철자</string>
+</resources>
+

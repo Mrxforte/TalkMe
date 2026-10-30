@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">TalkMe</string>
+    <string name="cd_navigate_back">Назад</string>
+    <string name="cd_bookmark_lesson">Сохранить урок</string>
+    <string name="cd_voice_settings">Настройки голоса</string>
+    <string name="cd_play_audio">Прослушать произношение</string>
+    <string name="cd_play_slow_audio">Прослушать медленно</string>
+    <string name="lang_interface_title">Язык интерфейса и объяснений</string>
+    <string name="lang_learning_title">Изучаемый язык: Английский</string>
+    <string name="lang_english_variant_us">Американский английский (en-US)</string>
+    <string name="lang_english_variant_gb">Британский английский (en-GB)</string>
+    <string name="lang_pack_validator_ok">Все языковые пакеты проверены (100%)</string>
+    <string name="lesson_a0_first_title">Hello! Welcome to TalkMe!</string>
+    <string name="lesson_a0_first_subtitle">Урок 1: Привет! Добро пожаловать в TalkMe! (A0)</string>
+    <string name="lesson_a0_confidence_message">Это легко! У меня всё получается!</string>
+    <string name="tab_rule">Правило</string>
+    <string name="tab_example">Пример</string>
+    <string name="tab_exercise">Практика</string>
+    <string name="action_start_learning">Начать обучение</string>
+    <string name="action_check_answer">Проверить</string>
+    <string name="action_next_exercise">Далее</string>
+    <string name="action_retry_exercise">Попробовать снова</string>
+    <string name="feedback_correct">Отлично! Ответ верный.</string>
+    <string name="feedback_incorrect">Попробуйте ещё раз внимательно.</string>
+    <string name="lesson_03_title">Урок 3: Vowels and Consonants</string>
+    <string name="lesson_03_subtitle">A0 • Гласные (A, E, I, O, U) и согласные буквы</string>
+    <string name="lesson_03_vowels_header">VOWELS — 5 основных гласных букв</string>
+    <string name="lesson_03_consonants_header">CONSONANTS — 21 согласная буква</string>
+    <string name="lesson_03_basket_game_title">Игра 1: Разложи буквы по корзинкам!</string>
+    <string name="lesson_03_find_vowels_title">Игра 2: Найди гласные! (Find the Vowels!)</string>
+    <string name="lesson_03_owl_game_title">Игра 3: Помоги сове! (Help the Owl!)</string>
+    <string name="lesson_03_listen_game_title">Игра 6: Послушай и выбери! (Listen and Choose!)</string>
+    <string name="lesson_04_title">Урок 4: Phonics and Spelling</string>
+    <string name="lesson_04_subtitle">A0 • Звуки букв и правописание 10 базовых слов</string>
+    <string name="lesson_04_words_header">SPELLING — 10 повседневных слов</string>
+    <string name="lesson_04_build_word_title">Игра 1: Собери слово! (Build the Word)</string>
+    <string name="lesson_04_missing_letter_title">Игра 2: Найди пропущенную букву!</string>
+    <string name="action_hear_letter">Буква</string>
+    <string name="action_hear_word">Слово</string>
+    <string name="action_hear_spelling">По буквам</string>
+</resources>
+
