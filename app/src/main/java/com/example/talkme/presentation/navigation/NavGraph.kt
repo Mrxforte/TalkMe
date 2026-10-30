@@ -200,11 +200,22 @@ fun AppNavGraph(
             )
         }
 
-        // 11. User Profile Screen
+        // 11. User Profile & Results Analytics & Voice AI Settings Screen
         composable(route = Screen.Profile.route) {
+            val viewModel: LessonDetailViewModel = hiltViewModel()
+
             ProfileScreen(
                 onTabSelected = { tabIndex ->
                     navigateToTab(navController, tabIndex)
+                },
+                onOpenVoiceStudioClick = {
+                    navController.navigate(Screen.VoiceStudio.route)
+                },
+                onOpenVoiceSettingsClick = {
+                    navController.navigate(Screen.VoiceSettings.route)
+                },
+                onPlaySampleTtsClick = { text ->
+                    viewModel.speak(text)
                 },
             )
         }
@@ -216,7 +227,7 @@ fun AppNavGraph(
                 onBackClick = {
                     navController.popBackStack()
                 },
-                onGenerateClick = { text, speed, pitch ->
+                onGenerateClick = { text, _, _ ->
                     viewModel.speak(text)
                 },
             )
@@ -245,7 +256,7 @@ private fun navigateToTab(navController: NavHostController, tabIndex: Int) {
         0 -> Screen.Home.route
         1 -> Screen.Courses.route
         2 -> Screen.Repeat.route
-        3 -> Screen.Results.route
+        3 -> Screen.Profile.route
         else -> Screen.Home.route
     }
 

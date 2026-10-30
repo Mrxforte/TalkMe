@@ -11,7 +11,7 @@ import javax.inject.Singleton
 
 /**
  * Android Framework Implementation of TextToSpeechRepository using native android.speech.tts.TextToSpeech.
- * Strictly configured for English pronunciation (Locale.US) with automatic resource management.
+ * Configured with pending queue for robust audio speech playback across all Android devices.
  *
  * @param context Injected Application Context.
  */
@@ -22,6 +22,7 @@ class TextToSpeechRepositoryImpl @Inject constructor(
 
     private var tts: TextToSpeech? = null
     private var isInitialized = false
+    private val pendingTextQueue = mutableListOf<String>()
 
     init {
         initializeTts()
@@ -31,18 +32,33 @@ class TextToSpeechRepositoryImpl @Inject constructor(
      * Initializes the Android TextToSpeech engine.
      */
     private fun initializeTts() {
-        tts = TextToSpeech(context, this)
+        if (tts == null) {
+            tts = TextToSpeech(context, this)
+        }
     }
 
     override fun onInit(status: Int) {
         if (status == TextToSpeech.SUCCESS) {
-            val result = tts?.setLanguage(Locale.US)
+            var result = tts?.setLanguage(Locale.US)
             if (result == TextToSpeech.LANG_MISSING_DATA || result == TextToSpeech.LANG_NOT_SUPPORTED) {
-                Log.e(TAG, "English US language is not supported or missing data on this device.")
-            } else {
+                Log.w(TAG, "Locale.US missing or unsupported, falling back to Locale.ENGLISH.")
+                result = tts?.setLanguage(Locale.ENGLISH)
+            }
+
+            if (result != TextToSpeech.LANG_MISSING_DATA && result != TextToSpeech.LANG_NOT_SUPPORTED) {
                 isInitialized = true
-                tts?.setSpeechRate(0.9f) // Slightly slower speech rate for optimal learning clarity
-                Log.d(TAG, "English TextToSpeech engine initialized successfully.")
+                tts?.setSpeechRate(0.9f)
+                Log.d(TAG, "TextToSpeech engine initialized successfully.")
+
+                // Flush any queued speech requests
+                synchronized(pendingTextQueue) {
+                    pendingTextQueue.forEach { text ->
+                        speakInternal(text)
+                    }
+                    pendingTextQueue.clear()
+                }
+            } else {
+                Log.e(TAG, "No supported English TTS language found on device.")
             }
         } else {
             Log.e(TAG, "Failed to initialize TextToSpeech engine. Status: $status")
@@ -50,26 +66,41 @@ class TextToSpeechRepositoryImpl @Inject constructor(
     }
 
     override fun speak(text: String) {
-        if (isInitialized) {
-            tts?.speak(text, TextToSpeech.QUEUE_FLUSH, null, "TalkMe_TTS_${System.currentTimeMillis()}")
-        } else {
-            Log.w(TAG, "TTS not initialized yet. Re-initializing and queued text: $text")
-            initializeTts()
+        if (text.isBlank()) return
+
+        synchronized(pendingTextQueue) {
+            if (isInitialized) {
+                speakInternal(text)
+            } else {
+                Log.d(TAG, "TTS not initialized yet. Enqueueing text: $text")
+                pendingTextQueue.add(text)
+                initializeTts()
+            }
         }
     }
 
+    private fun speakInternal(text: String) {
+        tts?.speak(text, TextToSpeech.QUEUE_FLUSH, null, "TalkMe_TTS_${System.currentTimeMillis()}")
+    }
+
     override fun stop() {
-        if (isInitialized) {
-            tts?.stop()
+        synchronized(pendingTextQueue) {
+            pendingTextQueue.clear()
+            if (isInitialized) {
+                tts?.stop()
+            }
         }
     }
 
     override fun shutdown() {
-        if (tts != null) {
-            tts?.stop()
-            tts?.shutdown()
-            tts = null
-            isInitialized = false
+        synchronized(pendingTextQueue) {
+            pendingTextQueue.clear()
+            if (tts != null) {
+                tts?.stop()
+                tts?.shutdown()
+                tts = null
+                isInitialized = false
+            }
         }
     }
 
