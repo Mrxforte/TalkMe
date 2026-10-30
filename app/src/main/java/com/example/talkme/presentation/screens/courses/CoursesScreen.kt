@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -26,9 +25,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.example.talkme.R
 import com.example.talkme.presentation.components.TalkMeBottomBar
 import com.example.talkme.presentation.components.TalkMeCard
 import com.example.talkme.presentation.components.TalkMeHeader
@@ -38,8 +37,8 @@ import com.example.talkme.ui.theme.LocalDimensions
 import com.example.talkme.ui.theme.TalkMeTheme
 
 /**
- * Clean Courses Catalog Screen displaying "Mening kurslarim" title and dedicated Grammar Category Cards.
- * All unneeded CEFR rows, level selectors, and redundant paragraphs have been completely removed.
+ * Clean Courses Catalog Screen displaying "Mening kurslarim" title and a 2-Column Grid of Grammar Category Cards.
+ * Features prominent visual icon illustrations and subtopic topic counts in a clean 2-column layout.
  *
  * @param onTabSelected Bottom navigation tab callback handler.
  * @param modifier Composable layout modifier.
@@ -97,65 +96,77 @@ fun CoursesScreen(
             Spacer(modifier = Modifier.height(dimensions.paddingMedium))
 
             // ==========================================
-            // GRAMMAR CATEGORY CARDS (ONLY THESE CARDS)
+            // 2-COLUMN GRID GRAMMAR CATEGORY CARDS
             // ==========================================
-            GrammarCategoryCard(
-                title = "Ot (Nouns)",
-                subtitle = "Birlik va ko'plik · Sanaladigan va sanalmaydigan otlar",
-                tagText = "GRAMMATIKA · 8 MAVZU",
-                iconRes = AppIcons.Book,
-                onClick = { onSubtopicClick("nouns") },
-            )
+            // Row 1: Ot (Nouns) & Sifat (Adjectives)
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(dimensions.paddingMedium),
+            ) {
+                GrammarGridCard(
+                    title = "Ot (Nouns)",
+                    subtitle = "8 ta mavzu",
+                    iconRes = AppIcons.Book,
+                    onClick = { onSubtopicClick("nouns") },
+                    modifier = Modifier.weight(1f),
+                )
 
-            Spacer(modifier = Modifier.height(dimensions.paddingSmall))
+                GrammarGridCard(
+                    title = "Sifat (Adjectives)",
+                    subtitle = "6 ta mavzu",
+                    iconRes = AppIcons.Edit,
+                    onClick = { onSubtopicClick("adjectives") },
+                    modifier = Modifier.weight(1f),
+                )
+            }
 
-            GrammarCategoryCard(
-                title = "Sifat (Adjectives)",
-                subtitle = "Sifat darajalari · Qiyosiy va ortirma daraja",
-                tagText = "GRAMMATIKA · 6 MAVZU",
-                iconRes = AppIcons.Edit,
-                onClick = { onSubtopicClick("adjectives") },
-            )
+            Spacer(modifier = Modifier.height(dimensions.paddingMedium))
 
-            Spacer(modifier = Modifier.height(dimensions.paddingSmall))
+            // Row 2: Son (Numerals) & Fe'l va Zamonlar (Verbs & Tenses)
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(dimensions.paddingMedium),
+            ) {
+                GrammarGridCard(
+                    title = "Son (Numerals)",
+                    subtitle = "5 ta mavzu",
+                    iconRes = AppIcons.Results,
+                    onClick = { onSubtopicClick("numerals") },
+                    modifier = Modifier.weight(1f),
+                )
 
-            GrammarCategoryCard(
-                title = "Son (Numerals)",
-                subtitle = "Sanoq va tartib sonlar · Sanalar va vaqt",
-                tagText = "GRAMMATIKA · 5 MAVZU",
-                iconRes = AppIcons.Results,
-                onClick = { onSubtopicClick("numerals") },
-            )
+                GrammarGridCard(
+                    title = "Fe'l va Zamonlar",
+                    subtitle = "12 ta mavzu",
+                    iconRes = AppIcons.Fire,
+                    onClick = { onSubtopicClick("verbs") },
+                    modifier = Modifier.weight(1f),
+                )
+            }
 
-            Spacer(modifier = Modifier.height(dimensions.paddingSmall))
+            Spacer(modifier = Modifier.height(dimensions.paddingMedium))
 
-            GrammarCategoryCard(
-                title = "Fe'l va Zamonlar (Verbs & Tenses)",
-                subtitle = "Hozirgi, o'tgan va kelasi zamon shakllari",
-                tagText = "GRAMMATIKA · 12 MAVZU",
-                iconRes = AppIcons.Fire,
-                onClick = { onSubtopicClick("verbs") },
-            )
+            // Row 3: Olmosh (Pronouns) & Predloglar (Prepositions)
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(dimensions.paddingMedium),
+            ) {
+                GrammarGridCard(
+                    title = "Olmosh (Pronouns)",
+                    subtitle = "7 ta mavzu",
+                    iconRes = AppIcons.Chat,
+                    onClick = { onSubtopicClick("pronouns") },
+                    modifier = Modifier.weight(1f),
+                )
 
-            Spacer(modifier = Modifier.height(dimensions.paddingSmall))
-
-            GrammarCategoryCard(
-                title = "Olmosh (Pronouns)",
-                subtitle = "Kishilik, egalik va ko'rsatkich olmoshlari",
-                tagText = "GRAMMATIKA · 7 MAVZU",
-                iconRes = AppIcons.Chat,
-                onClick = { onSubtopicClick("pronouns") },
-            )
-
-            Spacer(modifier = Modifier.height(dimensions.paddingSmall))
-
-            GrammarCategoryCard(
-                title = "Ravish va Predloglar (Prepositions)",
-                subtitle = "O'rin va vaqt predloglari · in, on, at",
-                tagText = "GRAMMATIKA · 9 MAVZU",
-                iconRes = AppIcons.Search,
-                onClick = { onSubtopicClick("prepositions") },
-            )
+                GrammarGridCard(
+                    title = "Predloglar",
+                    subtitle = "9 ta mavzu",
+                    iconRes = AppIcons.Search,
+                    onClick = { onSubtopicClick("prepositions") },
+                    modifier = Modifier.weight(1f),
+                )
+            }
 
             Spacer(modifier = Modifier.height(dimensions.paddingHuge))
         }
@@ -163,13 +174,12 @@ fun CoursesScreen(
 }
 
 /**
- * Dedicated Grammar Category Card with Iconography and Subtopic Count Tag.
+ * 2-Column Grid Card Component featuring prominent visual icon illustration and subtopic count.
  */
 @Composable
-fun GrammarCategoryCard(
+fun GrammarGridCard(
     title: String,
     subtitle: String,
-    tagText: String,
     iconRes: Int,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
@@ -182,66 +192,46 @@ fun GrammarCategoryCard(
         containerColor = MaterialTheme.colorScheme.surface,
         cornerRadius = dimensions.cornerLarge,
     ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically,
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(dimensions.paddingSmall),
+            horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            Row(
-                modifier = Modifier.weight(1f),
-                verticalAlignment = Alignment.CenterVertically,
+            Box(
+                modifier = Modifier
+                    .size(64.dp)
+                    .clip(RoundedCornerShape(dimensions.cornerLarge))
+                    .background(MaterialTheme.colorScheme.primaryContainer),
+                contentAlignment = Alignment.Center,
             ) {
-                Box(
-                    modifier = Modifier
-                        .size(48.dp)
-                        .clip(RoundedCornerShape(dimensions.cornerMedium))
-                        .background(MaterialTheme.colorScheme.primaryContainer),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    Icon(
-                        painter = painterResource(id = iconRes),
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.size(dimensions.iconLarge),
-                    )
-                }
-
-                Spacer(modifier = Modifier.width(dimensions.paddingMedium))
-
-                Column {
-                    Text(
-                        text = tagText,
-                        style = AppTypography.LessonTag.copy(
-                            color = MaterialTheme.colorScheme.primary,
-                        ),
-                    )
-
-                    Spacer(modifier = Modifier.height(dimensions.paddingMicro))
-
-                    Text(
-                        text = title,
-                        style = AppTypography.CardTitle.copy(
-                            color = MaterialTheme.colorScheme.onBackground,
-                            fontWeight = FontWeight.Bold,
-                        ),
-                    )
-
-                    Spacer(modifier = Modifier.height(dimensions.paddingMicro))
-
-                    Text(
-                        text = subtitle,
-                        style = AppTypography.CardSubtitle.copy(
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        ),
-                    )
-                }
+                Icon(
+                    painter = painterResource(id = iconRes),
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(dimensions.iconExtraLarge),
+                )
             }
 
-            Icon(
-                painter = painterResource(id = AppIcons.ChevronRight),
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.size(dimensions.iconMedium),
+            Spacer(modifier = Modifier.height(dimensions.paddingMedium))
+
+            Text(
+                text = title,
+                style = AppTypography.CardTitle.copy(
+                    color = MaterialTheme.colorScheme.onBackground,
+                    fontWeight = FontWeight.Bold,
+                ),
+                textAlign = TextAlign.Center,
+            )
+
+            Spacer(modifier = Modifier.height(dimensions.paddingMicro))
+
+            Text(
+                text = subtitle,
+                style = AppTypography.CardSubtitle.copy(
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                ),
+                textAlign = TextAlign.Center,
             )
         }
     }
