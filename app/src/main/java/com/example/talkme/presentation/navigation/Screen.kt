@@ -16,6 +16,11 @@ sealed class Screen(val route: String) {
     /** Courses and lessons catalog screen route */
     object Courses : Screen("courses")
 
+    /** Course learning levels path map screen route */
+    object CourseLevels : Screen("course_levels/{courseId}") {
+        fun createRoute(courseId: String) = "course_levels/$courseId"
+    }
+
     /** Vocabulary repetition and spaced practice screen route */
     object Repeat : Screen("repeat")
 

@@ -9,6 +9,8 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.talkme.domain.fsrs.FsrsDailyStats
+import com.example.talkme.presentation.screens.courses.CourseLevelsScreen
 import com.example.talkme.presentation.screens.courses.CoursesScreen
 import com.example.talkme.presentation.screens.home.HomeScreen
 import com.example.talkme.presentation.screens.lesson.LessonDetailScreen
@@ -19,6 +21,8 @@ import com.example.talkme.presentation.screens.lesson.QuizScreen
 import com.example.talkme.presentation.screens.onboarding.OnboardingScreen
 import com.example.talkme.presentation.screens.profile.ProfileScreen
 import com.example.talkme.presentation.screens.repeat.RepeatScreen
+import com.example.talkme.presentation.screens.repeat.RepeatUiState
+import com.example.talkme.presentation.screens.repeat.RepeatViewModel
 import com.example.talkme.presentation.screens.results.ResultsScreen
 import com.example.talkme.presentation.screens.settings.VoiceSettingsScreen
 import com.example.talkme.presentation.screens.settings.VoiceSettingsViewModel
@@ -112,20 +116,49 @@ fun AppNavGraph(
                 onSearchClick = {
                     // Open search
                 },
-                onSubtopicClick = { subtopicId ->
-                    navController.navigate(Screen.LessonDetail.createRoute(subtopicId))
+                onSubtopicClick = { courseId ->
+                    navController.navigate(Screen.CourseLevels.createRoute(courseId))
                 },
             )
         }
 
-        // 5. Spaced Repetition Vocabulary Practice Screen
-        composable(route = Screen.Repeat.route) {
-            RepeatScreen(
+        // 4b. Course Levels Path Map Screen (Duolingo Style)
+        composable(route = Screen.CourseLevels.route) { backStackEntry ->
+            val courseId = backStackEntry.arguments?.getString("courseId") ?: "nouns"
+            CourseLevelsScreen(
+                courseId = courseId,
                 onTabSelected = { tabIndex ->
                     navigateToTab(navController, tabIndex)
                 },
-                onStartRepeatClick = {
-                    navController.navigate(Screen.Quiz.createRoute("vocab_repeat"))
+                onBackClick = {
+                    navController.popBackStack()
+                },
+                onStartLessonClick = { levelId ->
+                    navController.navigate(Screen.LessonDetail.createRoute(levelId))
+                },
+            )
+        }
+
+        // 5. Spaced Repetition Vocabulary Practice Screen (FSRS Engine)
+        composable(route = Screen.Repeat.route) {
+            val repeatViewModel: RepeatViewModel = hiltViewModel()
+            val uiState by repeatViewModel.uiState.collectAsStateWithLifecycle()
+            val dailyStats by repeatViewModel.dailyStats.collectAsStateWithLifecycle()
+
+            RepeatScreen(
+                uiState = uiState,
+                dailyStats = dailyStats,
+                onTabSelected = { tabIndex ->
+                    navigateToTab(navController, tabIndex)
+                },
+                onRevealAnswerClick = {
+                    repeatViewModel.revealAnswer()
+                },
+                onRatingClick = { rating ->
+                    repeatViewModel.submitRating(rating)
+                },
+                onPlayAudioClick = {
+                    repeatViewModel.playWordAudio()
                 },
             )
         }
