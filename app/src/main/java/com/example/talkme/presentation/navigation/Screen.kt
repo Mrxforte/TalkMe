@@ -40,4 +40,10 @@ sealed class Screen(val route: String) {
 
     /** User profile and achievements screen route */
     object Profile : Screen("profile")
+
+    /** Voice AI Studio interactive speech controls route */
+    object VoiceStudio : Screen("voice_studio")
+
+    /** Voice AI centralized settings and testing environment route */
+    object VoiceSettings : Screen("voice_settings")
 }

@@ -9,29 +9,21 @@ This rule file governs all current and future development in the **TalkMe** code
 - **Typography & Fonts**: Always reference `AppTypography.*` or `MaterialTheme.typography.*` (`ui/theme/Type.kt`).
 - **Icons**: Always access icons via `AppIcons.*`.
 
-## 2. Text-To-Speech (TTS) Rule
-- All English sentence pronunciation MUST use `SpeakTextUseCase` which uses native Android `android.speech.tts.TextToSpeech` configured for English (`Locale.US`).
+## 2. Voice AI Engine & TTS Rules
+- All speech requests MUST route through `EngineRegistry` and `SpeakTextUseCase`.
+- Supports local offline `SherpaOnnxTtsEngine`, server-side `CloudTtsEngine`, and native `AndroidSystemTtsEngine`.
+- Features centralized DataStore preferences (`SettingsRepositoryImpl`) and built-in long text testing environment (**Sample 01 — The Last Library in the City**).
 
 ## 3. Navigation Icons
 - 🚫 NEVER use `ChevronRight` for back buttons.
 - ✅ Always use `AppIcons.ChevronLeft` for back buttons in `TalkMeHeader`.
 
 ## 4. Package & Component Structure
-- Reusable UI widgets MUST be in `presentation/components/`:
-  - `TalkMeButton.kt`
-  - `TalkMeBadge.kt`
-  - `TalkMeCard.kt`
-  - `TalkMeHeader.kt` (Left back arrow `AppIcons.ChevronLeft`)
-  - `TalkMeTabRow.kt` (Supports `✓` checkmark completed tab indicators)
-  - `TalkMeProgressBar.kt`
-  - `TalkMeBottomBar.kt`
-  - `TalkMeOptionCard.kt`
-  - `TalkMeBannerCard.kt`
-  - `TalkMeSubtopicCard.kt` (Interactive clickable card with rounded purple dot indicator)
-- All screens MUST be cleanly nested inside `presentation/screens/` (`splash/`, `onboarding/`, `home/`, `courses/`, `lesson/`, `repeat/`, `results/`, `profile/`).
+- Reusable UI widgets MUST be in `presentation/components/`.
+- All screens MUST be cleanly nested inside `presentation/screens/` (`splash/`, `onboarding/`, `home/`, `courses/`, `lesson/`, `repeat/`, `results/`, `profile/`, `voicestudio/`, `settings/`).
 
 ## 5. Architecture
-- Clean Architecture + MVVM/MVI + Hilt DI + Jetpack Compose + Native Android TTS.
+- Clean Architecture + MVVM/MVI + Hilt DI + Jetpack Compose + Voice AI Engine.
 - `data/`, `domain/`, `di/`, `presentation/components/`, `presentation/navigation/`, `presentation/screens/`, `ui/theme/`.
 
 ## 6. Documentation

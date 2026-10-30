@@ -18,7 +18,9 @@ import com.example.talkme.presentation.screens.onboarding.OnboardingScreen
 import com.example.talkme.presentation.screens.profile.ProfileScreen
 import com.example.talkme.presentation.screens.repeat.RepeatScreen
 import com.example.talkme.presentation.screens.results.ResultsScreen
+import com.example.talkme.presentation.screens.settings.VoiceSettingsScreen
 import com.example.talkme.presentation.screens.splash.SplashScreen
+import com.example.talkme.presentation.screens.voicestudio.VoiceStudioScreen
 
 /**
  * Main Navigation Graph for the TalkMe application.
@@ -203,6 +205,32 @@ fun AppNavGraph(
             ProfileScreen(
                 onTabSelected = { tabIndex ->
                     navigateToTab(navController, tabIndex)
+                },
+            )
+        }
+
+        // 12. Voice AI Studio Screen
+        composable(route = Screen.VoiceStudio.route) {
+            val viewModel: LessonDetailViewModel = hiltViewModel()
+            VoiceStudioScreen(
+                onBackClick = {
+                    navController.popBackStack()
+                },
+                onGenerateClick = { text, speed, pitch ->
+                    viewModel.speak(text)
+                },
+            )
+        }
+
+        // 13. Voice AI Settings & Speech Testing Screen
+        composable(route = Screen.VoiceSettings.route) {
+            val viewModel: LessonDetailViewModel = hiltViewModel()
+            VoiceSettingsScreen(
+                onBackClick = {
+                    navController.popBackStack()
+                },
+                onRunQuickTestClick = { text ->
+                    viewModel.speak(text)
                 },
             )
         }
