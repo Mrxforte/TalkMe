@@ -1,8 +1,6 @@
 package com.example.talkme.presentation.screens.onboarding
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -10,19 +8,13 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -30,20 +22,19 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import com.example.talkme.R
+import com.example.talkme.presentation.components.GrammarHeroIllustration
 import com.example.talkme.presentation.components.TalkMeBadge
 import com.example.talkme.presentation.components.TalkMeButton
 import com.example.talkme.presentation.components.TalkMeHeader
 import com.example.talkme.ui.theme.AppIcons
 import com.example.talkme.ui.theme.AppTypography
-import com.example.talkme.ui.theme.ContainerPurpleLight
 import com.example.talkme.ui.theme.LocalDimensions
 import com.example.talkme.ui.theme.TalkMeTheme
 
 /**
- * Pixel-Perfect Onboarding & Welcome Screen matching Untitled.pdf Page 6 & 7 specifications.
- * Features branding header with language selector, hero illustration container,
+ * Pixel-Perfect Onboarding & Welcome Screen matching design specifications.
+ * Features branding header with language selector, 3D English Grammar hero illustration,
  * highlighted heading text, 10 min / self-pace feature chips, start & login action buttons,
  * and terms & conditions footer note.
  *
@@ -85,30 +76,8 @@ fun OnboardingScreen(
 
             Spacer(modifier = Modifier.height(dimensions.paddingSmall))
 
-            // Hero Illustration Box Container
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(280.dp)
-                    .clip(RoundedCornerShape(dimensions.cornerExtraLarge))
-                    .background(ContainerPurpleLight),
-                contentAlignment = Alignment.Center,
-            ) {
-                Box(
-                    modifier = Modifier
-                        .size(96.dp)
-                        .clip(RoundedCornerShape(dimensions.cornerLarge))
-                        .background(MaterialTheme.colorScheme.primary),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    Icon(
-                        painter = painterResource(id = AppIcons.Book),
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onPrimary,
-                        modifier = Modifier.size(dimensions.iconHuge),
-                    )
-                }
-            }
+            // 3D English Grammar Hero Illustration Box Container
+            GrammarHeroIllustration()
 
             Spacer(modifier = Modifier.height(dimensions.paddingHuge))
 

@@ -104,7 +104,7 @@ fun CoursesScreen(
                 horizontalArrangement = Arrangement.spacedBy(dimensions.paddingMedium),
             ) {
                 GrammarGridCard(
-                    title = "Ot (Nouns)",
+                    title = "Grammar fundamentals",
                     subtitle = "8 ta mavzu",
                     iconRes = AppIcons.Book,
                     onClick = { onSubtopicClick("nouns") },

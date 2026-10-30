@@ -91,7 +91,7 @@ fun AppNavGraph(
                 onVocabularyClick = {
                     navController.navigate(Screen.Repeat.route)
                 },
-                onSkillClick = { skillType ->
+                onSkillClick = { _ ->
                     navController.navigate(Screen.Courses.route)
                 },
                 onWeeklyTaskClick = {
