@@ -2,6 +2,7 @@ package com.example.talkme.presentation.navigation
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -9,6 +10,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.talkme.presentation.screens.courses.CoursesScreen
 import com.example.talkme.presentation.screens.home.HomeScreen
 import com.example.talkme.presentation.screens.lesson.LessonDetailScreen
+import com.example.talkme.presentation.screens.lesson.LessonDetailViewModel
 import com.example.talkme.presentation.screens.lesson.LessonResultScreen
 import com.example.talkme.presentation.screens.lesson.LevelUnlockedScreen
 import com.example.talkme.presentation.screens.lesson.QuizScreen
@@ -20,7 +22,7 @@ import com.example.talkme.presentation.screens.splash.SplashScreen
 
 /**
  * Main Navigation Graph for the TalkMe application.
- * Manages screen transitions and bottom navigation tab states.
+ * Manages screen transitions, ViewModels injection, and bottom navigation tab states.
  *
  * Startup Flow:
  * 1. Splash Screen (2 seconds delay)
@@ -132,14 +134,19 @@ fun AppNavGraph(
             )
         }
 
-        // 7. Lesson Detail Rules Screen
+        // 7. Lesson Detail Rules Screen with English TextToSpeech Injection
         composable(route = Screen.LessonDetail.route) {
+            val viewModel: LessonDetailViewModel = hiltViewModel()
+
             LessonDetailScreen(
                 onBackClick = {
                     navController.popBackStack()
                 },
                 onStartQuizClick = {
                     navController.navigate(Screen.Quiz.createRoute("present_continuous"))
+                },
+                onPlayAudioClick = { englishText ->
+                    viewModel.speak(englishText)
                 },
             )
         }
