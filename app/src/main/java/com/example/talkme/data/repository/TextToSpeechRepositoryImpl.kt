@@ -11,7 +11,7 @@ import javax.inject.Singleton
 
 /**
  * Android Framework Implementation of TextToSpeechRepository using native android.speech.tts.TextToSpeech.
- * Features automatic long-text sentence chunking, pending queue, and reliable audio speech playback.
+ * Features explicit user-driven playback control, long-text sentence chunking, and character voice profile support.
  *
  * @param context Injected Application Context.
  */
@@ -50,12 +50,13 @@ class TextToSpeechRepositoryImpl @Inject constructor(
                 tts?.setSpeechRate(0.9f)
                 Log.d(TAG, "TextToSpeech engine initialized successfully.")
 
-                // Flush any queued speech requests
+                // Only flush pending text if explicitly queued by user action
                 synchronized(pendingTextQueue) {
-                    pendingTextQueue.forEach { text ->
-                        speakInternal(text)
-                    }
+                    val pendingText = pendingTextQueue.lastOrNull()
                     pendingTextQueue.clear()
+                    if (pendingText != null) {
+                        speakInternal(pendingText)
+                    }
                 }
             } else {
                 Log.e(TAG, "No supported English TTS language found on device.")
@@ -72,7 +73,8 @@ class TextToSpeechRepositoryImpl @Inject constructor(
             if (isInitialized) {
                 speakInternal(text)
             } else {
-                Log.d(TAG, "TTS not initialized yet. Enqueueing text: $text")
+                Log.d(TAG, "TTS not initialized yet. Queueing text for user action: $text")
+                pendingTextQueue.clear()
                 pendingTextQueue.add(text)
                 initializeTts()
             }
@@ -80,6 +82,8 @@ class TextToSpeechRepositoryImpl @Inject constructor(
     }
 
     private fun speakInternal(text: String) {
+        tts?.stop() // Ensure any previous audio is stopped before playing new speech
+
         if (text.length > 300) {
             // Split long text into natural sentence chunks to respect Android TTS character limits
             val sentences = text.split(Regex("(?<=[.!?])\\s+|\\n+"))

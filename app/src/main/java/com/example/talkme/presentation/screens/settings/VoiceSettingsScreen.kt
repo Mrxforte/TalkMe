@@ -18,6 +18,7 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -35,6 +36,7 @@ import com.example.talkme.presentation.components.TalkMeBadge
 import com.example.talkme.presentation.components.TalkMeButton
 import com.example.talkme.presentation.components.TalkMeCard
 import com.example.talkme.presentation.components.TalkMeHeader
+import com.example.talkme.presentation.components.TalkMeTabRow
 import com.example.talkme.ui.theme.AppIcons
 import com.example.talkme.ui.theme.AppTypography
 import com.example.talkme.ui.theme.LocalDimensions
@@ -43,6 +45,7 @@ import com.example.talkme.ui.theme.TalkMeTheme
 
 /**
  * Reactive Voice AI Settings & Speech Testing Screen connected to DataStore preferences.
+ * Includes character voice selection, speech controls, and explicit play/stop test buttons.
  *
  * @param settings Current active VoiceSettings state.
  * @param onBackClick Navigation back handler.
@@ -68,7 +71,10 @@ fun VoiceSettingsScreen(
 ) {
     val dimensions = LocalDimensions.current
     var testReportText by remember { mutableStateOf("") }
+    var isTestPlaying by remember { mutableStateOf(false) }
+    var selectedCharacterIndex by remember { mutableIntStateOf(0) }
 
+    val characterProfiles = listOf("O‘qituvchi", "Hikoyachi", "Suhbatdosh", "Tezkor")
     val isLocalFirst = settings.engineSelectionMode == EngineSelectionMode.LOCAL_FIRST
 
     Scaffold(
@@ -126,7 +132,38 @@ fun VoiceSettingsScreen(
 
             Spacer(modifier = Modifier.height(dimensions.paddingMedium))
 
-            // 2. Speech Parameters (Speed & Pitch)
+            // 2. Character Voice Profile Selection ("Personaj Ovozini Tanlash")
+            TalkMeCard(
+                containerColor = MaterialTheme.colorScheme.surface,
+            ) {
+                Column {
+                    Text(
+                        text = "Ovoz Xarakteri & Personaj Tanlash",
+                        style = AppTypography.CardTitle,
+                    )
+
+                    Spacer(modifier = Modifier.height(dimensions.paddingSmall))
+
+                    TalkMeTabRow(
+                        tabs = characterProfiles,
+                        selectedIndex = selectedCharacterIndex,
+                        onTabSelected = { index ->
+                            selectedCharacterIndex = index
+                            val speedFactor = when (index) {
+                                0 -> 0.85f // O'qituvchi
+                                1 -> 0.95f // Hikoyachi
+                                2 -> 1.00f // Suhbatdosh
+                                else -> 1.15f // Tezkor
+                            }
+                            onSpeedChanged(speedFactor)
+                        },
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(dimensions.paddingMedium))
+
+            // 3. Speech Parameters (Speed & Pitch Sliders)
             TalkMeCard(
                 containerColor = MaterialTheme.colorScheme.surface,
             ) {
@@ -140,7 +177,7 @@ fun VoiceSettingsScreen(
                             style = AppTypography.CardTitle,
                         )
                         Text(
-                            text = "${"%.1f".format(settings.speechSpeed)}x",
+                            text = "${"%.2f".format(settings.speechSpeed)}x",
                             style = AppTypography.CardTitle,
                             fontWeight = FontWeight.Bold,
                         )
@@ -164,7 +201,7 @@ fun VoiceSettingsScreen(
                             style = AppTypography.CardTitle,
                         )
                         Text(
-                            text = "${"%.1f".format(settings.speechPitch)}x",
+                            text = "${"%.2f".format(settings.speechPitch)}x",
                             style = AppTypography.CardTitle,
                             fontWeight = FontWeight.Bold,
                         )
@@ -181,7 +218,7 @@ fun VoiceSettingsScreen(
 
             Spacer(modifier = Modifier.height(dimensions.paddingMedium))
 
-            // 3. Audio Cache Settings
+            // 4. Audio Cache Settings
             TalkMeCard(
                 containerColor = MaterialTheme.colorScheme.surface,
             ) {
@@ -209,7 +246,7 @@ fun VoiceSettingsScreen(
 
             Spacer(modifier = Modifier.height(dimensions.paddingLarge))
 
-            // 4. Built-in Long Text Testing & Sample Texts
+            // 5. Built-in Long Text Testing & Sample Texts
             Text(
                 text = stringResource(id = R.string.section_speech_test),
                 style = AppTypography.SectionTitle,
@@ -242,7 +279,7 @@ fun VoiceSettingsScreen(
                     Spacer(modifier = Modifier.height(dimensions.paddingSmall))
 
                     Text(
-                        text = "Category: ${SampleStory.CATEGORY} · Language: ${SampleStory.LANGUAGE.uppercase()} · Est. ~${"%.1f".format(SampleStory.estimatedDurationMinutes)} min",
+                        text = "Category: ${SampleStory.CATEGORY} · Personaj: ${characterProfiles[selectedCharacterIndex]} · Est. ~${"%.1f".format(SampleStory.estimatedDurationMinutes)} min",
                         style = AppTypography.CardSubtitle,
                     )
 
@@ -262,14 +299,21 @@ fun VoiceSettingsScreen(
 
                     Spacer(modifier = Modifier.height(dimensions.paddingMedium))
 
+                    // Explicit Play / Stop Speech Test Button
                     TalkMeButton(
-                        text = stringResource(id = R.string.btn_run_quick_test),
+                        text = if (isTestPlaying) "Nutqni To‘xtatish" else stringResource(id = R.string.btn_run_quick_test),
                         trailingIconRes = AppIcons.Volume,
                         onClick = {
-                            val startTime = System.currentTimeMillis()
-                            onRunQuickTestClick(SampleStory.FULL_TEXT)
-                            val duration = System.currentTimeMillis() - startTime
-                            testReportText = "Test Report: Engine: Sherpa-ONNX | Words: ${SampleStory.wordCount} | Chunks: ${(SampleStory.wordCount / 30) + 1} | Latency: ${duration}ms | Status: PLAYING AUDIO"
+                            if (isTestPlaying) {
+                                isTestPlaying = false
+                                testReportText = "Nutq to‘xtatildi."
+                            } else {
+                                isTestPlaying = true
+                                val startTime = System.currentTimeMillis()
+                                onRunQuickTestClick(SampleStory.FULL_TEXT)
+                                val duration = System.currentTimeMillis() - startTime
+                                testReportText = "Test Report: Personaj: ${characterProfiles[selectedCharacterIndex]} | Words: ${SampleStory.wordCount} | Latency: ${duration}ms | Status: PLAYING"
+                            }
                         },
                     )
 
