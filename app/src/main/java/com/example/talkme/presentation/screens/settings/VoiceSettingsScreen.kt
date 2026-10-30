@@ -14,8 +14,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -29,7 +27,6 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -46,7 +43,6 @@ import com.example.talkme.domain.settings.VoiceSettings
 import com.example.talkme.domain.voice.catalog.CharacterVoiceCatalog
 import com.example.talkme.domain.voice.model.CharacterProfile
 import com.example.talkme.domain.voice.model.EngineSelectionMode
-import com.example.talkme.domain.voice.model.VoiceFamily
 import com.example.talkme.domain.voice.testing.SampleStory
 import com.example.talkme.presentation.components.TalkMeBadge
 import com.example.talkme.presentation.components.TalkMeButton
@@ -59,9 +55,8 @@ import com.example.talkme.ui.theme.SuccessGreen
 import com.example.talkme.ui.theme.TalkMeTheme
 
 /**
- * Clean, High-Quality Reactive Voice AI Settings & Speech Testing Screen.
- * Displays only the 6 approved voice character groups with distinct acoustic profiles,
- * search filters, individual audition buttons, and DataStore preferences.
+ * Clean, Unified Voice AI Settings & Speech Testing Screen.
+ * Displays exactly 6 approved voice character profiles in a single unified list.
  *
  * @param settings Current active VoiceSettings state.
  * @param onBackClick Navigation back handler.
@@ -90,26 +85,18 @@ fun VoiceSettingsScreen(
     val dimensions = LocalDimensions.current
     var testReportText by remember { mutableStateOf("") }
     var isTestPlaying by remember { mutableStateOf(false) }
-
     var searchQuery by remember { mutableStateOf("") }
-    val families = VoiceFamily.entries
-    var selectedFamilyIndex by remember { mutableIntStateOf(0) }
-    var showAllFamilies by remember { mutableStateOf(true) }
 
     val currentProfile = CharacterVoiceCatalog.allProfiles.find {
         it.id == settings.selectedCharacterProfile || it.nameUz == settings.selectedCharacterProfile || it.nameEn == settings.selectedCharacterProfile
     } ?: CharacterVoiceCatalog.allProfiles.first()
 
-    // Filter profiles based on search query and family selection across 6 approved groups
+    // Filter list of 6 profiles
     val filteredProfiles = CharacterVoiceCatalog.allProfiles.filter { profile ->
-        val matchesSearch = searchQuery.isBlank() ||
+        searchQuery.isBlank() ||
                 profile.nameUz.contains(searchQuery, ignoreCase = true) ||
                 profile.nameEn.contains(searchQuery, ignoreCase = true) ||
                 profile.descriptionUz.contains(searchQuery, ignoreCase = true)
-
-        val matchesFamily = showAllFamilies || profile.family == families[selectedFamilyIndex]
-
-        matchesSearch && matchesFamily
     }
 
     val isLocalFirst = settings.engineSelectionMode == EngineSelectionMode.LOCAL_FIRST
@@ -233,19 +220,19 @@ fun VoiceSettingsScreen(
 
             Spacer(modifier = Modifier.height(dimensions.paddingLarge))
 
-            // 3. 6 APPROVED VOICE CHARACTER GROUPS CATALOG & SEARCH UX
+            // 3. EXACTLY 6 APPROVED VOICES LIST
             Text(
-                text = "Personaj Ovozlar Katalogi (6 Ta Guruh)",
+                text = "6 Ta Ovozlar Listi",
                 style = AppTypography.SectionTitle,
             )
 
             Spacer(modifier = Modifier.height(dimensions.paddingSmall))
 
-            // Search Input Field
+            // Search Bar
             OutlinedTextField(
                 value = searchQuery,
                 onValueChange = { searchQuery = it },
-                label = { Text("Personaj nomi yoki xarakterini izlash...") },
+                label = { Text("Ovoz nomi bo'yicha izlash...") },
                 trailingIcon = {
                     Icon(
                         painter = painterResource(id = AppIcons.Search),
@@ -260,57 +247,7 @@ fun VoiceSettingsScreen(
 
             Spacer(modifier = Modifier.height(dimensions.paddingMedium))
 
-            // 6 Approved Family Category Horizontal Filter Tabs
-            LazyRow(
-                horizontalArrangement = Arrangement.spacedBy(dimensions.paddingSmall),
-            ) {
-                item {
-                    val isAllSelected = showAllFamilies
-                    Box(
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(dimensions.cornerSmall))
-                            .background(if (isAllSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surface)
-                            .clickable { showAllFamilies = true }
-                            .padding(horizontal = dimensions.paddingMedium, vertical = dimensions.paddingSmall),
-                    ) {
-                        Text(
-                            text = "🌐 Barchasi (${CharacterVoiceCatalog.allProfiles.size})",
-                            style = AppTypography.CardSubtitle.copy(
-                                color = if (isAllSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant,
-                                fontWeight = if (isAllSelected) FontWeight.Bold else FontWeight.Normal,
-                            ),
-                        )
-                    }
-                }
-
-                items(families.size) { index ->
-                    val family = families[index]
-                    val isSelected = !showAllFamilies && selectedFamilyIndex == index
-
-                    Box(
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(dimensions.cornerSmall))
-                            .background(if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surface)
-                            .clickable {
-                                selectedFamilyIndex = index
-                                showAllFamilies = false
-                            }
-                            .padding(horizontal = dimensions.paddingMedium, vertical = dimensions.paddingSmall),
-                    ) {
-                        Text(
-                            text = "${family.iconEmoji} ${family.titleUz}",
-                            style = AppTypography.CardSubtitle.copy(
-                                color = if (isSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant,
-                                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
-                            ),
-                        )
-                    }
-                }
-            }
-
-            Spacer(modifier = Modifier.height(dimensions.paddingMedium))
-
-            // Filtered Character Cards Container
+            // Unified 6 Voices Single Container List
             TalkMeCard(
                 containerColor = MaterialTheme.colorScheme.surface,
             ) {
@@ -321,12 +258,12 @@ fun VoiceSettingsScreen(
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
                         Text(
-                            text = if (showAllFamilies) "Barcha Tasdiqlangan Ovozlar" else families[selectedFamilyIndex].titleUz,
+                            text = "Barcha 6 Ta Tasdiqlangan Ovozlar",
                             style = AppTypography.CardTitle,
                         )
 
                         TalkMeBadge(
-                            text = "${filteredProfiles.size} ta mos ovoz",
+                            text = "${filteredProfiles.size} ta ovoz",
                             containerColor = MaterialTheme.colorScheme.primaryContainer,
                             textColor = MaterialTheme.colorScheme.primary,
                         )
@@ -334,7 +271,7 @@ fun VoiceSettingsScreen(
 
                     Spacer(modifier = Modifier.height(dimensions.paddingMedium))
 
-                    // Render Matching Profiles with Audition Play Buttons
+                    // Render 6 Profile Items List
                     filteredProfiles.forEach { profile ->
                         val isSelected = profile.id == currentProfile.id
                         CharacterItemCard(
