@@ -4,7 +4,7 @@ import com.example.talkme.domain.voice.model.CharacterProfile
 import com.example.talkme.domain.voice.model.VoiceFamily
 
 /**
- * Clean, Unified Voice Catalog containing EXACTLY 6 approved voices (one per category).
+ * Clean, Unified Voice Catalog containing EXACTLY 6 approved voices with distinct male and female pitch/gender mappings.
  */
 object CharacterVoiceCatalog {
 
@@ -15,9 +15,9 @@ object CharacterVoiceCatalog {
             nameUz = "Katta Yoshli Erkak",
             nameEn = "Adult Male",
             iconEmoji = "👨",
-            descriptionUz = "Botiq, tushunarli va tabiiy katta yoshli erkak ovozi.",
-            baseRate = 0.95f,
-            basePitch = 0.88f,
+            descriptionUz = "Botiq, tushunarli va tabiiy katta yoshli erkak bariton ovozi.",
+            baseRate = 0.92f,
+            basePitch = 0.72f, // Deep male pitch
             preferredGender = "male"
         ),
         CharacterProfile(
@@ -26,9 +26,9 @@ object CharacterVoiceCatalog {
             nameUz = "Katta Yoshli Ayol",
             nameEn = "Adult Female",
             iconEmoji = "👩",
-            descriptionUz = "Mayin, ravshan va tabiiy katta yoshli ayol ovozi.",
+            descriptionUz = "Mayin, ravshan va tabiiy katta yoshli ayol alto/soprano ovozi.",
             baseRate = 0.95f,
-            basePitch = 1.05f,
+            basePitch = 1.10f, // Clear female pitch
             preferredGender = "female"
         ),
         CharacterProfile(
@@ -38,8 +38,8 @@ object CharacterVoiceCatalog {
             nameEn = "Young Boy",
             iconEmoji = "👦",
             descriptionUz = "Qiziquvchan va jonli yosh o'g'il bola sintetizatsiyalangan ovozi.",
-            baseRate = 1.02f,
-            basePitch = 1.35f,
+            baseRate = 1.00f,
+            basePitch = 1.30f,
             preferredGender = "male"
         ),
         CharacterProfile(
@@ -61,7 +61,7 @@ object CharacterVoiceCatalog {
             iconEmoji = "🧑‍🎓",
             descriptionUz = "G'ayratli va ochiq o'smir yigit nutq va ta'lim ovozi.",
             baseRate = 1.05f,
-            basePitch = 1.12f,
+            basePitch = 0.90f,
             preferredGender = "male"
         ),
         CharacterProfile(
@@ -72,7 +72,7 @@ object CharacterVoiceCatalog {
             iconEmoji = "👩‍🎓",
             descriptionUz = "Jo'shqin va yorqin o'smir qiz nutq va ta'lim ovozi.",
             baseRate = 1.05f,
-            basePitch = 1.20f,
+            basePitch = 1.22f,
             preferredGender = "female"
         )
     )

@@ -13,7 +13,7 @@ import javax.inject.Singleton
 
 /**
  * Android Framework Implementation of TextToSpeechRepository using native android.speech.tts.TextToSpeech.
- * Features 200 distinct character voice profiles, human speech rate modulation, and Android Voice engine selection.
+ * Features robust male/female voice selection, pitch modulation, long-text sentence chunking, and reliable speech.
  *
  * @param context Injected Application Context.
  */
@@ -28,7 +28,7 @@ class TextToSpeechRepositoryImpl @Inject constructor(
 
     private var currentSpeed: Float = 1.0f
     private var currentPitch: Float = 1.0f
-    private var currentCharacterProfile: String = "male_friendly_conv"
+    private var currentCharacterProfile: String = "adult_male"
 
     init {
         initializeTts()
@@ -51,7 +51,7 @@ class TextToSpeechRepositoryImpl @Inject constructor(
             if (result != TextToSpeech.LANG_MISSING_DATA && result != TextToSpeech.LANG_NOT_SUPPORTED) {
                 isInitialized = true
                 applyCharacterVoiceProfile(currentCharacterProfile, currentSpeed, currentPitch)
-                Log.d(TAG, "TextToSpeech engine initialized successfully with 200 character voice profiles.")
+                Log.d(TAG, "TextToSpeech engine initialized successfully.")
 
                 synchronized(pendingTextQueue) {
                     val pendingText = pendingTextQueue.lastOrNull()
@@ -79,7 +79,7 @@ class TextToSpeechRepositoryImpl @Inject constructor(
     }
 
     /**
-     * Applies distinct Android Voice object, pitch, and speed parameters according to character profile from catalog.
+     * Applies distinct Android Voice object, pitch, and speed parameters according to character profile.
      */
     private fun applyCharacterVoiceProfile(characterIdentifier: String, userSpeed: Float, userPitch: Float) {
         val profile = CharacterVoiceCatalog.allProfiles.find {
@@ -87,25 +87,39 @@ class TextToSpeechRepositoryImpl @Inject constructor(
         } ?: CharacterVoiceCatalog.allProfiles.first()
 
         val effectiveSpeed = (profile.baseRate * userSpeed).coerceIn(0.5f, 2.0f)
-        val effectivePitch = (profile.basePitch * userPitch).coerceIn(0.5f, 2.0f)
+        val effectivePitch = (profile.basePitch * userPitch).coerceIn(0.4f, 2.0f)
 
         tts?.setSpeechRate(effectiveSpeed)
         tts?.setPitch(effectivePitch)
 
         // Select distinct Android Voice matching preferred gender if available
         val availableVoices = tts?.voices ?: emptySet()
-        val englishVoices = availableVoices.filter { it.locale.language == "en" && !it.isNetworkConnectionRequired }
+        val englishVoices = availableVoices.filter { it.locale.language == "en" && !it.isNetworkConnectionRequired }.toList()
 
         if (englishVoices.isNotEmpty()) {
             val genderKey = profile.preferredGender.lowercase()
-            val matchedVoice: Voice = when {
-                genderKey == "female" -> englishVoices.firstOrNull { it.name.contains("female", ignoreCase = true) || it.name.contains("2", ignoreCase = true) } ?: englishVoices.last()
-                genderKey == "male" -> englishVoices.firstOrNull { it.name.contains("male", ignoreCase = true) || it.name.contains("1", ignoreCase = true) } ?: englishVoices.first()
-                else -> englishVoices.elementAtOrNull(profile.id.hashCode().coerceAtLeast(0) % englishVoices.size) ?: englishVoices.first()
+            val matchedVoice: Voice = when (genderKey) {
+                "male" -> {
+                    // Search for male voice markers or pick distinct male voice index
+                    englishVoices.firstOrNull {
+                        it.name.contains("iom", ignoreCase = true) ||
+                        it.name.contains("tpf", ignoreCase = true) ||
+                        it.name.contains("male", ignoreCase = true)
+                    } ?: englishVoices.elementAtOrNull(1) ?: englishVoices.first()
+                }
+                "female" -> {
+                    // Search for female voice markers or pick distinct female voice index
+                    englishVoices.firstOrNull {
+                        it.name.contains("sfg", ignoreCase = true) ||
+                        it.name.contains("iol", ignoreCase = true) ||
+                        it.name.contains("female", ignoreCase = true)
+                    } ?: englishVoices.first()
+                }
+                else -> englishVoices.first()
             }
 
             tts?.voice = matchedVoice
-            Log.d(TAG, "Applied voice '${matchedVoice.name}' [Rate: $effectiveSpeed, Pitch: $effectivePitch] for profile '${profile.nameEn}' [${profile.id}]")
+            Log.d(TAG, "Applied voice '${matchedVoice.name}' [Gender: $genderKey, Rate: $effectiveSpeed, Pitch: $effectivePitch] for profile '${profile.nameEn}' [${profile.id}]")
         }
     }
 
