@@ -11,7 +11,7 @@ import javax.inject.Singleton
 
 /**
  * Android Framework Implementation of TextToSpeechRepository using native android.speech.tts.TextToSpeech.
- * Configured with pending queue for robust audio speech playback across all Android devices.
+ * Features automatic long-text sentence chunking, pending queue, and reliable audio speech playback.
  *
  * @param context Injected Application Context.
  */
@@ -80,7 +80,33 @@ class TextToSpeechRepositoryImpl @Inject constructor(
     }
 
     private fun speakInternal(text: String) {
-        tts?.speak(text, TextToSpeech.QUEUE_FLUSH, null, "TalkMe_TTS_${System.currentTimeMillis()}")
+        if (text.length > 300) {
+            // Split long text into natural sentence chunks to respect Android TTS character limits
+            val sentences = text.split(Regex("(?<=[.!?])\\s+|\\n+"))
+            var isFirstChunk = true
+            var currentChunk = StringBuilder()
+
+            for (sentence in sentences) {
+                if (sentence.isBlank()) continue
+
+                if (currentChunk.length + sentence.length > 250) {
+                    val queueMode = if (isFirstChunk) TextToSpeech.QUEUE_FLUSH else TextToSpeech.QUEUE_ADD
+                    val chunkText = currentChunk.toString().trim()
+                    tts?.speak(chunkText, queueMode, null, "TalkMe_TTS_${System.currentTimeMillis()}")
+                    isFirstChunk = false
+                    currentChunk = StringBuilder()
+                }
+                currentChunk.append(sentence).append(" ")
+            }
+
+            if (currentChunk.isNotEmpty()) {
+                val queueMode = if (isFirstChunk) TextToSpeech.QUEUE_FLUSH else TextToSpeech.QUEUE_ADD
+                val chunkText = currentChunk.toString().trim()
+                tts?.speak(chunkText, queueMode, null, "TalkMe_TTS_${System.currentTimeMillis()}")
+            }
+        } else {
+            tts?.speak(text, TextToSpeech.QUEUE_FLUSH, null, "TalkMe_TTS_${System.currentTimeMillis()}")
+        }
     }
 
     override fun stop() {
