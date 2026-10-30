@@ -59,8 +59,9 @@ import com.example.talkme.ui.theme.SuccessGreen
 import com.example.talkme.ui.theme.TalkMeTheme
 
 /**
- * World-Class Reactive Voice AI Settings & Speech Testing Screen with intuitive UX,
- * character search, 200 voice profiles catalog, individual voice audition buttons, and DataStore preferences.
+ * Clean, High-Quality Reactive Voice AI Settings & Speech Testing Screen.
+ * Displays only the 6 approved voice character groups with distinct acoustic profiles,
+ * search filters, individual audition buttons, and DataStore preferences.
  *
  * @param settings Current active VoiceSettings state.
  * @param onBackClick Navigation back handler.
@@ -92,14 +93,14 @@ fun VoiceSettingsScreen(
 
     var searchQuery by remember { mutableStateOf("") }
     val families = VoiceFamily.entries
-    var selectedFamilyIndex by remember { mutableIntStateOf(0) } // 0: All, or specific family
+    var selectedFamilyIndex by remember { mutableIntStateOf(0) }
     var showAllFamilies by remember { mutableStateOf(true) }
 
     val currentProfile = CharacterVoiceCatalog.allProfiles.find {
         it.id == settings.selectedCharacterProfile || it.nameUz == settings.selectedCharacterProfile || it.nameEn == settings.selectedCharacterProfile
     } ?: CharacterVoiceCatalog.allProfiles.first()
 
-    // Filter profiles based on search query and family selection
+    // Filter profiles based on search query and family selection across 6 approved groups
     val filteredProfiles = CharacterVoiceCatalog.allProfiles.filter { profile ->
         val matchesSearch = searchQuery.isBlank() ||
                 profile.nameUz.contains(searchQuery, ignoreCase = true) ||
@@ -232,9 +233,9 @@ fun VoiceSettingsScreen(
 
             Spacer(modifier = Modifier.height(dimensions.paddingLarge))
 
-            // 3. 200 CHARACTER VOICES CATALOG & SEARCH UX
+            // 3. 6 APPROVED VOICE CHARACTER GROUPS CATALOG & SEARCH UX
             Text(
-                text = "Personaj Ovozlar Katalogi (200 Ovoz)",
+                text = "Personaj Ovozlar Katalogi (6 Ta Guruh)",
                 style = AppTypography.SectionTitle,
             )
 
@@ -259,7 +260,7 @@ fun VoiceSettingsScreen(
 
             Spacer(modifier = Modifier.height(dimensions.paddingMedium))
 
-            // Family Filter Category Horizontal Tabs
+            // 6 Approved Family Category Horizontal Filter Tabs
             LazyRow(
                 horizontalArrangement = Arrangement.spacedBy(dimensions.paddingSmall),
             ) {
@@ -273,7 +274,7 @@ fun VoiceSettingsScreen(
                             .padding(horizontal = dimensions.paddingMedium, vertical = dimensions.paddingSmall),
                     ) {
                         Text(
-                            text = "🌐 Barchasi (200)",
+                            text = "🌐 Barchasi (${CharacterVoiceCatalog.allProfiles.size})",
                             style = AppTypography.CardSubtitle.copy(
                                 color = if (isAllSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant,
                                 fontWeight = if (isAllSelected) FontWeight.Bold else FontWeight.Normal,
@@ -309,7 +310,7 @@ fun VoiceSettingsScreen(
 
             Spacer(modifier = Modifier.height(dimensions.paddingMedium))
 
-            // Filtered Character Cards Grid Container
+            // Filtered Character Cards Container
             TalkMeCard(
                 containerColor = MaterialTheme.colorScheme.surface,
             ) {
@@ -320,7 +321,7 @@ fun VoiceSettingsScreen(
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
                         Text(
-                            text = if (showAllFamilies) "Barcha Personajlar" else families[selectedFamilyIndex].titleUz,
+                            text = if (showAllFamilies) "Barcha Tasdiqlangan Ovozlar" else families[selectedFamilyIndex].titleUz,
                             style = AppTypography.CardTitle,
                         )
 
@@ -333,9 +334,8 @@ fun VoiceSettingsScreen(
 
                     Spacer(modifier = Modifier.height(dimensions.paddingMedium))
 
-                    // Render First 12 Matching Profiles with Audition Buttons
-                    val displayedProfiles = filteredProfiles.take(12)
-                    displayedProfiles.forEach { profile ->
+                    // Render Matching Profiles with Audition Play Buttons
+                    filteredProfiles.forEach { profile ->
                         val isSelected = profile.id == currentProfile.id
                         CharacterItemCard(
                             profile = profile,
@@ -469,7 +469,7 @@ fun VoiceSettingsScreen(
                     Spacer(modifier = Modifier.height(dimensions.paddingSmall))
 
                     Text(
-                        text = "Category: ${SampleStory.CATEGORY} · Personaj: ${currentProfile.nameUz} · Est. ~${"%.1f".format(SampleStory.estimatedDurationMinutes)} min",
+                        text = "Category: ${SampleStory.CATEGORY} · Tanlangan Personaj: ${currentProfile.nameUz} · Est. ~${"%.1f".format(SampleStory.estimatedDurationMinutes)} min",
                         style = AppTypography.CardSubtitle,
                     )
 
