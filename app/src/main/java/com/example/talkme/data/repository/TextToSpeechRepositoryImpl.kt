@@ -5,6 +5,7 @@ import android.speech.tts.TextToSpeech
 import android.speech.tts.Voice
 import android.util.Log
 import com.example.talkme.domain.repository.TextToSpeechRepository
+import com.example.talkme.domain.voice.catalog.CharacterVoiceCatalog
 import dagger.hilt.android.qualifiers.ApplicationContext
 import java.util.Locale
 import javax.inject.Inject
@@ -12,7 +13,7 @@ import javax.inject.Singleton
 
 /**
  * Android Framework Implementation of TextToSpeechRepository using native android.speech.tts.TextToSpeech.
- * Features distinct character voice profiles, human speech rate modulation, and Android Voice engine selection.
+ * Features 200 distinct character voice profiles, human speech rate modulation, and Android Voice engine selection.
  *
  * @param context Injected Application Context.
  */
@@ -27,7 +28,7 @@ class TextToSpeechRepositoryImpl @Inject constructor(
 
     private var currentSpeed: Float = 1.0f
     private var currentPitch: Float = 1.0f
-    private var currentCharacterProfile: String = "Suhbatdosh"
+    private var currentCharacterProfile: String = "male_friendly_conv"
 
     init {
         initializeTts()
@@ -50,7 +51,7 @@ class TextToSpeechRepositoryImpl @Inject constructor(
             if (result != TextToSpeech.LANG_MISSING_DATA && result != TextToSpeech.LANG_NOT_SUPPORTED) {
                 isInitialized = true
                 applyCharacterVoiceProfile(currentCharacterProfile, currentSpeed, currentPitch)
-                Log.d(TAG, "TextToSpeech engine initialized successfully with character voice profiles.")
+                Log.d(TAG, "TextToSpeech engine initialized successfully with 200 character voice profiles.")
 
                 synchronized(pendingTextQueue) {
                     val pendingText = pendingTextQueue.lastOrNull()
@@ -78,39 +79,33 @@ class TextToSpeechRepositoryImpl @Inject constructor(
     }
 
     /**
-     * Applies distinct Android Voice object and pitch/speed parameters according to character profile.
+     * Applies distinct Android Voice object, pitch, and speed parameters according to character profile from catalog.
      */
-    private fun applyCharacterVoiceProfile(characterProfile: String, userSpeed: Float, userPitch: Float) {
-        val (baseRate, basePitch) = when (characterProfile) {
-            "Ustoz" -> Pair(0.88f, 1.00f)        // Clear, instructional teacher pacing
-            "Hikoyachi" -> Pair(0.92f, 0.82f)    // Deep, warm story narrator tone
-            "Akademik" -> Pair(0.82f, 0.78f)     // Deliberate, low-pitched professor tone
-            "Kichik O'quvchi" -> Pair(1.05f, 1.30f)// Bright, high-pitched young learner voice
-            "Dinamik" -> Pair(1.15f, 1.10f)      // Upbeat, energetic speaker
-            else -> Pair(1.00f, 1.00f)           // Conversational default ("Suhbatdosh")
-        }
+    private fun applyCharacterVoiceProfile(characterIdentifier: String, userSpeed: Float, userPitch: Float) {
+        val profile = CharacterVoiceCatalog.allProfiles.find {
+            it.id == characterIdentifier || it.nameUz == characterIdentifier || it.nameEn == characterIdentifier
+        } ?: CharacterVoiceCatalog.allProfiles.first()
 
-        val effectiveSpeed = (baseRate * userSpeed).coerceIn(0.5f, 2.0f)
-        val effectivePitch = (basePitch * userPitch).coerceIn(0.5f, 2.0f)
+        val effectiveSpeed = (profile.baseRate * userSpeed).coerceIn(0.5f, 2.0f)
+        val effectivePitch = (profile.basePitch * userPitch).coerceIn(0.5f, 2.0f)
 
         tts?.setSpeechRate(effectiveSpeed)
         tts?.setPitch(effectivePitch)
 
-        // Select distinct Android Voice if available
+        // Select distinct Android Voice matching preferred gender if available
         val availableVoices = tts?.voices ?: emptySet()
         val englishVoices = availableVoices.filter { it.locale.language == "en" && !it.isNetworkConnectionRequired }
 
         if (englishVoices.isNotEmpty()) {
-            val selectedVoice: Voice? = when (characterProfile) {
-                "Hikoyachi", "Akademik" -> englishVoices.firstOrNull { it.name.contains("male", ignoreCase = true) } ?: englishVoices.first()
-                "Kichik O'quvchi" -> englishVoices.lastOrNull() ?: englishVoices.first()
-                "Ustoz" -> englishVoices.elementAtOrNull(1) ?: englishVoices.first()
-                else -> englishVoices.first()
+            val genderKey = profile.preferredGender.lowercase()
+            val matchedVoice: Voice = when {
+                genderKey == "female" -> englishVoices.firstOrNull { it.name.contains("female", ignoreCase = true) || it.name.contains("2", ignoreCase = true) } ?: englishVoices.last()
+                genderKey == "male" -> englishVoices.firstOrNull { it.name.contains("male", ignoreCase = true) || it.name.contains("1", ignoreCase = true) } ?: englishVoices.first()
+                else -> englishVoices.elementAtOrNull(profile.id.hashCode().coerceAtLeast(0) % englishVoices.size) ?: englishVoices.first()
             }
-            if (selectedVoice != null) {
-                tts?.voice = selectedVoice
-                Log.d(TAG, "Applied voice '${selectedVoice.name}' for character '$characterProfile'")
-            }
+
+            tts?.voice = matchedVoice
+            Log.d(TAG, "Applied voice '${matchedVoice.name}' [Rate: $effectiveSpeed, Pitch: $effectivePitch] for profile '${profile.nameEn}' [${profile.id}]")
         }
     }
 
