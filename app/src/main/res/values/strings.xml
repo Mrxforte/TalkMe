@@ -140,6 +140,21 @@
     <string name="next_stage_example">\"She is not reading a book.\"</string>
     <string name="start_next_lesson_btn">Keyingi darsni boshlash</string>
 
+    <!-- Voice AI Settings Screen -->
+    <string name="voice_settings_title">Voice AI Sozlamalari</string>
+    <string name="voice_settings_subtitle">Dvigatel, nutq uslubi, kesh va nutq sinov muhiti</string>
+    <string name="section_general_engine">Asosiy Dvigatel Sozlamalari</string>
+    <string name="label_local_first">Lokal (Oflayn) Rejim</string>
+    <string name="desc_local_first">Sherpa-ONNX oflayn modelidan foydalanish</string>
+    <string name="section_speech_params">Nutq Parametrlari</string>
+    <string name="label_speech_speed">Nutq tezligi</string>
+    <string name="label_speech_pitch">Nutq balandligi (Pitch)</string>
+    <string name="section_audio_cache">Audio Kesh (Audio Cache)</string>
+    <string name="desc_audio_cache">Generatsiya qilingan audiolarni xotirada saqlash (Max 200 MB)</string>
+    <string name="section_speech_test">Nutq Sinov Muhiti va Namuna Matn</string>
+    <string name="btn_run_quick_test">Tezkor Nutq Sinovini Boshlash</string>
+    <string name="btn_reset_defaults">Sozlamalarni Qaytarish</string>
+
     <!-- Profile Screen -->
     <string name="profile_title">Profilim</string>
     <string name="profile_subtitle">O\'rganish yo\'lim</string>

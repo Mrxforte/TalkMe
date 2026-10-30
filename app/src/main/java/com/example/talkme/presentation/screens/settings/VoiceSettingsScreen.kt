@@ -18,15 +18,18 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.talkme.R
+import com.example.talkme.domain.settings.VoiceSettings
+import com.example.talkme.domain.voice.model.EngineSelectionMode
 import com.example.talkme.domain.voice.testing.SampleStory
 import com.example.talkme.presentation.components.TalkMeBadge
 import com.example.talkme.presentation.components.TalkMeButton
@@ -39,21 +42,34 @@ import com.example.talkme.ui.theme.SuccessGreen
 import com.example.talkme.ui.theme.TalkMeTheme
 
 /**
- * Complete Centralized Voice AI Settings & Built-in Long Text Testing Compose Screen.
+ * Reactive Voice AI Settings & Speech Testing Screen connected to DataStore preferences.
+ *
+ * @param settings Current active VoiceSettings state.
+ * @param onBackClick Navigation back handler.
+ * @param onLocalFirstChanged Callback invoked when local-first switch is toggled.
+ * @param onSpeedChanged Callback invoked when speed slider changes.
+ * @param onPitchChanged Callback invoked when pitch slider changes.
+ * @param onAudioCacheChanged Callback invoked when audio cache switch is toggled.
+ * @param onRunQuickTestClick Callback invoked when speech test button is clicked.
+ * @param onResetDefaultsClick Callback invoked when reset defaults is clicked.
+ * @param modifier Composable layout modifier.
  */
 @Composable
 fun VoiceSettingsScreen(
+    settings: VoiceSettings,
     onBackClick: () -> Unit,
+    onLocalFirstChanged: (Boolean) -> Unit,
+    onSpeedChanged: (Float) -> Unit,
+    onPitchChanged: (Float) -> Unit,
+    onAudioCacheChanged: (Boolean) -> Unit,
     onRunQuickTestClick: (String) -> Unit,
+    onResetDefaultsClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val dimensions = LocalDimensions.current
-
-    var isLocalFirst by remember { mutableStateOf(true) }
-    var speed by remember { mutableFloatStateOf(1.0f) }
-    var pitch by remember { mutableFloatStateOf(1.0f) }
-    var cacheEnabled by remember { mutableStateOf(true) }
     var testReportText by remember { mutableStateOf("") }
+
+    val isLocalFirst = settings.engineSelectionMode == EngineSelectionMode.LOCAL_FIRST
 
     Scaffold(
         modifier = modifier.fillMaxSize(),
@@ -67,8 +83,8 @@ fun VoiceSettingsScreen(
                 .padding(horizontal = dimensions.paddingExtraLarge),
         ) {
             TalkMeHeader(
-                title = "Voice AI Settings",
-                subtitle = "Engine, Speech Style, Cache & Speech Testing",
+                title = stringResource(id = R.string.voice_settings_title),
+                subtitle = stringResource(id = R.string.voice_settings_subtitle),
                 onBackClick = onBackClick,
             )
 
@@ -79,7 +95,10 @@ fun VoiceSettingsScreen(
                 containerColor = MaterialTheme.colorScheme.surface,
             ) {
                 Column {
-                    Text("General Engine Settings", style = AppTypography.CardTitle)
+                    Text(
+                        text = stringResource(id = R.string.section_general_engine),
+                        style = AppTypography.CardTitle,
+                    )
                     Spacer(modifier = Modifier.height(dimensions.paddingSmall))
 
                     Row(
@@ -88,12 +107,18 @@ fun VoiceSettingsScreen(
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
                         Column(modifier = Modifier.weight(1f)) {
-                            Text("Local-First Mode", style = AppTypography.CardTitle)
-                            Text("Prefer offline Sherpa-ONNX over Cloud API", style = AppTypography.CardSubtitle)
+                            Text(
+                                text = stringResource(id = R.string.label_local_first),
+                                style = AppTypography.CardTitle,
+                            )
+                            Text(
+                                text = stringResource(id = R.string.desc_local_first),
+                                style = AppTypography.CardSubtitle,
+                            )
                         }
                         Switch(
                             checked = isLocalFirst,
-                            onCheckedChange = { isLocalFirst = it }
+                            onCheckedChange = onLocalFirstChanged,
                         )
                     }
                 }
@@ -101,7 +126,7 @@ fun VoiceSettingsScreen(
 
             Spacer(modifier = Modifier.height(dimensions.paddingMedium))
 
-            // 2. Speech Parameters
+            // 2. Speech Parameters (Speed & Pitch)
             TalkMeCard(
                 containerColor = MaterialTheme.colorScheme.surface,
             ) {
@@ -110,13 +135,20 @@ fun VoiceSettingsScreen(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween,
                     ) {
-                        Text("Speech Rate / Speed", style = AppTypography.CardTitle)
-                        Text("${"%.1f".format(speed)}x", style = AppTypography.CardTitle, fontWeight = FontWeight.Bold)
+                        Text(
+                            text = stringResource(id = R.string.label_speech_speed),
+                            style = AppTypography.CardTitle,
+                        )
+                        Text(
+                            text = "${"%.1f".format(settings.speechSpeed)}x",
+                            style = AppTypography.CardTitle,
+                            fontWeight = FontWeight.Bold,
+                        )
                     }
 
                     Slider(
-                        value = speed,
-                        onValueChange = { speed = it },
+                        value = settings.speechSpeed,
+                        onValueChange = onSpeedChanged,
                         valueRange = 0.5f..2.0f,
                         modifier = Modifier.fillMaxWidth(),
                     )
@@ -127,13 +159,20 @@ fun VoiceSettingsScreen(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween,
                     ) {
-                        Text("Speech Pitch", style = AppTypography.CardTitle)
-                        Text("${"%.1f".format(pitch)}x", style = AppTypography.CardTitle, fontWeight = FontWeight.Bold)
+                        Text(
+                            text = stringResource(id = R.string.label_speech_pitch),
+                            style = AppTypography.CardTitle,
+                        )
+                        Text(
+                            text = "${"%.1f".format(settings.speechPitch)}x",
+                            style = AppTypography.CardTitle,
+                            fontWeight = FontWeight.Bold,
+                        )
                     }
 
                     Slider(
-                        value = pitch,
-                        onValueChange = { pitch = it },
+                        value = settings.speechPitch,
+                        onValueChange = onPitchChanged,
                         valueRange = 0.5f..1.5f,
                         modifier = Modifier.fillMaxWidth(),
                     )
@@ -152,12 +191,18 @@ fun VoiceSettingsScreen(
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Column(modifier = Modifier.weight(1f)) {
-                        Text("Audio Cache", style = AppTypography.CardTitle)
-                        Text("Persistent LRU audio caching enabled (Max 200 MB)", style = AppTypography.CardSubtitle)
+                        Text(
+                            text = stringResource(id = R.string.section_audio_cache),
+                            style = AppTypography.CardTitle,
+                        )
+                        Text(
+                            text = stringResource(id = R.string.desc_audio_cache),
+                            style = AppTypography.CardSubtitle,
+                        )
                     }
                     Switch(
-                        checked = cacheEnabled,
-                        onCheckedChange = { cacheEnabled = it }
+                        checked = settings.audioCacheEnabled,
+                        onCheckedChange = onAudioCacheChanged,
                     )
                 }
             }
@@ -166,7 +211,7 @@ fun VoiceSettingsScreen(
 
             // 4. Built-in Long Text Testing & Sample Texts
             Text(
-                text = "Speech Testing & Sample Texts",
+                text = stringResource(id = R.string.section_speech_test),
                 style = AppTypography.SectionTitle,
             )
 
@@ -218,13 +263,13 @@ fun VoiceSettingsScreen(
                     Spacer(modifier = Modifier.height(dimensions.paddingMedium))
 
                     TalkMeButton(
-                        text = "Run Quick Speech Test",
+                        text = stringResource(id = R.string.btn_run_quick_test),
                         trailingIconRes = AppIcons.Volume,
                         onClick = {
                             val startTime = System.currentTimeMillis()
                             onRunQuickTestClick(SampleStory.FULL_TEXT)
                             val duration = System.currentTimeMillis() - startTime
-                            testReportText = "Test Report: Engine: Sherpa-ONNX | Words: ${SampleStory.wordCount} | Chunks: ${(SampleStory.wordCount / 30) + 1} | Latency: ${duration}ms | Status: PASSED"
+                            testReportText = "Test Report: Engine: Sherpa-ONNX | Words: ${SampleStory.wordCount} | Chunks: ${(SampleStory.wordCount / 30) + 1} | Latency: ${duration}ms | Status: PLAYING AUDIO"
                         },
                     )
 
@@ -242,6 +287,16 @@ fun VoiceSettingsScreen(
                 }
             }
 
+            Spacer(modifier = Modifier.height(dimensions.paddingMedium))
+
+            // Reset Defaults Button
+            TalkMeButton(
+                text = stringResource(id = R.string.btn_reset_defaults),
+                onClick = onResetDefaultsClick,
+                containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                contentColor = MaterialTheme.colorScheme.primary,
+            )
+
             Spacer(modifier = Modifier.height(dimensions.paddingHuge))
         }
     }
@@ -251,6 +306,15 @@ fun VoiceSettingsScreen(
 @Composable
 fun VoiceSettingsScreenPreview() {
     TalkMeTheme {
-        VoiceSettingsScreen(onBackClick = {}, onRunQuickTestClick = {})
+        VoiceSettingsScreen(
+            settings = VoiceSettings(),
+            onBackClick = {},
+            onLocalFirstChanged = {},
+            onSpeedChanged = {},
+            onPitchChanged = {},
+            onAudioCacheChanged = {},
+            onRunQuickTestClick = {},
+            onResetDefaultsClick = {},
+        )
     }
 }

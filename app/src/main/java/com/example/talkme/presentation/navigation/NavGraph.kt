@@ -1,8 +1,10 @@
 package com.example.talkme.presentation.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -19,6 +21,7 @@ import com.example.talkme.presentation.screens.profile.ProfileScreen
 import com.example.talkme.presentation.screens.repeat.RepeatScreen
 import com.example.talkme.presentation.screens.results.ResultsScreen
 import com.example.talkme.presentation.screens.settings.VoiceSettingsScreen
+import com.example.talkme.presentation.screens.settings.VoiceSettingsViewModel
 import com.example.talkme.presentation.screens.splash.SplashScreen
 import com.example.talkme.presentation.screens.voicestudio.VoiceStudioScreen
 
@@ -235,13 +238,31 @@ fun AppNavGraph(
 
         // 13. Voice AI Settings & Speech Testing Screen
         composable(route = Screen.VoiceSettings.route) {
-            val viewModel: LessonDetailViewModel = hiltViewModel()
+            val settingsViewModel: VoiceSettingsViewModel = hiltViewModel()
+            val settings by settingsViewModel.settingsState.collectAsStateWithLifecycle()
+
             VoiceSettingsScreen(
+                settings = settings,
                 onBackClick = {
                     navController.popBackStack()
                 },
+                onLocalFirstChanged = { isLocalFirst ->
+                    settingsViewModel.updateLocalFirstMode(isLocalFirst)
+                },
+                onSpeedChanged = { speed ->
+                    settingsViewModel.updateSpeechSpeed(speed)
+                },
+                onPitchChanged = { pitch ->
+                    settingsViewModel.updateSpeechPitch(pitch)
+                },
+                onAudioCacheChanged = { enabled ->
+                    settingsViewModel.updateAudioCacheEnabled(enabled)
+                },
                 onRunQuickTestClick = { text ->
-                    viewModel.speak(text)
+                    settingsViewModel.runSpeechTest(text)
+                },
+                onResetDefaultsClick = {
+                    settingsViewModel.resetToDefaults()
                 },
             )
         }
