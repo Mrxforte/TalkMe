@@ -1,5 +1,7 @@
 package com.example.talkme.presentation.components
 
+import androidx.annotation.DrawableRes
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -22,9 +24,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.talkme.ui.theme.AppIcons
@@ -33,12 +35,16 @@ import com.example.talkme.ui.theme.LocalDimensions
 
 /**
  * 3D Grammar Fundamentals Hero Illustration Component matching user design specifications.
- * Features soft blue/purple gradient, floating ABC blocks, Grammar formula speech bubble (I+am, You+are, He+is),
- * open grammar books, and pencil stand.
+ * Features optional PNG background image support, soft blue/purple gradient, floating ABC blocks,
+ * Grammar formula speech bubble (I+am, You+are, He+is), open grammar books, and pencil stand.
+ *
+ * @param modifier Composable layout modifier.
+ * @param bgImageRes Optional PNG background image drawable resource ID.
  */
 @Composable
 fun GrammarHeroIllustration(
     modifier: Modifier = Modifier,
+    @DrawableRes bgImageRes: Int? = null,
 ) {
     val dimensions = LocalDimensions.current
 
@@ -58,13 +64,24 @@ fun GrammarHeroIllustration(
                 width = dimensions.borderThin,
                 color = Color(0xFFD0E2FF),
                 shape = RoundedCornerShape(dimensions.cornerExtraLarge)
-            )
-            .padding(dimensions.paddingLarge),
+            ),
         contentAlignment = Alignment.Center,
     ) {
+        if (bgImageRes != null) {
+            Image(
+                painter = painterResource(id = bgImageRes),
+                contentDescription = null,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.matchParentSize(),
+                alpha = 0.9f
+            )
+        }
+
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(dimensions.paddingLarge),
         ) {
             // Top Row: Floating "Hello!" Card, "Aa" Block, and Grammar Formula Speech Bubble
             Row(

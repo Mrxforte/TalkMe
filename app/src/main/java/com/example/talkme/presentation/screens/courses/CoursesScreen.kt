@@ -1,5 +1,7 @@
 package com.example.talkme.presentation.screens.courses
 
+import androidx.annotation.DrawableRes
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -27,6 +29,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -45,7 +48,7 @@ import com.example.talkme.ui.theme.TalkMeTheme
 
 /**
  * Clean Courses Catalog Screen displaying "Mening kurslarim" title and a 2-Column Compact Grid of Grammar Category Cards.
- * Features background gradient/illustration containers and compact row/colspan padding.
+ * Features background gradient/PNG illustration containers and compact row/colspan padding.
  *
  * @param onTabSelected Bottom navigation tab callback handler.
  * @param modifier Composable layout modifier.
@@ -181,7 +184,14 @@ fun CoursesScreen(
 }
 
 /**
- * Compact 2-Column Grid Card Component with Illustration Background Container and Reduced Row Span.
+ * Compact 2-Column Grid Card Component with PNG/Illustration Background Container and Reduced Row Span.
+ *
+ * @param title Topic card title.
+ * @param subtitle Subtopic count text.
+ * @param iconRes Topic icon drawable.
+ * @param onClick Click handler.
+ * @param modifier Layout modifier.
+ * @param bgImageRes Optional PNG background image drawable resource ID.
  */
 @Composable
 fun GrammarGridCard(
@@ -190,6 +200,7 @@ fun GrammarGridCard(
     iconRes: Int,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
+    @DrawableRes bgImageRes: Int? = null,
 ) {
     val dimensions = LocalDimensions.current
 
@@ -215,11 +226,23 @@ fun GrammarGridCard(
                     width = dimensions.borderThin,
                     color = Color(0xFFE8F0FE),
                     shape = RoundedCornerShape(dimensions.cornerMedium)
-                )
-                .padding(dimensions.paddingSmall),
+                ),
             contentAlignment = Alignment.Center,
         ) {
+            if (bgImageRes != null) {
+                Image(
+                    painter = painterResource(id = bgImageRes),
+                    contentDescription = null,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier.matchParentSize(),
+                    alpha = 0.85f
+                )
+            }
+
             Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(dimensions.paddingSmall),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center,
             ) {
