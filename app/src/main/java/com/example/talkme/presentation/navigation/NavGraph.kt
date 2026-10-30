@@ -100,7 +100,7 @@ fun AppNavGraph(
             )
         }
 
-        // 4. Courses & Modules Catalog Screen
+        // 4. Courses Catalog Screen
         composable(route = Screen.Courses.route) {
             CoursesScreen(
                 onTabSelected = { tabIndex ->
@@ -112,8 +112,8 @@ fun AppNavGraph(
                 onSearchClick = {
                     // Open search
                 },
-                onContinueCatalogClick = {
-                    navController.navigate(Screen.LessonDetail.createRoute("grammar_fundamentals"))
+                onSubtopicClick = { subtopicId ->
+                    navController.navigate(Screen.LessonDetail.createRoute(subtopicId))
                 },
             )
         }
