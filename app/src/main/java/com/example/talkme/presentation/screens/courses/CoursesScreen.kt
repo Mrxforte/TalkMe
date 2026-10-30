@@ -36,6 +36,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.talkme.R
 import com.example.talkme.presentation.components.TalkMeBadge
 import com.example.talkme.presentation.components.TalkMeBottomBar
 import com.example.talkme.presentation.components.TalkMeCard
@@ -117,6 +118,7 @@ fun CoursesScreen(
                     title = "Grammar fundamentals",
                     subtitle = "8 ta mavzu",
                     iconRes = AppIcons.Book,
+                    bgImageRes = R.drawable.img, // Passing PNG/JPEG drawable resource ID
                     onClick = { onSubtopicClick("nouns") },
                     modifier = Modifier.weight(1f),
                 )

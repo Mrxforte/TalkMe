@@ -4,10 +4,10 @@ import androidx.annotation.DrawableRes
 import com.example.talkme.R
 
 /**
- * Centralized Icon Repository for the TalkMe application.
+ * Centralized Icon & Image Repository for the TalkMe application.
  *
- * Provides single-point access to all Vector Drawables and iconography used
- * throughout the Design System and UI components to avoid hardcoded R.drawable references.
+ * Provides single-point access to all Vector Drawables and Raster PNG/JPEG Images used
+ * throughout the Design System and UI components.
  */
 object AppIcons {
     /** Book icon used for logos, lessons, and reading skills */
@@ -75,4 +75,7 @@ object AppIcons {
 
     /** Clock time icon for onboarding duration feature */
     @DrawableRes val Clock: Int = R.drawable.ic_clock
+
+    /** Default Grammar PNG/JPEG Image illustration resource */
+    @DrawableRes val GrammarBgImg: Int = R.drawable.img
 }
