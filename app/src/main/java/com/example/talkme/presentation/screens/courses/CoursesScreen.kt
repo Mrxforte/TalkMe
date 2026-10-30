@@ -1,6 +1,7 @@
 package com.example.talkme.presentation.screens.courses
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -11,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -23,22 +25,27 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.example.talkme.presentation.components.TalkMeBadge
 import com.example.talkme.presentation.components.TalkMeBottomBar
 import com.example.talkme.presentation.components.TalkMeCard
 import com.example.talkme.presentation.components.TalkMeHeader
 import com.example.talkme.ui.theme.AppIcons
 import com.example.talkme.ui.theme.AppTypography
+import com.example.talkme.ui.theme.ContainerPurpleLight
 import com.example.talkme.ui.theme.LocalDimensions
 import com.example.talkme.ui.theme.TalkMeTheme
 
 /**
- * Clean Courses Catalog Screen displaying "Mening kurslarim" title and a 2-Column Grid of Grammar Category Cards.
- * Features prominent visual icon illustrations and subtopic topic counts in a clean 2-column layout.
+ * Clean Courses Catalog Screen displaying "Mening kurslarim" title and a 2-Column Compact Grid of Grammar Category Cards.
+ * Features background gradient/illustration containers and compact row/colspan padding.
  *
  * @param onTabSelected Bottom navigation tab callback handler.
  * @param modifier Composable layout modifier.
@@ -93,15 +100,15 @@ fun CoursesScreen(
                 },
             )
 
-            Spacer(modifier = Modifier.height(dimensions.paddingMedium))
+            Spacer(modifier = Modifier.height(dimensions.paddingSmall))
 
             // ==========================================
-            // 2-COLUMN GRID GRAMMAR CATEGORY CARDS
+            // COMPACT 2-COLUMN GRID GRAMMAR CARDS WITH BG ILLUSTRATION
             // ==========================================
             // Row 1: Ot (Nouns) & Sifat (Adjectives)
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(dimensions.paddingMedium),
+                horizontalArrangement = Arrangement.spacedBy(dimensions.paddingSmall),
             ) {
                 GrammarGridCard(
                     title = "Grammar fundamentals",
@@ -120,12 +127,12 @@ fun CoursesScreen(
                 )
             }
 
-            Spacer(modifier = Modifier.height(dimensions.paddingMedium))
+            Spacer(modifier = Modifier.height(dimensions.paddingSmall))
 
             // Row 2: Son (Numerals) & Fe'l va Zamonlar (Verbs & Tenses)
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(dimensions.paddingMedium),
+                horizontalArrangement = Arrangement.spacedBy(dimensions.paddingSmall),
             ) {
                 GrammarGridCard(
                     title = "Son (Numerals)",
@@ -144,12 +151,12 @@ fun CoursesScreen(
                 )
             }
 
-            Spacer(modifier = Modifier.height(dimensions.paddingMedium))
+            Spacer(modifier = Modifier.height(dimensions.paddingSmall))
 
             // Row 3: Olmosh (Pronouns) & Predloglar (Prepositions)
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(dimensions.paddingMedium),
+                horizontalArrangement = Arrangement.spacedBy(dimensions.paddingSmall),
             ) {
                 GrammarGridCard(
                     title = "Olmosh (Pronouns)",
@@ -174,7 +181,7 @@ fun CoursesScreen(
 }
 
 /**
- * 2-Column Grid Card Component featuring prominent visual icon illustration and subtopic count.
+ * Compact 2-Column Grid Card Component with Illustration Background Container and Reduced Row Span.
  */
 @Composable
 fun GrammarGridCard(
@@ -186,53 +193,77 @@ fun GrammarGridCard(
 ) {
     val dimensions = LocalDimensions.current
 
+    val cardBgGradient = Brush.verticalGradient(
+        colors = listOf(
+            ContainerPurpleLight,
+            MaterialTheme.colorScheme.surface,
+        )
+    )
+
     TalkMeCard(
-        modifier = modifier,
+        modifier = modifier.height(115.dp),
         onClick = onClick,
         containerColor = MaterialTheme.colorScheme.surface,
-        cornerRadius = dimensions.cornerLarge,
+        cornerRadius = dimensions.cornerMedium,
     ) {
-        Column(
+        Box(
             modifier = Modifier
-                .fillMaxWidth()
+                .fillMaxSize()
+                .clip(RoundedCornerShape(dimensions.cornerMedium))
+                .background(cardBgGradient)
+                .border(
+                    width = dimensions.borderThin,
+                    color = Color(0xFFE8F0FE),
+                    shape = RoundedCornerShape(dimensions.cornerMedium)
+                )
                 .padding(dimensions.paddingSmall),
-            horizontalAlignment = Alignment.CenterHorizontally,
+            contentAlignment = Alignment.Center,
         ) {
-            Box(
-                modifier = Modifier
-                    .size(64.dp)
-                    .clip(RoundedCornerShape(dimensions.cornerLarge))
-                    .background(MaterialTheme.colorScheme.primaryContainer),
-                contentAlignment = Alignment.Center,
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center,
             ) {
-                Icon(
-                    painter = painterResource(id = iconRes),
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.size(dimensions.iconExtraLarge),
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center,
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(38.dp)
+                            .clip(RoundedCornerShape(dimensions.cornerSmall))
+                            .background(MaterialTheme.colorScheme.primaryContainer),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Icon(
+                            painter = painterResource(id = iconRes),
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.size(dimensions.iconMedium),
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.width(dimensions.paddingExtraSmall))
+
+                    TalkMeBadge(
+                        text = subtitle,
+                        containerColor = MaterialTheme.colorScheme.surface,
+                        textColor = MaterialTheme.colorScheme.primary,
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(dimensions.paddingExtraSmall))
+
+                Text(
+                    text = title,
+                    style = AppTypography.CardTitle.copy(
+                        fontSize = 13.sp,
+                        color = MaterialTheme.colorScheme.onBackground,
+                        fontWeight = FontWeight.Bold,
+                    ),
+                    textAlign = TextAlign.Center,
+                    maxLines = 2,
                 )
             }
-
-            Spacer(modifier = Modifier.height(dimensions.paddingMedium))
-
-            Text(
-                text = title,
-                style = AppTypography.CardTitle.copy(
-                    color = MaterialTheme.colorScheme.onBackground,
-                    fontWeight = FontWeight.Bold,
-                ),
-                textAlign = TextAlign.Center,
-            )
-
-            Spacer(modifier = Modifier.height(dimensions.paddingMicro))
-
-            Text(
-                text = subtitle,
-                style = AppTypography.CardSubtitle.copy(
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                ),
-                textAlign = TextAlign.Center,
-            )
         }
     }
 }
