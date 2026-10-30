@@ -17,10 +17,10 @@ object VoiceProfileRegistry {
             nameEn = "Adult Male",
             family = VoiceFamily.ADULT_MALE,
             iconEmoji = "👨",
-            descriptionUz = "Botiq, tushunarli va tabiiy katta yoshli erkak ovozi.",
-            descriptionEn = "Warm, natural adult male voice.",
-            acousticProfile = AcousticProfile(0.88f, 1.0f, 0.95f, 1.0f, "Resonant", "male"),
-            pauseProfile = PauseProfile(180, 280, 420, 450, 380, 700, 900)
+            descriptionUz = "Haqiqiy botiq, salmoqli va chuqur katta yoshli erkak bas/bariton ovozi.",
+            descriptionEn = "Deep, authentic adult male bass voice.",
+            acousticProfile = AcousticProfile(0.55f, 0.8f, 0.88f, 1.0f, "Deep", "male"),
+            pauseProfile = PauseProfile(200, 300, 450, 480, 400, 750, 950)
         ),
         VoiceCharacter(
             id = "adult_female",
@@ -28,9 +28,9 @@ object VoiceProfileRegistry {
             nameEn = "Adult Female",
             family = VoiceFamily.ADULT_FEMALE,
             iconEmoji = "👩",
-            descriptionUz = "Mayin, ravshan va tabiiy katta yoshli ayol ovozi.",
+            descriptionUz = "Mayin, ravshan va tabiiy katta yoshli ayol alto/soprano ovozi.",
             descriptionEn = "Soft, clear adult female voice.",
-            acousticProfile = AcousticProfile(1.05f, 1.0f, 0.95f, 1.0f, "Bright", "female"),
+            acousticProfile = AcousticProfile(1.00f, 1.0f, 0.92f, 1.0f, "Bright", "female"),
             pauseProfile = PauseProfile(180, 280, 420, 450, 380, 700, 900)
         ),
         VoiceCharacter(
@@ -41,7 +41,7 @@ object VoiceProfileRegistry {
             iconEmoji = "👦",
             descriptionUz = "Qiziquvchan va jonli yosh o'g'il bola sintetizatsiyalangan ovozi.",
             descriptionEn = "Curious young boy synthetic voice.",
-            acousticProfile = AcousticProfile(1.35f, 1.3f, 1.02f, 1.0f, "Synthetic", "male"),
+            acousticProfile = AcousticProfile(1.30f, 1.3f, 1.00f, 1.0f, "Synthetic", "male"),
             pauseProfile = PauseProfile(160, 240, 380, 400, 340, 600, 750)
         ),
         VoiceCharacter(
@@ -52,7 +52,7 @@ object VoiceProfileRegistry {
             iconEmoji = "👧",
             descriptionUz = "Quvnoq va sho'x yosh qizaloq sintetizatsiyalangan ovozi.",
             descriptionEn = "Cheerful young girl synthetic voice.",
-            acousticProfile = AcousticProfile(1.45f, 1.35f, 1.02f, 1.0f, "Synthetic", "female"),
+            acousticProfile = AcousticProfile(1.40f, 1.35f, 1.02f, 1.0f, "Synthetic", "female"),
             pauseProfile = PauseProfile(150, 230, 360, 380, 320, 580, 720)
         ),
         VoiceCharacter(
@@ -63,7 +63,7 @@ object VoiceProfileRegistry {
             iconEmoji = "🧑‍🎓",
             descriptionUz = "G'ayratli va ochiq o'smir yigit nutq va ta'lim ovozi.",
             descriptionEn = "Expressive teenage boy voice.",
-            acousticProfile = AcousticProfile(1.12f, 1.15f, 1.05f, 1.0f, "Resonant", "male"),
+            acousticProfile = AcousticProfile(0.75f, 1.15f, 1.02f, 1.0f, "Resonant", "male"),
             pauseProfile = PauseProfile(170, 250, 390, 410, 350, 620, 780)
         ),
         VoiceCharacter(
@@ -74,7 +74,7 @@ object VoiceProfileRegistry {
             iconEmoji = "👩‍🎓",
             descriptionUz = "Jo'shqin va yorqin o'smir qiz nutq va ta'lim ovozi.",
             descriptionEn = "Bright teenage girl voice.",
-            acousticProfile = AcousticProfile(1.20f, 1.25f, 1.05f, 1.0f, "Bright", "female"),
+            acousticProfile = AcousticProfile(1.15f, 1.25f, 1.04f, 1.0f, "Bright", "female"),
             pauseProfile = PauseProfile(170, 250, 390, 410, 350, 620, 780)
         )
     )
