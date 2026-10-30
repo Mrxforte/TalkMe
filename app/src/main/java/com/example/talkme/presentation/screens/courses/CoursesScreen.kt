@@ -48,7 +48,7 @@ import com.example.talkme.ui.theme.TalkMeTheme
 
 /**
  * Clean Courses Catalog Screen displaying "Mening kurslarim" title and a 2-Column Compact Grid of Grammar Category Cards.
- * Features background gradient/PNG illustration containers and compact row/colspan padding.
+ * Features PNG/JPEG background image support with contrast overlay containers and compact row/colspan padding.
  *
  * @param onTabSelected Bottom navigation tab callback handler.
  * @param modifier Composable layout modifier.
@@ -106,7 +106,7 @@ fun CoursesScreen(
             Spacer(modifier = Modifier.height(dimensions.paddingSmall))
 
             // ==========================================
-            // COMPACT 2-COLUMN GRID GRAMMAR CARDS WITH BG ILLUSTRATION
+            // COMPACT 2-COLUMN GRID GRAMMAR CARDS WITH BG PNG/JPEG ILLUSTRATION SUPPORT
             // ==========================================
             // Row 1: Ot (Nouns) & Sifat (Adjectives)
             Row(
@@ -184,14 +184,14 @@ fun CoursesScreen(
 }
 
 /**
- * Compact 2-Column Grid Card Component with PNG/Illustration Background Container and Reduced Row Span.
+ * Compact 2-Column Grid Card Component with PNG/JPEG Background Image Container.
  *
  * @param title Topic card title.
  * @param subtitle Subtopic count text.
  * @param iconRes Topic icon drawable.
  * @param onClick Click handler.
  * @param modifier Layout modifier.
- * @param bgImageRes Optional PNG background image drawable resource ID.
+ * @param bgImageRes Optional PNG or JPEG background image drawable resource ID.
  */
 @Composable
 fun GrammarGridCard(
@@ -235,7 +235,21 @@ fun GrammarGridCard(
                     contentDescription = null,
                     contentScale = ContentScale.Crop,
                     modifier = Modifier.matchParentSize(),
-                    alpha = 0.85f
+                    alpha = 0.88f
+                )
+
+                // Protective soft contrast overlay for high-legibility text
+                Box(
+                    modifier = Modifier
+                        .matchParentSize()
+                        .background(
+                            Brush.verticalGradient(
+                                colors = listOf(
+                                    Color.White.copy(alpha = 0.5f),
+                                    Color.White.copy(alpha = 0.85f)
+                                )
+                            )
+                        )
                 )
             }
 
