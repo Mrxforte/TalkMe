@@ -59,10 +59,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.talkme.R
 import com.example.talkme.presentation.components.TalkMeBottomBar
 import com.example.talkme.presentation.components.TalkMeButton
 import com.example.talkme.ui.theme.AppIcons
+import com.example.talkme.ui.theme.AppImages
 import com.example.talkme.ui.theme.AppTypography
 import com.example.talkme.ui.theme.LocalDimensions
 import com.example.talkme.ui.theme.TalkMeTheme
@@ -221,15 +221,7 @@ fun CourseLevelsScreen(
     }
 
     val courseTitle = remember(courseId) {
-        when (courseId.lowercase()) {
-            "nouns" -> "Grammar Fundamentals"
-            "adjectives" -> "Sifat (Adjectives)"
-            "numerals" -> "Son (Numerals)"
-            "verbs" -> "Fe'l va Zamonlar"
-            "pronouns" -> "Olmosh (Pronouns)"
-            "prepositions" -> "Predloglar"
-            else -> "Express travel needs"
-        }
+        CourseConstants.resolveCourseTitle(courseId)
     }
 
     Scaffold(
@@ -260,7 +252,7 @@ fun CourseLevelsScreen(
             ) {
                 // Duolingo Unit Header Banner
                 DuolingoUnitBanner(
-                    sectionUnitText = "SECTION 2, UNIT 2",
+                    sectionUnitText = CourseConstants.SECTION_UNIT_BANNER_LABEL,
                     title = courseTitle,
                     onGuidebookClick = {
                         // Open Guidebook
@@ -390,7 +382,7 @@ fun DuolingoTopStatusBar(
                     )
                 }
 
-                // Country Flag Chip (Spanish/US flag)
+                // Country Flag Chip (Spanish flag)
                 Box(
                     modifier = Modifier
                         .clip(RoundedCornerShape(8.dp))
@@ -400,7 +392,7 @@ fun DuolingoTopStatusBar(
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = "🇪🇸",
+                        text = AppImages.EMOJI_SPANISH_FLAG,
                         fontSize = 18.sp
                     )
                 }
@@ -422,7 +414,7 @@ fun DuolingoTopStatusBar(
                     modifier = Modifier.size(18.dp)
                 )
                 Text(
-                    text = "2520",
+                    text = CourseConstants.DEFAULT_STREAK_COUNT,
                     style = AppTypography.BadgeText.copy(
                         color = Color(0xFFFF9600),
                         fontWeight = FontWeight.Bold,
@@ -441,11 +433,11 @@ fun DuolingoTopStatusBar(
                     .padding(horizontal = 10.dp, vertical = 6.dp)
             ) {
                 Text(
-                    text = "💎",
+                    text = AppImages.EMOJI_BLUE_GEM,
                     fontSize = 14.sp
                 )
                 Text(
-                    text = "26032",
+                    text = CourseConstants.DEFAULT_GEM_COUNT,
                     style = AppTypography.BadgeText.copy(
                         color = Color(0xFF1CB0F6),
                         fontWeight = FontWeight.Bold,
@@ -463,7 +455,7 @@ fun DuolingoTopStatusBar(
                 contentAlignment = Alignment.Center
             ) {
                 Text(
-                    text = "🔮",
+                    text = AppImages.EMOJI_MAGIC_BALL,
                     fontSize = 18.sp
                 )
             }
@@ -573,14 +565,14 @@ fun CurvedPathCanvas(
 
         levelNodes.forEachIndexed { index, node ->
             val nodeX = centerX + (width * 0.42f * node.horizontalOffsetRatio)
-            val nodeY = index * 98f + 50f
+            val nodeY = (index * 98f) + 50f
 
             if (index == 0) {
                 path.moveTo(nodeX, nodeY)
             } else {
                 val prevNode = levelNodes[index - 1]
                 val prevX = centerX + (width * 0.42f * prevNode.horizontalOffsetRatio)
-                val prevY = (index - 1) * 98f + 50f
+                val prevY = ((index - 1) * 98f) + 50f
 
                 val controlY1 = prevY + 45f
                 val controlY2 = nodeY - 45f
@@ -669,7 +661,7 @@ fun LevelNodeComposable(
                 repeat(3) { starIndex ->
                     val isFilled = starIndex < node.stars
                     Text(
-                        text = "★",
+                        text = AppImages.SYMBOL_STAR_FILLED,
                         fontSize = 12.sp,
                         color = if (isFilled) Color(0xFFFFC800) else Color(0xFFD0D0D0)
                     )
@@ -735,10 +727,10 @@ fun Duolingo3DButton(
             // Icon according to LevelNodeType
             when (node.nodeType) {
                 LevelNodeType.MASCOT_INTRO -> {
-                    Text(text = "🦉", fontSize = 32.sp)
+                    Text(text = AppImages.EMOJI_OWL_MASCOT, fontSize = 32.sp)
                 }
                 LevelNodeType.STAR -> {
-                    Text(text = "★", fontSize = 32.sp, color = iconColor)
+                    Text(text = AppImages.SYMBOL_STAR_FILLED, fontSize = 32.sp, color = iconColor)
                 }
                 LevelNodeType.READING -> {
                     Icon(
@@ -749,7 +741,7 @@ fun Duolingo3DButton(
                     )
                 }
                 LevelNodeType.CHEST -> {
-                    Text(text = "🎁", fontSize = 32.sp)
+                    Text(text = AppImages.EMOJI_TREASURE_CHEST, fontSize = 32.sp)
                 }
                 LevelNodeType.MIC -> {
                     Icon(
@@ -768,7 +760,7 @@ fun Duolingo3DButton(
                     )
                 }
                 LevelNodeType.CAMERA -> {
-                    Text(text = "📹", fontSize = 28.sp)
+                    Text(text = AppImages.EMOJI_CAMERA_VIDEO, fontSize = 28.sp)
                 }
                 LevelNodeType.HEADPHONES -> {
                     Icon(
@@ -804,7 +796,7 @@ fun MascotAvatarBadge(
             contentAlignment = Alignment.Center
         ) {
             Text(
-                text = "🦉",
+                text = AppImages.EMOJI_OWL_MASCOT,
                 fontSize = 28.sp
             )
         }
@@ -830,7 +822,7 @@ fun FloatingActionButton(
         contentAlignment = Alignment.Center
     ) {
         Text(
-            text = "↑",
+            text = AppImages.SYMBOL_ARROW_UP,
             fontSize = 24.sp,
             fontWeight = FontWeight.Bold,
             color = Color(0xFF1CB0F6)
@@ -878,9 +870,9 @@ fun LevelDetailBottomSheetContent(
         ) {
             Text(
                 text = when (node.status) {
-                    LevelStatus.COMPLETED -> "YAKUNLANGAN (3/3 ⭐)"
-                    LevelStatus.CURRENT -> "HOZIRGI BO'LIM"
-                    LevelStatus.LOCKED -> "YOPILGAN BOSQICH"
+                    LevelStatus.COMPLETED -> CourseConstants.BADGE_COMPLETED_TEXT
+                    LevelStatus.CURRENT -> CourseConstants.BADGE_CURRENT_TEXT
+                    LevelStatus.LOCKED -> CourseConstants.BADGE_LOCKED_TEXT
                 },
                 style = AppTypography.BadgeText.copy(
                     color = if (node.status == LevelStatus.LOCKED) Color.Gray else Color(0xFF27AE60),
@@ -929,7 +921,7 @@ fun LevelDetailBottomSheetContent(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(6.dp)
             ) {
-                Text(text = "⚡", fontSize = 20.sp)
+                Text(text = AppImages.EMOJI_LIGHTNING, fontSize = 20.sp)
                 Text(
                     text = "+${node.xpReward} XP",
                     style = AppTypography.CardTitle.copy(
@@ -950,7 +942,7 @@ fun LevelDetailBottomSheetContent(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(6.dp)
             ) {
-                Text(text = "💎", fontSize = 18.sp)
+                Text(text = AppImages.EMOJI_BLUE_GEM, fontSize = 18.sp)
                 Text(
                     text = "+5 Olmos",
                     style = AppTypography.CardTitle.copy(
@@ -965,7 +957,7 @@ fun LevelDetailBottomSheetContent(
 
         // Big Duolingo Start Action Button
         TalkMeButton(
-            text = if (node.status == LevelStatus.LOCKED) "BOSHLASH" else "BOSHLASH (+${node.xpReward} XP)",
+            text = if (node.status == LevelStatus.LOCKED) CourseConstants.BTN_START_LABEL else "${CourseConstants.BTN_START_LABEL} (+${node.xpReward} XP)",
             onClick = onStartClick,
             modifier = Modifier
                 .fillMaxWidth()
@@ -976,7 +968,7 @@ fun LevelDetailBottomSheetContent(
 
         // Secondary Close Button
         Text(
-            text = "YOPISH",
+            text = CourseConstants.BTN_CLOSE_LABEL,
             style = AppTypography.CardTitle.copy(
                 fontSize = 14.sp,
                 color = Color.Gray,

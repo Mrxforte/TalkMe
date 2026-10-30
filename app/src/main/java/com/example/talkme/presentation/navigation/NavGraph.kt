@@ -9,7 +9,6 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.example.talkme.domain.fsrs.FsrsDailyStats
 import com.example.talkme.presentation.screens.courses.CourseLevelsScreen
 import com.example.talkme.presentation.screens.courses.CoursesScreen
 import com.example.talkme.presentation.screens.home.HomeScreen
@@ -21,7 +20,6 @@ import com.example.talkme.presentation.screens.lesson.QuizScreen
 import com.example.talkme.presentation.screens.onboarding.OnboardingScreen
 import com.example.talkme.presentation.screens.profile.ProfileScreen
 import com.example.talkme.presentation.screens.repeat.RepeatScreen
-import com.example.talkme.presentation.screens.repeat.RepeatUiState
 import com.example.talkme.presentation.screens.repeat.RepeatViewModel
 import com.example.talkme.presentation.screens.results.ResultsScreen
 import com.example.talkme.presentation.screens.settings.VoiceSettingsScreen
