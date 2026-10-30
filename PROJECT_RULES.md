@@ -4,11 +4,37 @@ This document serves as the **authoritative, single source of truth** for all ar
 
 ---
 
-## 🎙️ 1. Gemini 3.6 Android Voice AI Engine Architecture
+## 🎙️ 1. Gemini 3.6 Android Voice AI Engine & 600 Character Library Architecture
 
-The TalkMe application includes a complete, production-ready Voice AI engine supporting offline ONNX/Sherpa-ONNX local models, cloud FastAPI server integration, dynamic model capabilities, centralized DataStore preferences, text normalization for Uzbek/Russian/English, and built-in long text testing environment.
+The TalkMe application includes a complete, production-ready Voice AI Character Platform supporting 600 distinct character voice profiles across 24 major families, offline ONNX/Sherpa-ONNX local models, cloud FastAPI server integration, dynamic model capabilities, centralized DataStore preferences, text normalization for Uzbek/Russian/English, and a built-in long text testing environment.
 
-### 1.1 Core Engine Components & Contracts
+### 1.1 Complete 24 Voice Families & 600 Character Profiles
+- **Family A — Adult Male Voices (25)**
+- **Family B — Adult Female Voices (25)**
+- **Family C — Fictional Young Boy Voices (25)**
+- **Family D — Fictional Young Girl Voices (25)**
+- **Family E — Mature and Elderly Voices (25)**
+- **Family F — Professional and Educational Characters (25)**
+- **Family G — Narration and Media Characters (25)**
+- **Family H — Cartoon, Fantasy, Fictional and Game Characters (25)**
+- **Family I — Baby Boy Voices (25)**
+- **Family J — Baby Girl Voices (25)**
+- **Family K — Toddler Boy Voices (25)**
+- **Family L — Toddler Girl Voices (25)**
+- **Family M — Young Teen Male Voices (25)**
+- **Family N — Young Teen Female Voices (25)**
+- **Family O — Adult Male Personality Variations (25)**
+- **Family P — Adult Female Personality Variations (25)**
+- **Family Q — Mature Male Personality Variations (25)**
+- **Family R — Mature Female Personality Variations (25)**
+- **Family S — Fantasy Male Characters (25)**
+- **Family T — Fantasy Female Characters (25)**
+- **Family U — Professional Male Presenters (25)**
+- **Family V — Professional Female Presenters (25)**
+- **Family W — International English Voice Styles (25)**
+- **Family X — Special Expressive Characters (25)**
+
+### 1.2 Core Engine Components & Contracts
 - **`TtsEngine` Contract (`domain/voice/engine/TtsEngine.kt`)**: Common abstraction for all speech synthesis engines.
 - **Engine Adapters (`data/voice/engine/`)**:
   - `SherpaOnnxTtsEngine`: Local offline ONNX / sherpa-onnx runtime inference adapter.
@@ -19,7 +45,7 @@ The TalkMe application includes a complete, production-ready Voice AI engine sup
 - **Text Normalization Pipeline (`domain/voice/normalization/TextNormalizationPipeline.kt`)**: Handles Uzbek Latin/Cyrillic, Russian, English, numbers, date expansion, morphological suffixes, and pronunciation dictionaries.
 - **Long-Text Processing (`domain/voice/longtext/LongTextProcessor.kt`)**: Splits long stories into natural sentence/paragraph chunks while preserving speaker identity.
 - **Speech Testing & Sample Story (`domain/voice/testing/SampleStory.kt`)**: Preloaded English story **"Sample 01 — The Last Library in the City"** for quick & advanced speech testing and latency/RTF diagnostic reporting.
-- **Voice Studio & Settings Screens (`presentation/screens/voicestudio/`, `presentation/screens/settings/`)**: Full Compose UIs for voice customization, preview, and testing.
+- **Voice Studio & Settings Screens (`presentation/screens/voicestudio/`, `presentation/screens/settings/`)**: Full Compose UIs for 600 voice character customization, search, individual audition buttons, preview, and testing.
 
 ---
 
@@ -33,7 +59,7 @@ The TalkMe application includes a complete, production-ready Voice AI engine sup
 6. **Lesson Result Screen (`LessonResultScreen.kt`)**: Lesson Result Screen (matching Untitled.pdf Page 5) featuring share action button, completion banner card (`ContainerPurpleLight`) with "Dars yakunlandi" green chip, checkmark icon, score percentage, time spent, XP earned stats row, weekly plan progress bar, rule correction tip card ("Bir joyini mustahkamlaymiz"), and exam prep card.
 7. **Level Unlocked Screen (`LevelUnlockedScreen.kt`)**: Next stage level unlocked celebration screen celebrating score completion.
 8. **Voice Studio Screen (`VoiceStudioScreen.kt`)**: Interactive Voice AI controls, speed/pitch sliders, and text input.
-9. **Voice Settings Screen (`VoiceSettingsScreen.kt`)**: Centralized preferences, audio cache, and preloaded English story testing environment.
+9. **Voice Settings Screen (`VoiceSettingsScreen.kt`)**: Centralized 600 character voice library, search, category filters, individual voice audition buttons, audio cache, and preloaded English story testing environment.
 
 ---
 
@@ -68,7 +94,7 @@ The TalkMe application includes a complete, production-ready Voice AI engine sup
    - 🚫 NEVER use forward right chevrons (`ChevronRight`) for back navigation buttons.
    - ✅ Always use left back chevrons (`AppIcons.ChevronLeft`) in `TalkMeHeader` and back action buttons.
 3. **Voice AI Engine Rules**:
-   - All speech requests MUST route through `EngineRegistry` and `SpeakTextUseCase`.
-   - Unadvertised features (like emotion on basic Piper models) MUST be accurately reported in `TtsCapabilities`.
+   - All 600 character profiles MUST route through `EngineRegistry` and `SpeakTextUseCase`.
+   - Unadvertised features MUST be accurately reported in `TtsCapabilities`.
 4. **Documentation Standards**:
    - Every file, class, Composable, internal code block, and public function MUST have English KDoc comments placed directly above declarations.

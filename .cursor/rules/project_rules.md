@@ -9,9 +9,10 @@ This rule file governs all current and future development in the **TalkMe** code
 - **Typography & Fonts**: Always reference `AppTypography.*` or `MaterialTheme.typography.*` (`ui/theme/Type.kt`).
 - **Icons**: Always access icons via `AppIcons.*`.
 
-## 2. Voice AI Engine & TTS Rules
+## 2. Voice AI Engine & 600 Character Library Rules
 - All speech requests MUST route through `EngineRegistry` and `SpeakTextUseCase`.
-- Supports local offline `SherpaOnnxTtsEngine`, server-side `CloudTtsEngine`, and native `AndroidSystemTtsEngine`.
+- Supports 600 character voice profiles across 24 major families (Families A to X) with distinct acoustic identities.
+- Features local offline `SherpaOnnxTtsEngine`, server-side `CloudTtsEngine`, and native `AndroidSystemTtsEngine`.
 - Features centralized DataStore preferences (`SettingsRepositoryImpl`) and built-in long text testing environment (**Sample 01 — The Last Library in the City**).
 
 ## 3. Navigation Icons
