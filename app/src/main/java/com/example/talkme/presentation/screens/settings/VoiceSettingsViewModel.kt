@@ -14,7 +14,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 /**
- * ViewModel managing reactive DataStore settings persistence and speech testing.
+ * ViewModel managing reactive DataStore settings persistence, character voice profiles, and speech testing.
  *
  * @param settingsRepository Injected DataStore preferences repository.
  * @param speakTextUseCase Injected speech synthesis use case.
@@ -36,6 +36,13 @@ class VoiceSettingsViewModel @Inject constructor(
             val current = settingsState.value
             val newMode = if (isLocalFirst) EngineSelectionMode.LOCAL_FIRST else EngineSelectionMode.CLOUD_FIRST
             settingsRepository.updateSettings(current.copy(engineSelectionMode = newMode))
+        }
+    }
+
+    fun updateCharacterProfile(profileName: String) {
+        viewModelScope.launch {
+            val current = settingsState.value
+            settingsRepository.updateSettings(current.copy(selectedCharacterProfile = profileName))
         }
     }
 
@@ -68,7 +75,13 @@ class VoiceSettingsViewModel @Inject constructor(
 
     fun runSpeechTest(text: String) {
         if (text.isNotBlank()) {
-            speakTextUseCase(text)
+            val current = settingsState.value
+            speakTextUseCase(
+                text = text,
+                speed = current.speechSpeed,
+                pitch = current.speechPitch,
+                characterProfile = current.selectedCharacterProfile
+            )
         }
     }
 

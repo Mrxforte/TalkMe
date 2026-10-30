@@ -249,6 +249,9 @@ fun AppNavGraph(
                 onLocalFirstChanged = { isLocalFirst ->
                     settingsViewModel.updateLocalFirstMode(isLocalFirst)
                 },
+                onCharacterProfileChanged = { profile ->
+                    settingsViewModel.updateCharacterProfile(profile)
+                },
                 onSpeedChanged = { speed ->
                     settingsViewModel.updateSpeechSpeed(speed)
                 },

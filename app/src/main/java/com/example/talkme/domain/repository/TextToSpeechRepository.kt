@@ -13,6 +13,15 @@ interface TextToSpeechRepository {
     fun speak(text: String)
 
     /**
+     * Configures speech parameters (human natural speech rate, pitch, and character voice profile).
+     *
+     * @param speed Speech rate multiplier (human natural range: 0.8x to 1.3x).
+     * @param pitch Voice pitch multiplier (human range: 0.7x to 1.4x).
+     * @param characterProfile Character profile name (e.g. Ustoz, Hikoyachi, Suhbatdosh, Akademik, Kichik O'quvchi).
+     */
+    fun setSpeechParameters(speed: Float, pitch: Float, characterProfile: String = "Suhbatdosh")
+
+    /**
      * Stops any currently ongoing speech playback.
      */
     fun stop()

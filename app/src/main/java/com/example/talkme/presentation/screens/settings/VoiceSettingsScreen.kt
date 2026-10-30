@@ -45,11 +45,12 @@ import com.example.talkme.ui.theme.TalkMeTheme
 
 /**
  * Reactive Voice AI Settings & Speech Testing Screen connected to DataStore preferences.
- * Includes character voice selection, speech controls, and explicit play/stop test buttons.
+ * Includes 6 distinct human character voice profiles, natural speech rate sliders, and explicit play/stop controls.
  *
  * @param settings Current active VoiceSettings state.
  * @param onBackClick Navigation back handler.
  * @param onLocalFirstChanged Callback invoked when local-first switch is toggled.
+ * @param onCharacterProfileChanged Callback invoked when character voice profile is selected.
  * @param onSpeedChanged Callback invoked when speed slider changes.
  * @param onPitchChanged Callback invoked when pitch slider changes.
  * @param onAudioCacheChanged Callback invoked when audio cache switch is toggled.
@@ -62,6 +63,7 @@ fun VoiceSettingsScreen(
     settings: VoiceSettings,
     onBackClick: () -> Unit,
     onLocalFirstChanged: (Boolean) -> Unit,
+    onCharacterProfileChanged: (String) -> Unit,
     onSpeedChanged: (Float) -> Unit,
     onPitchChanged: (Float) -> Unit,
     onAudioCacheChanged: (Boolean) -> Unit,
@@ -72,9 +74,21 @@ fun VoiceSettingsScreen(
     val dimensions = LocalDimensions.current
     var testReportText by remember { mutableStateOf("") }
     var isTestPlaying by remember { mutableStateOf(false) }
-    var selectedCharacterIndex by remember { mutableIntStateOf(0) }
 
-    val characterProfiles = listOf("O‘qituvchi", "Hikoyachi", "Suhbatdosh", "Tezkor")
+    val characterProfilesList = listOf(
+        "Ustoz",
+        "Hikoyachi",
+        "Suhbatdosh",
+        "Akademik",
+        "Kichik O'quvchi",
+        "Dinamik"
+    )
+
+    val currentProfileName = settings.selectedCharacterProfile
+    var selectedCharacterIndex by remember(currentProfileName) {
+        mutableIntStateOf(characterProfilesList.indexOf(currentProfileName).coerceAtLeast(0))
+    }
+
     val isLocalFirst = settings.engineSelectionMode == EngineSelectionMode.LOCAL_FIRST
 
     Scaffold(
@@ -132,38 +146,68 @@ fun VoiceSettingsScreen(
 
             Spacer(modifier = Modifier.height(dimensions.paddingMedium))
 
-            // 2. Character Voice Profile Selection ("Personaj Ovozini Tanlash")
+            // 2. Character Voice Profile Selection ("6 ta haqiqiy va bir-biridan farqli personajlar")
             TalkMeCard(
-                containerColor = MaterialTheme.colorScheme.surface,
+                containerColor = MaterialTheme.colorScheme.primaryContainer,
+                borderColor = MaterialTheme.colorScheme.primary,
             ) {
                 Column {
                     Text(
-                        text = "Ovoz Xarakteri & Personaj Tanlash",
-                        style = AppTypography.CardTitle,
+                        text = "Ovoz Xarakteri & Personajlar (6 xil distinct ovoz)",
+                        style = AppTypography.CardTitle.copy(color = MaterialTheme.colorScheme.primary),
                     )
 
                     Spacer(modifier = Modifier.height(dimensions.paddingSmall))
 
+                    // Row 1: Primary Profiles
                     TalkMeTabRow(
-                        tabs = characterProfiles,
-                        selectedIndex = selectedCharacterIndex,
+                        tabs = characterProfilesList.subList(0, 3),
+                        selectedIndex = if (selectedCharacterIndex in 0..2) selectedCharacterIndex else -1,
                         onTabSelected = { index ->
                             selectedCharacterIndex = index
-                            val speedFactor = when (index) {
-                                0 -> 0.85f // O'qituvchi
-                                1 -> 0.95f // Hikoyachi
-                                2 -> 1.00f // Suhbatdosh
-                                else -> 1.15f // Tezkor
-                            }
-                            onSpeedChanged(speedFactor)
+                            val chosenName = characterProfilesList[index]
+                            onCharacterProfileChanged(chosenName)
                         },
+                    )
+
+                    Spacer(modifier = Modifier.height(dimensions.paddingSmall))
+
+                    // Row 2: Secondary Profiles
+                    TalkMeTabRow(
+                        tabs = characterProfilesList.subList(3, 6),
+                        selectedIndex = if (selectedCharacterIndex in 3..5) selectedCharacterIndex - 3 else -1,
+                        onTabSelected = { index ->
+                            val actualIndex = index + 3
+                            selectedCharacterIndex = actualIndex
+                            val chosenName = characterProfilesList[actualIndex]
+                            onCharacterProfileChanged(chosenName)
+                        },
+                    )
+
+                    Spacer(modifier = Modifier.height(dimensions.paddingSmall))
+
+                    val profileDescription = when (characterProfilesList[selectedCharacterIndex]) {
+                        "Ustoz" -> "👨‍🏫 Ustoz: Aniq, ravshan va sekinroq qoidalarni o'qish nutqi."
+                        "Hikoyachi" -> "📖 Hikoyachi: Chuqurroq, bosiq va ohangdor hikoya o'qish ovozi."
+                        "Akademik" -> "🎓 Akademik: Salmoqli va botiq akademik ma'ruza toni."
+                        "Kichik O'quvchi" -> "👧 Kichik O'quvchi: Yuqori pitchli, sho'x va jonli ovoz."
+                        "Dinamik" -> "🚀 Dinamik: Tez, shiddatli va ekspressiv spiker."
+                        else -> "💬 Suhbatdosh: Tabiiy kunlik insoniy so'zlashuv nutq tezligi."
+                    }
+
+                    Text(
+                        text = profileDescription,
+                        style = AppTypography.CardSubtitle.copy(
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            fontWeight = FontWeight.SemiBold,
+                        ),
                     )
                 }
             }
 
             Spacer(modifier = Modifier.height(dimensions.paddingMedium))
 
-            // 3. Speech Parameters (Speed & Pitch Sliders)
+            // 3. Speech Parameters (Human Natural Speech Rate & Pitch Sliders)
             TalkMeCard(
                 containerColor = MaterialTheme.colorScheme.surface,
             ) {
@@ -177,7 +221,7 @@ fun VoiceSettingsScreen(
                             style = AppTypography.CardTitle,
                         )
                         Text(
-                            text = "${"%.2f".format(settings.speechSpeed)}x",
+                            text = "${"%.2f".format(settings.speechSpeed)}x (Tabiiy insoniy)",
                             style = AppTypography.CardTitle,
                             fontWeight = FontWeight.Bold,
                         )
@@ -186,7 +230,7 @@ fun VoiceSettingsScreen(
                     Slider(
                         value = settings.speechSpeed,
                         onValueChange = onSpeedChanged,
-                        valueRange = 0.5f..2.0f,
+                        valueRange = 0.7f..1.4f,
                         modifier = Modifier.fillMaxWidth(),
                     )
 
@@ -210,7 +254,7 @@ fun VoiceSettingsScreen(
                     Slider(
                         value = settings.speechPitch,
                         onValueChange = onPitchChanged,
-                        valueRange = 0.5f..1.5f,
+                        valueRange = 0.6f..1.5f,
                         modifier = Modifier.fillMaxWidth(),
                     )
                 }
@@ -279,7 +323,7 @@ fun VoiceSettingsScreen(
                     Spacer(modifier = Modifier.height(dimensions.paddingSmall))
 
                     Text(
-                        text = "Category: ${SampleStory.CATEGORY} · Personaj: ${characterProfiles[selectedCharacterIndex]} · Est. ~${"%.1f".format(SampleStory.estimatedDurationMinutes)} min",
+                        text = "Category: ${SampleStory.CATEGORY} · Tanlangan Personaj: ${characterProfilesList[selectedCharacterIndex]}",
                         style = AppTypography.CardSubtitle,
                     )
 
@@ -312,7 +356,7 @@ fun VoiceSettingsScreen(
                                 val startTime = System.currentTimeMillis()
                                 onRunQuickTestClick(SampleStory.FULL_TEXT)
                                 val duration = System.currentTimeMillis() - startTime
-                                testReportText = "Test Report: Personaj: ${characterProfiles[selectedCharacterIndex]} | Words: ${SampleStory.wordCount} | Latency: ${duration}ms | Status: PLAYING"
+                                testReportText = "Test Report: Personaj: ${characterProfilesList[selectedCharacterIndex]} | Words: ${SampleStory.wordCount} | Latency: ${duration}ms | Status: PLAYING"
                             }
                         },
                     )
@@ -354,6 +398,7 @@ fun VoiceSettingsScreenPreview() {
             settings = VoiceSettings(),
             onBackClick = {},
             onLocalFirstChanged = {},
+            onCharacterProfileChanged = {},
             onSpeedChanged = {},
             onPitchChanged = {},
             onAudioCacheChanged = {},

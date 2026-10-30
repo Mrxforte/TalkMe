@@ -2,6 +2,7 @@ package com.example.talkme.data.repository
 
 import android.content.Context
 import android.speech.tts.TextToSpeech
+import android.speech.tts.Voice
 import android.util.Log
 import com.example.talkme.domain.repository.TextToSpeechRepository
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -11,7 +12,7 @@ import javax.inject.Singleton
 
 /**
  * Android Framework Implementation of TextToSpeechRepository using native android.speech.tts.TextToSpeech.
- * Features explicit user-driven playback control, long-text sentence chunking, and character voice profile support.
+ * Features distinct character voice profiles, human speech rate modulation, and Android Voice engine selection.
  *
  * @param context Injected Application Context.
  */
@@ -24,13 +25,14 @@ class TextToSpeechRepositoryImpl @Inject constructor(
     private var isInitialized = false
     private val pendingTextQueue = mutableListOf<String>()
 
+    private var currentSpeed: Float = 1.0f
+    private var currentPitch: Float = 1.0f
+    private var currentCharacterProfile: String = "Suhbatdosh"
+
     init {
         initializeTts()
     }
 
-    /**
-     * Initializes the Android TextToSpeech engine.
-     */
     private fun initializeTts() {
         if (tts == null) {
             tts = TextToSpeech(context, this)
@@ -47,10 +49,9 @@ class TextToSpeechRepositoryImpl @Inject constructor(
 
             if (result != TextToSpeech.LANG_MISSING_DATA && result != TextToSpeech.LANG_NOT_SUPPORTED) {
                 isInitialized = true
-                tts?.setSpeechRate(0.9f)
-                Log.d(TAG, "TextToSpeech engine initialized successfully.")
+                applyCharacterVoiceProfile(currentCharacterProfile, currentSpeed, currentPitch)
+                Log.d(TAG, "TextToSpeech engine initialized successfully with character voice profiles.")
 
-                // Only flush pending text if explicitly queued by user action
                 synchronized(pendingTextQueue) {
                     val pendingText = pendingTextQueue.lastOrNull()
                     pendingTextQueue.clear()
@@ -66,11 +67,59 @@ class TextToSpeechRepositoryImpl @Inject constructor(
         }
     }
 
+    override fun setSpeechParameters(speed: Float, pitch: Float, characterProfile: String) {
+        this.currentSpeed = speed
+        this.currentPitch = pitch
+        this.currentCharacterProfile = characterProfile
+
+        if (isInitialized) {
+            applyCharacterVoiceProfile(characterProfile, speed, pitch)
+        }
+    }
+
+    /**
+     * Applies distinct Android Voice object and pitch/speed parameters according to character profile.
+     */
+    private fun applyCharacterVoiceProfile(characterProfile: String, userSpeed: Float, userPitch: Float) {
+        val (baseRate, basePitch) = when (characterProfile) {
+            "Ustoz" -> Pair(0.88f, 1.00f)        // Clear, instructional teacher pacing
+            "Hikoyachi" -> Pair(0.92f, 0.82f)    // Deep, warm story narrator tone
+            "Akademik" -> Pair(0.82f, 0.78f)     // Deliberate, low-pitched professor tone
+            "Kichik O'quvchi" -> Pair(1.05f, 1.30f)// Bright, high-pitched young learner voice
+            "Dinamik" -> Pair(1.15f, 1.10f)      // Upbeat, energetic speaker
+            else -> Pair(1.00f, 1.00f)           // Conversational default ("Suhbatdosh")
+        }
+
+        val effectiveSpeed = (baseRate * userSpeed).coerceIn(0.5f, 2.0f)
+        val effectivePitch = (basePitch * userPitch).coerceIn(0.5f, 2.0f)
+
+        tts?.setSpeechRate(effectiveSpeed)
+        tts?.setPitch(effectivePitch)
+
+        // Select distinct Android Voice if available
+        val availableVoices = tts?.voices ?: emptySet()
+        val englishVoices = availableVoices.filter { it.locale.language == "en" && !it.isNetworkConnectionRequired }
+
+        if (englishVoices.isNotEmpty()) {
+            val selectedVoice: Voice? = when (characterProfile) {
+                "Hikoyachi", "Akademik" -> englishVoices.firstOrNull { it.name.contains("male", ignoreCase = true) } ?: englishVoices.first()
+                "Kichik O'quvchi" -> englishVoices.lastOrNull() ?: englishVoices.first()
+                "Ustoz" -> englishVoices.elementAtOrNull(1) ?: englishVoices.first()
+                else -> englishVoices.first()
+            }
+            if (selectedVoice != null) {
+                tts?.voice = selectedVoice
+                Log.d(TAG, "Applied voice '${selectedVoice.name}' for character '$characterProfile'")
+            }
+        }
+    }
+
     override fun speak(text: String) {
         if (text.isBlank()) return
 
         synchronized(pendingTextQueue) {
             if (isInitialized) {
+                applyCharacterVoiceProfile(currentCharacterProfile, currentSpeed, currentPitch)
                 speakInternal(text)
             } else {
                 Log.d(TAG, "TTS not initialized yet. Queueing text for user action: $text")
@@ -82,10 +131,9 @@ class TextToSpeechRepositoryImpl @Inject constructor(
     }
 
     private fun speakInternal(text: String) {
-        tts?.stop() // Ensure any previous audio is stopped before playing new speech
+        tts?.stop()
 
         if (text.length > 300) {
-            // Split long text into natural sentence chunks to respect Android TTS character limits
             val sentences = text.split(Regex("(?<=[.!?])\\s+|\\n+"))
             var isFirstChunk = true
             var currentChunk = StringBuilder()
