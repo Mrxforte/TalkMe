@@ -1,6 +1,5 @@
 package com.talkme.presentation.screens.courses
 
-import androidx.annotation.StringRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -9,177 +8,233 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.FilterChip
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material3.Icon
-import androidx.compose.material3.LinearProgressIndicator
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.res.stringResource
-import com.talkme.R
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.talkme.presentation.components.CourseCategoryIllustration
+import com.talkme.presentation.components.TalkMeBottomBar
+import com.talkme.presentation.components.TalkMeBottomTab
 import com.talkme.presentation.components.TalkMeHeader
+import com.talkme.presentation.state.GrammarCategoryUiModel
+import com.talkme.presentation.state.TalkMeAppState
 import com.talkme.ui.theme.AppIcons
 import com.talkme.ui.theme.AppTypography
 import com.talkme.ui.theme.LocalDimensions
-
-private data class CourseCatalogItem(
-    val courseId: String,
-    val lessonId: String,
-    @StringRes val titleRes: Int,
-    @StringRes val subtitleRes: Int,
-    @StringRes val metaRes: Int,
-    val progress: Float,
-    val isBeginner: Boolean
-)
+import com.talkme.ui.theme.TalkMeColors
 
 /**
- * Clean 2-Column Grid Grammar Category Catalog Screen (`CoursesScreen.kt`)
- * per Section 2 Item 4 of PROJECT_RULES.md.
+ * Pixel-perfect migration of `src/screens/CoursesScreen.tsx`:
+ * - Top `TalkMeHeader` (`"Mening kurslarim"` + `"Ingliz tili grammatika bo‘limlari"` + trailing `Layers` circle button)
+ * - Live search bar (`"Grammatika bo‘limlarini izlash..."`)
+ * - Purple gradient catalog banner (`"CEFR A2 DASTURI"` • `"Duolingo Uslubidagi Bosqichlar 🦉"`)
+ * - 2-Column Ozon-Style Product Cards Grid for all 11 grammar categories with 4:5 custom vector illustration,
+ *   topic count badge, title, subtitle, and `"O‘rganish ->"` footer
+ * - `TalkMeBottomBar` pinned at bottom
  */
 @Composable
 fun CoursesScreen(
     onBackClick: (() -> Unit)? = null,
     onCourseSelected: (courseId: String, lessonId: String) -> Unit = { _, _ -> },
+    onNavigateHome: () -> Unit = {},
+    onNavigateRepeat: () -> Unit = {},
+    onNavigateProfile: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     val dims = LocalDimensions.current
-    var selectedFilterIndex by remember { mutableIntStateOf(0) }
+    var searchQuery by remember { mutableStateOf("") }
 
-    val allCourses = remember {
-        listOf(
-            CourseCatalogItem(
-                courseId = "course_a0_numbers",
-                lessonId = "lesson_numbers_1",
-                titleRes = R.string.course_1_title,
-                subtitleRes = R.string.course_1_subtitle,
-                metaRes = R.string.course_1_meta,
-                progress = 0.65f,
-                isBeginner = true
-            ),
-            CourseCatalogItem(
-                courseId = "course_a1_to_be",
-                lessonId = "lesson_to_be_1",
-                titleRes = R.string.course_2_title,
-                subtitleRes = R.string.course_2_subtitle,
-                metaRes = R.string.course_2_meta,
-                progress = 0.40f,
-                isBeginner = true
-            ),
-            CourseCatalogItem(
-                courseId = "course_a1_present_simple",
-                lessonId = "lesson_present_simple_1",
-                titleRes = R.string.course_3_title,
-                subtitleRes = R.string.course_3_subtitle,
-                metaRes = R.string.course_3_meta,
-                progress = 0.25f,
-                isBeginner = true
-            ),
-            CourseCatalogItem(
-                courseId = "course_a1_articles",
-                lessonId = "lesson_articles_1",
-                titleRes = R.string.course_4_title,
-                subtitleRes = R.string.course_4_subtitle,
-                metaRes = R.string.course_4_meta,
-                progress = 0.15f,
-                isBeginner = true
-            ),
-            CourseCatalogItem(
-                courseId = "course_a2_prepositions",
-                lessonId = "lesson_prepositions_1",
-                titleRes = R.string.course_5_title,
-                subtitleRes = R.string.course_5_subtitle,
-                metaRes = R.string.course_5_meta,
-                progress = 0.10f,
-                isBeginner = false
-            ),
-            CourseCatalogItem(
-                courseId = "course_a2_past_simple",
-                lessonId = "lesson_past_simple_1",
-                titleRes = R.string.course_6_title,
-                subtitleRes = R.string.course_6_subtitle,
-                metaRes = R.string.course_6_meta,
-                progress = 0.0f,
-                isBeginner = false
-            )
-        )
-    }
-
-    val filteredCourses = remember(selectedFilterIndex, allCourses) {
-        when (selectedFilterIndex) {
-            1 -> allCourses.filter { it.isBeginner }
-            2 -> allCourses.filter { !it.isBeginner }
-            else -> allCourses
+    val allCategories = TalkMeAppState.grammarCategories
+    val filteredCategories = remember(searchQuery, allCategories) {
+        if (searchQuery.isBlank()) {
+            allCategories
+        } else {
+            allCategories.filter {
+                it.title.contains(searchQuery, ignoreCase = true) ||
+                    it.subtitle.contains(searchQuery, ignoreCase = true)
+            }
         }
     }
 
-    Column(
-        modifier = modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
-            .padding(horizontal = dims.spaceLarge)
-    ) {
-        TalkMeHeader(
-            title = stringResource(R.string.courses_screen_title),
-            subtitle = stringResource(R.string.courses_screen_subtitle),
-            onBackClick = onBackClick
-        )
-
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = dims.spaceSmall),
-            horizontalArrangement = Arrangement.spacedBy(dims.spaceSmall)
-        ) {
-            val filterLabels = listOf(
-                R.string.courses_filter_all,
-                R.string.courses_filter_beginner,
-                R.string.courses_filter_elementary
+    Scaffold(
+        modifier = modifier.fillMaxSize(),
+        containerColor = Color(0xFFFAFAFC),
+        bottomBar = {
+            TalkMeBottomBar(
+                activeTab = TalkMeBottomTab.COURSES,
+                onSelectTab = { tab ->
+                    when (tab) {
+                        TalkMeBottomTab.HOME -> onNavigateHome()
+                        TalkMeBottomTab.COURSES -> Unit
+                        TalkMeBottomTab.REPEAT -> onNavigateRepeat()
+                        TalkMeBottomTab.PROFILE -> onNavigateProfile()
+                    }
+                }
             )
-            filterLabels.forEachIndexed { index, labelRes ->
-                FilterChip(
-                    selected = selectedFilterIndex == index,
-                    onClick = { selectedFilterIndex = index },
-                    label = {
-                        Text(
-                            text = stringResource(labelRes),
-                            style = AppTypography.LabelMedium
-                        )
+        }
+    ) { innerPadding ->
+        LazyVerticalGrid(
+            columns = GridCells.Fixed(2),
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding),
+            contentPadding = PaddingValues(
+                horizontal = dims.screenPaddingHorizontal,
+                vertical = dims.spaceLarge
+            ),
+            horizontalArrangement = Arrangement.spacedBy(14.dp),
+            verticalArrangement = Arrangement.spacedBy(14.dp)
+        ) {
+            // 1. Header
+            item(span = { GridItemSpan(2) }) {
+                TalkMeHeader(
+                    title = "Mening kurslarim",
+                    subtitle = "Ingliz tili grammatika bo‘limlari",
+                    onBackClick = onBackClick,
+                    trailingContent = {
+                        Box(
+                            modifier = Modifier
+                                .size(40.dp)
+                                .clip(CircleShape)
+                                .background(Color.White)
+                                .border(1.dp, Color(0xFFF0EFF5), CircleShape),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                imageVector = AppIcons.Layers,
+                                contentDescription = null,
+                                tint = TalkMeColors.PrimaryPurple,
+                                modifier = Modifier.size(20.dp)
+                            )
+                        }
                     }
                 )
             }
-        }
 
-        // Clean 2-Column Grid Grammar Category Catalog
-        LazyVerticalGrid(
-            columns = GridCells.Fixed(2),
-            modifier = Modifier.fillMaxSize(),
-            contentPadding = PaddingValues(vertical = dims.spaceMedium),
-            horizontalArrangement = Arrangement.spacedBy(dims.spaceMedium),
-            verticalArrangement = Arrangement.spacedBy(dims.spaceMedium)
-        ) {
-            items(filteredCourses, key = { it.courseId }) { course ->
-                CourseGridCard(
-                    item = course,
-                    onClick = { onCourseSelected(course.courseId, course.lessonId) }
+            // 2. Search Input
+            item(span = { GridItemSpan(2) }) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(44.dp)
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(Color.White)
+                        .border(1.dp, Color(0xFFF0EFF5), RoundedCornerShape(12.dp))
+                        .padding(horizontal = 14.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+                    Icon(
+                        imageVector = AppIcons.Search,
+                        contentDescription = null,
+                        tint = TalkMeColors.TextMuted,
+                        modifier = Modifier.size(16.dp)
+                    )
+                    Box(modifier = Modifier.weight(1f)) {
+                        if (searchQuery.isEmpty()) {
+                            Text(
+                                text = "Grammatika bo‘limlarini izlash...",
+                                style = AppTypography.BodyMedium,
+                                color = TalkMeColors.TextMuted
+                            )
+                        }
+                        BasicTextField(
+                            value = searchQuery,
+                            onValueChange = { searchQuery = it },
+                            singleLine = true,
+                            textStyle = AppTypography.BodyMedium.copy(color = TalkMeColors.TextPrimary),
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
+                }
+            }
+
+            // 3. CEFR A2 Duolingo-Style Catalog Banner
+            item(span = { GridItemSpan(2) }) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(16.dp))
+                        .background(
+                            Brush.horizontalGradient(
+                                listOf(TalkMeColors.PrimaryPurple, Color(0xFF7C4DFF))
+                            )
+                        )
+                        .padding(16.dp)
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Column {
+                            Text(
+                                text = "CEFR A2 DASTURI",
+                                style = AppTypography.BadgeMicro.copy(
+                                    letterSpacing = 1.2.sp,
+                                    fontWeight = FontWeight.ExtraBold
+                                ),
+                                color = Color.White.copy(alpha = 0.72f)
+                            )
+                            Text(
+                                text = "Duolingo Uslubidagi Bosqichlar",
+                                style = AppTypography.TitleLarge.copy(fontWeight = FontWeight.ExtraBold),
+                                color = Color.White
+                            )
+                        }
+                        Text(
+                            text = "🦉",
+                            fontSize = 26.sp
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = "Har bir bo‘lim interaktiv xarita, 3D bosqich tugmalari va testlar bilan jihozlangan.",
+                        style = AppTypography.LabelMedium,
+                        color = Color.White.copy(alpha = 0.85f)
+                    )
+                }
+            }
+
+            // 4. 2-Column Ozon-Style Product Cards Grid
+            items(filteredCategories, key = { it.id }) { cat ->
+                OzonStyleCategoryCard(
+                    category = cat,
+                    onClick = {
+                        val defaultLesson = if (cat.id == "grammar_fundamentals") {
+                            "lesson_01_hello_a0"
+                        } else {
+                            "lesson_present_continuous"
+                        }
+                        onCourseSelected(cat.id, defaultLesson)
+                    }
                 )
             }
         }
@@ -187,78 +242,122 @@ fun CoursesScreen(
 }
 
 @Composable
-private fun CourseGridCard(
-    item: CourseCatalogItem,
+private fun OzonStyleCategoryCard(
+    category: GrammarCategoryUiModel,
     onClick: () -> Unit
 ) {
-    val dims = LocalDimensions.current
-
-    Card(
+    val cardShape = RoundedCornerShape(16.dp)
+    Column(
         modifier = Modifier
             .fillMaxWidth()
-            .border(
-                width = dims.borderThin,
-                color = MaterialTheme.colorScheme.outline,
-                shape = RoundedCornerShape(dims.radiusLarge)
-            )
-            .clickable(onClick = onClick),
-        shape = RoundedCornerShape(dims.radiusLarge),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+            .clip(cardShape)
+            .background(Color.White)
+            .border(1.dp, Color(0xFFEBE8F3), cardShape)
+            .clickable(onClick = onClick)
     ) {
+        // 4:5 Illustration Container
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .aspectRatio(0.85f)
+                .background(category.bgTint),
+            contentAlignment = Alignment.Center
+        ) {
+            CourseCategoryIllustration(
+                categoryId = category.illustrationId,
+                accentColor = category.accentColor
+            )
+        }
+
+        // Bottom Product Info Section (Ozon-Style)
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(dims.spaceLarge),
-            verticalArrangement = Arrangement.spacedBy(dims.spaceSmall)
+                .padding(12.dp),
+            verticalArrangement = Arrangement.SpaceBetween
         ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Box(
-                    modifier = Modifier
-                        .size(dims.iconButtonSize)
-                        .clip(CircleShape)
-                        .background(MaterialTheme.colorScheme.primaryContainer),
-                    contentAlignment = Alignment.Center
+            Column {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(6.dp)
                 ) {
-                    Icon(
-                        imageVector = AppIcons.Layers,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.size(dims.iconMedium)
+                    Box(
+                        modifier = Modifier
+                            .size(20.dp)
+                            .clip(RoundedCornerShape(6.dp))
+                            .background(Color(0xFFF4F1FA)),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = AppIcons.BookOpen,
+                            contentDescription = null,
+                            tint = category.accentColor,
+                            modifier = Modifier.size(12.dp)
+                        )
+                    }
+                    Text(
+                        text = category.topicsCount,
+                        style = AppTypography.BadgeMicro.copy(fontSize = 11.sp),
+                        color = TalkMeColors.PrimaryPurple
                     )
                 }
 
+                Spacer(modifier = Modifier.height(6.dp))
+
                 Text(
-                    text = stringResource(item.metaRes),
+                    text = category.title,
+                    style = AppTypography.TitleMedium.copy(
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Bold
+                    ),
+                    color = TalkMeColors.TextPrimary,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+
+                Text(
+                    text = category.subtitle,
                     style = AppTypography.LabelSmall,
-                    color = MaterialTheme.colorScheme.primary
+                    color = Color(0xFF6B7280),
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
                 )
             }
 
-            Text(
-                text = stringResource(item.titleRes),
-                style = AppTypography.TitleMedium,
-                color = MaterialTheme.colorScheme.onSurface
-            )
+            Spacer(modifier = Modifier.height(10.dp))
 
-            Text(
-                text = stringResource(item.subtitleRes),
-                style = AppTypography.BodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-
-            LinearProgressIndicator(
-                progress = { item.progress },
+            Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(dims.progressBarHeight)
-                    .clip(RoundedCornerShape(dims.radiusFull)),
-                color = MaterialTheme.colorScheme.primary,
-                trackColor = MaterialTheme.colorScheme.surfaceVariant
-            )
+                    .border(
+                        width = 0.5.dp,
+                        color = Color(0xFFF2F1F6),
+                        shape = RoundedCornerShape(4.dp)
+                    )
+                    .padding(top = 8.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "O‘rganish",
+                    style = AppTypography.LabelMedium.copy(fontWeight = FontWeight.Bold),
+                    color = TalkMeColors.PrimaryPurple
+                )
+                Box(
+                    modifier = Modifier
+                        .size(24.dp)
+                        .clip(CircleShape)
+                        .background(Color(0xFFF4F1FA)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = AppIcons.ArrowForward,
+                        contentDescription = null,
+                        tint = TalkMeColors.PrimaryPurple,
+                        modifier = Modifier.size(14.dp)
+                    )
+                }
+            }
         }
     }
 }

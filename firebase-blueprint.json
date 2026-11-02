@@ -1,0 +1,57 @@
+{
+  "schemaVersion": "1.0.0",
+  "description": "Firestore blueprint for TalkMe English learning app: user profiles, learned vocabulary, and mastered grammar rules with real-time cloud synchronization.",
+  "collections": [
+    {
+      "path": "users",
+      "description": "User profile, XP, diamonds, streak, and overall learning stats.",
+      "securityIntent": "Users can only read and write their own profile document.",
+      "fields": {
+        "uid": { "type": "string", "required": true },
+        "displayName": { "type": "string", "required": false },
+        "email": { "type": "string", "required": false },
+        "photoURL": { "type": "string", "required": false },
+        "xp": { "type": "number", "required": true },
+        "diamonds": { "type": "number", "required": true },
+        "streakDays": { "type": "number", "required": true },
+        "uniqueLearnedWordsCount": { "type": "number", "required": true },
+        "masteredGrammarRulesCount": { "type": "number", "required": true },
+        "updatedAt": { "type": "number", "required": true }
+      },
+      "subcollections": [
+        {
+          "path": "learned_words",
+          "description": "Learned and practicing vocabulary for spaced repetition and mastery tracking.",
+          "securityIntent": "Users can only read and write their own learned words subcollection.",
+          "fields": {
+            "wordId": { "type": "string", "required": true },
+            "word": { "type": "string", "required": true },
+            "translation": { "type": "string", "required": true },
+            "phonetic": { "type": "string", "required": false },
+            "category": { "type": "string", "required": false },
+            "status": { "type": "string", "required": true },
+            "meaningfulInteractionsCount": { "type": "number", "required": true },
+            "correctExercisesCount": { "type": "number", "required": true },
+            "reps": { "type": "number", "required": true },
+            "nextReview": { "type": "number", "required": true },
+            "updatedAt": { "type": "number", "required": true }
+          }
+        },
+        {
+          "path": "mastered_rules",
+          "description": "Mastered and active grammar rules with progress and exercise metrics.",
+          "securityIntent": "Users can only read and write their own mastered rules subcollection.",
+          "fields": {
+            "ruleId": { "type": "string", "required": true },
+            "titleUz": { "type": "string", "required": true },
+            "category": { "type": "string", "required": false },
+            "status": { "type": "string", "required": true },
+            "masteryScore": { "type": "number", "required": true },
+            "successfulExercisesCount": { "type": "number", "required": true },
+            "updatedAt": { "type": "number", "required": true }
+          }
+        }
+      ]
+    }
+  ]
+}

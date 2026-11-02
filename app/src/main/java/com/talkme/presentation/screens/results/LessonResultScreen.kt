@@ -2,36 +2,408 @@ package com.talkme.presentation.screens.results
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.*
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.res.stringResource
-import com.talkme.R
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.talkme.domain.lesson.model.LessonResultSummary
+import com.talkme.presentation.components.TalkMeBadge
+import com.talkme.presentation.components.TalkMeButton
+import com.talkme.presentation.components.TalkMeButtonVariant
+import com.talkme.presentation.components.TalkMeCard
 import com.talkme.presentation.components.TalkMeHeader
+import com.talkme.presentation.components.TalkMeProgressBar
+import com.talkme.presentation.state.LocalTalkMeAppState
 import com.talkme.ui.theme.AppIcons
 import com.talkme.ui.theme.AppTypography
 import com.talkme.ui.theme.LocalDimensions
 import com.talkme.ui.theme.TalkMeColors
 
 /**
- * Lesson Result Screen (`LessonResultScreen.kt`) nested inside `presentation/screens/results/`
- * per Section 2 Item 6 & Section 5 Rule 4 of PROJECT_RULES.md.
- *
- * Features:
- * - Share action button (`AppIcons.Share`)
- * - Completion banner card (`TalkMeColors.ContainerPurpleLight`) with "Dars yakunlandi" green chip,
- *   checkmark icon, score percentage, time spent, and XP earned stats row
- * - Weekly plan progress bar (`weekly_plan_title`)
- * - Rule correction tip card ("Bir joyini mustahkamlaymiz" / `rule_correction_tip_title`)
- * - Exam prep card (`exam_prep_card_title`)
- * - Zero hardcoded strings, colors, .sp, or .dp values (Rule 1).
+ * Pixel-perfect migration of `src/screens/LessonResultScreen.tsx`:
+ * - Top `TalkMeHeader` (`"Natijalarim"` + `"Bugungi dars yakuni"` + Share action button)
+ * - Completion Banner Card (`#F1EDFA`, `"Dars yakunlandi"` green chip, checkmark circle, `"Yana bir qadam, Aziz!"`,
+ *   `80%` / `3:24` / `+20` stats row)
+ * - Weekly Goal Progress Card (`"Haftalik reja"` + `"4/5 dars"` + `TalkMeProgressBar(0.8f)`)
+ * - Rule Tip Card (`"Bir joyini mustahkamlaymiz"` + `"1 qoida"` + `“She reading a book.” → “She is reading a book.”` + `"Ertangi takrorlashga qo‘shildi"`)
+ * - Exam Prep Card (`"Imtihonga tayyorgarlik"`)
+ * - Primary `"Xaritada Keyingi Qulfni Ochish"` + Secondary `"Yangi Bosqich Tafsiloti"` buttons
+ */
+@Composable
+fun LessonResultScreen(
+    onBackClick: () -> Unit = {},
+    onShareClick: () -> Unit = {},
+    onOpenCourseLevels: () -> Unit = {},
+    onOpenLevelUnlocked: () -> Unit = {},
+    onOpenCourses: () -> Unit = {},
+    modifier: Modifier = Modifier
+) {
+    val dims = LocalDimensions.current
+    val appState = LocalTalkMeAppState.current
+
+    LazyColumn(
+        modifier = modifier
+            .fillMaxSize()
+            .background(Color(0xFFFAFAFC)),
+        contentPadding = PaddingValues(
+            horizontal = dims.screenPaddingHorizontal,
+            vertical = dims.spaceLarge
+        ),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        // 1. Header with Share Button
+        item {
+            TalkMeHeader(
+                title = "Natijalarim",
+                subtitle = "Bugungi dars yakuni",
+                onBackClick = onBackClick,
+                trailingContent = {
+                    IconButton(
+                        onClick = onShareClick,
+                        modifier = Modifier
+                            .size(40.dp)
+                            .clip(CircleShape)
+                            .background(Color.White)
+                            .border(1.dp, Color(0xFFF0EFF5), CircleShape)
+                    ) {
+                        Icon(
+                            imageVector = AppIcons.Share,
+                            contentDescription = "Ulashish",
+                            tint = TalkMeColors.PrimaryPurple,
+                            modifier = Modifier.size(18.dp)
+                        )
+                    }
+                }
+            )
+        }
+
+        // 2. Completion Banner Card
+        item {
+            val shape = RoundedCornerShape(dims.radiusExtraLarge)
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(shape)
+                    .background(TalkMeColors.ContainerPurpleLight)
+                    .border(1.dp, TalkMeColors.PrimaryPurple.copy(alpha = 0.2f), shape)
+                    .padding(dims.cardPadding),
+                verticalArrangement = Arrangement.spacedBy(14.dp)
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    TalkMeBadge(
+                        text = "Dars yakunlandi",
+                        containerColor = TalkMeColors.ContainerGreenLight,
+                        textColor = TalkMeColors.SuccessGreen
+                    )
+
+                    Box(
+                        modifier = Modifier
+                            .size(36.dp)
+                            .clip(CircleShape)
+                            .background(Color.White),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = AppIcons.Check,
+                            contentDescription = null,
+                            tint = TalkMeColors.SuccessGreen,
+                            modifier = Modifier.size(20.dp)
+                        )
+                    }
+                }
+
+                Column {
+                    Text(
+                        text = "Yana bir qadam, ${appState.userName}!",
+                        style = AppTypography.DisplayLarge.copy(
+                            fontSize = 24.sp,
+                            fontWeight = FontWeight.ExtraBold
+                        ),
+                        color = TalkMeColors.TextPrimary
+                    )
+                    Text(
+                        text = "Kundalik hayot / Tasdiq gaplar",
+                        style = AppTypography.LabelMedium,
+                        color = TalkMeColors.TextSecondary
+                    )
+                }
+
+                HorizontalDivider(color = TalkMeColors.PrimaryPurple.copy(alpha = 0.2f))
+
+                // 3-Column Stats Row
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Column {
+                        Text(
+                            text = "80 %",
+                            style = AppTypography.DisplayLarge.copy(
+                                fontSize = 28.sp,
+                                fontWeight = FontWeight.Black
+                            ),
+                            color = TalkMeColors.PrimaryPurple
+                        )
+                        Text(
+                            text = "4/5 to‘g‘ri javob",
+                            style = AppTypography.LabelSmall,
+                            color = TalkMeColors.TextSecondary
+                        )
+                    }
+
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Text(
+                            text = "3:24",
+                            style = AppTypography.HeadlineMedium.copy(fontWeight = FontWeight.Black),
+                            color = TalkMeColors.TextPrimary
+                        )
+                        Text(
+                            text = "sarflangan vaqt",
+                            style = AppTypography.LabelSmall,
+                            color = TalkMeColors.TextSecondary
+                        )
+                    }
+
+                    Column(horizontalAlignment = Alignment.End) {
+                        Text(
+                            text = "+20",
+                            style = AppTypography.HeadlineMedium.copy(fontWeight = FontWeight.Black),
+                            color = TalkMeColors.SuccessGreen
+                        )
+                        Text(
+                            text = "o‘quv balli",
+                            style = AppTypography.LabelSmall,
+                            color = TalkMeColors.TextSecondary
+                        )
+                    }
+                }
+            }
+        }
+
+        // 3. Weekly Goal Progress Card
+        item {
+            TalkMeCard {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "Haftalik reja",
+                        style = AppTypography.TitleMedium.copy(fontWeight = FontWeight.ExtraBold),
+                        color = TalkMeColors.TextPrimary
+                    )
+                    Text(
+                        text = "4/5 dars",
+                        style = AppTypography.TitleMedium.copy(fontWeight = FontWeight.ExtraBold),
+                        color = TalkMeColors.SuccessGreen
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(10.dp))
+
+                TalkMeProgressBar(
+                    progress = 0.8f,
+                    fillColor = TalkMeColors.SuccessGreen
+                )
+
+                Spacer(modifier = Modifier.height(10.dp))
+
+                Text(
+                    text = "A2 maqsadi: hozir qilayotgan ishlarim haqida sodda gap tuza olaman.",
+                    style = AppTypography.LabelMedium,
+                    color = TalkMeColors.TextSecondary
+                )
+            }
+        }
+
+        // 4. Rule Tip Card ("Bir joyini mustahkamlaymiz")
+        item {
+            TalkMeCard {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "Bir joyini mustahkamlaymiz",
+                        style = AppTypography.TitleMedium.copy(fontWeight = FontWeight.ExtraBold),
+                        color = TalkMeColors.TextPrimary
+                    )
+                    TalkMeBadge(
+                        text = "1 qoida",
+                        containerColor = Color(0xFFF0EFF5),
+                        textColor = TalkMeColors.TextSecondary
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(10.dp))
+
+                Text(
+                    text = buildAnnotatedString {
+                        append("“She reading a book.” → ")
+                        withStyle(
+                            SpanStyle(
+                                color = TalkMeColors.SuccessGreen,
+                                textDecoration = TextDecoration.Underline,
+                                fontWeight = FontWeight.ExtraBold
+                            )
+                        ) {
+                            append("“She is reading a book.”")
+                        }
+                    },
+                    style = AppTypography.TitleMedium,
+                    color = TalkMeColors.TextPrimary
+                )
+
+                Spacer(modifier = Modifier.height(6.dp))
+
+                Text(
+                    text = "She bilan is yordamchi fe’lini unutmang.",
+                    style = AppTypography.LabelMedium,
+                    color = TalkMeColors.TextSecondary
+                )
+
+                Spacer(modifier = Modifier.height(10.dp))
+
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Icon(
+                        imageVector = AppIcons.Refresh,
+                        contentDescription = null,
+                        tint = TalkMeColors.SuccessGreen,
+                        modifier = Modifier.size(16.dp)
+                    )
+                    Text(
+                        text = "Ertangi takrorlashga qo‘shildi",
+                        style = AppTypography.LabelMedium.copy(fontWeight = FontWeight.Bold),
+                        color = TalkMeColors.SuccessGreen
+                    )
+                }
+            }
+        }
+
+        // 5. Exam Prep Card ("Imtihonga tayyorgarlik")
+        item {
+            val shape = RoundedCornerShape(16.dp)
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(shape)
+                    .background(TalkMeColors.ContainerGreenLight.copy(alpha = 0.7f))
+                    .border(1.dp, TalkMeColors.SuccessGreen.copy(alpha = 0.4f), shape)
+                    .clickable(onClick = onOpenCourses)
+                    .padding(18.dp),
+                verticalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .size(40.dp)
+                                .clip(RoundedCornerShape(12.dp))
+                                .background(TalkMeColors.SuccessGreen),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                imageVector = AppIcons.GraduationCap,
+                                contentDescription = null,
+                                tint = Color.White,
+                                modifier = Modifier.size(20.dp)
+                            )
+                        }
+                        Column {
+                            Text(
+                                text = "Imtihonga tayyorgarlik",
+                                style = AppTypography.TitleMedium.copy(fontWeight = FontWeight.ExtraBold),
+                                color = TalkMeColors.TextPrimary
+                            )
+                            Text(
+                                text = "Sertifikat · milliy imtihon · attestatsiya",
+                                style = AppTypography.LabelSmall,
+                                color = TalkMeColors.TextSecondary
+                            )
+                        }
+                    }
+
+                    Icon(
+                        imageVector = AppIcons.ArrowForward,
+                        contentDescription = null,
+                        tint = TalkMeColors.SuccessGreen,
+                        modifier = Modifier.size(20.dp)
+                    )
+                }
+
+                Text(
+                    text = "Tayyorgarlik mashqlari rasmiy to‘liq syllabus yoki natija kafolati emas. Amaldagi formatni rasmiy manbadan tekshiring.",
+                    style = AppTypography.LabelSmall,
+                    color = TalkMeColors.TextSecondary
+                )
+            }
+        }
+
+        // 6. Action Buttons
+        item {
+            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                TalkMeButton(
+                    text = "Xaritada Keyingi Qulfni Ochish",
+                    trailingIcon = AppIcons.StarFilled,
+                    onClick = onOpenCourseLevels
+                )
+
+                TalkMeButton(
+                    text = "Yangi Bosqich Tafsiloti",
+                    variant = TalkMeButtonVariant.Secondary,
+                    onClick = onOpenLevelUnlocked
+                )
+            }
+        }
+    }
+}
+
+/**
+ * Legacy overload preserved for backward compatibility with unit tests.
  */
 @Composable
 fun LessonResultScreen(
@@ -43,298 +415,12 @@ fun LessonResultScreen(
     onRepeatLesson: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val dims = LocalDimensions.current
-
-    LazyColumn(
+    LessonResultScreen(
+        onBackClick = onBackClick,
+        onShareClick = onShareClick,
+        onOpenCourseLevels = onContinueNextLesson,
+        onOpenLevelUnlocked = onContinueNextLesson,
+        onOpenCourses = onRepeatLesson,
         modifier = modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
-            .padding(horizontal = dims.spaceLarge),
-        verticalArrangement = Arrangement.spacedBy(dims.spaceLarge),
-        contentPadding = PaddingValues(vertical = dims.spaceLarge)
-    ) {
-        // 1. Header with Left Back Chevron and Share Action Button
-        item {
-            TalkMeHeader(
-                title = stringResource(R.string.result_screen_title),
-                subtitle = summary.lessonTitle,
-                onBackClick = onBackClick,
-                trailingContent = {
-                    IconButton(
-                        onClick = onShareClick,
-                        modifier = Modifier
-                            .size(dims.iconButtonSize)
-                            .clip(CircleShape)
-                            .background(MaterialTheme.colorScheme.surface)
-                            .border(
-                                width = dims.borderThin,
-                                color = MaterialTheme.colorScheme.outline,
-                                shape = CircleShape
-                            )
-                    ) {
-                        Icon(
-                            imageVector = AppIcons.Share,
-                            contentDescription = stringResource(R.string.cd_share_result),
-                            tint = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.size(dims.iconMedium)
-                        )
-                    }
-                }
-            )
-        }
-
-        // 2. Completion Banner Card (ContainerPurpleLight) with "Dars yakunlandi" Green Chip & Stats Row
-        item {
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(dims.radiusExtraLarge),
-                colors = CardDefaults.cardColors(containerColor = TalkMeColors.ContainerPurpleLight)
-            ) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(dims.spaceExtraLarge),
-                    verticalArrangement = Arrangement.spacedBy(dims.spaceLarge)
-                ) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Box(
-                            modifier = Modifier
-                                .clip(RoundedCornerShape(dims.radiusSmall))
-                                .background(TalkMeColors.ContainerGreenLight)
-                                .padding(
-                                    horizontal = dims.spaceMedium,
-                                    vertical = dims.spaceExtraSmall
-                                )
-                        ) {
-                            Text(
-                                text = stringResource(R.string.chip_lesson_completed),
-                                style = AppTypography.LabelMedium,
-                                color = TalkMeColors.SuccessGreen
-                            )
-                        }
-
-                        Box(
-                            modifier = Modifier
-                                .size(dims.iconButtonSize)
-                                .clip(CircleShape)
-                                .background(MaterialTheme.colorScheme.surface),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Icon(
-                                imageVector = AppIcons.Check,
-                                contentDescription = stringResource(R.string.cd_completed_check),
-                                tint = TalkMeColors.SuccessGreen,
-                                modifier = Modifier.size(dims.iconMedium)
-                            )
-                        }
-                    }
-
-                    Text(
-                        text = stringResource(R.string.result_congrats_title),
-                        style = AppTypography.HeadlineMedium,
-                        color = MaterialTheme.colorScheme.onBackground
-                    )
-
-                    // Stats Row: Score %, Time Spent, XP Earned
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(dims.spaceSmall)
-                    ) {
-                        ResultStatBox(
-                            value = "${summary.completionPercentage}%",
-                            label = stringResource(R.string.stat_label_score),
-                            modifier = Modifier.weight(1f)
-                        )
-                        ResultStatBox(
-                            value = "${summary.timeSpentSeconds}s",
-                            label = stringResource(R.string.stat_label_time),
-                            modifier = Modifier.weight(1f)
-                        )
-                        ResultStatBox(
-                            value = "+${summary.xpEarned}",
-                            label = stringResource(R.string.stat_label_xp),
-                            modifier = Modifier.weight(1f)
-                        )
-                    }
-                }
-            }
-        }
-
-        // 3. Weekly Plan Progress Bar Card
-        item {
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(dims.radiusExtraLarge),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
-            ) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(dims.spaceLarge),
-                    verticalArrangement = Arrangement.spacedBy(dims.spaceSmall)
-                ) {
-                    Text(
-                        text = stringResource(R.string.weekly_plan_title),
-                        style = AppTypography.TitleMedium,
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-                    LinearProgressIndicator(
-                        progress = { summary.weeklyGoalProgress },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(dims.progressBarHeight)
-                            .clip(RoundedCornerShape(dims.radiusFull)),
-                        color = MaterialTheme.colorScheme.secondary,
-                        trackColor = MaterialTheme.colorScheme.surfaceVariant
-                    )
-                }
-            }
-        }
-
-        // 4. Rule Correction Tip Card ("Bir joyini mustahkamlaymiz")
-        item {
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(dims.radiusExtraLarge),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
-            ) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(dims.spaceLarge),
-                    verticalArrangement = Arrangement.spacedBy(dims.spaceSmall)
-                ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(dims.spaceSmall)
-                    ) {
-                        Icon(
-                            imageVector = AppIcons.Lightbulb,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.size(dims.iconMedium)
-                        )
-                        Text(
-                            text = stringResource(R.string.rule_correction_tip_title),
-                            style = AppTypography.TitleMedium,
-                            color = MaterialTheme.colorScheme.onSurface
-                        )
-                    }
-                    Text(
-                        text = summary.ruleCorrectionTipUz,
-                        style = AppTypography.BodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-            }
-        }
-
-        // 5. Exam Prep Card
-        item {
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(dims.radiusExtraLarge),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
-            ) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(dims.spaceLarge),
-                    verticalArrangement = Arrangement.spacedBy(dims.spaceSmall)
-                ) {
-                    Text(
-                        text = stringResource(R.string.exam_prep_card_title),
-                        style = AppTypography.TitleMedium,
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-                    Text(
-                        text = summary.examPrepNoteUz,
-                        style = AppTypography.BodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-            }
-        }
-
-        // 6. Action Buttons
-        item {
-            Column(verticalArrangement = Arrangement.spacedBy(dims.spaceSmall)) {
-                Button(
-                    onClick = onContinueNextLesson,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(dims.buttonHeightStandard),
-                    shape = RoundedCornerShape(dims.radiusLarge)
-                ) {
-                    Text(
-                        text = stringResource(R.string.action_continue_next_lesson),
-                        style = AppTypography.LabelLarge
-                    )
-                }
-
-                Row(horizontalArrangement = Arrangement.spacedBy(dims.spaceSmall)) {
-                    OutlinedButton(
-                        onClick = onRetryTest,
-                        modifier = Modifier
-                            .weight(1f)
-                            .height(dims.buttonHeightStandard),
-                        shape = RoundedCornerShape(dims.radiusLarge)
-                    ) {
-                        Text(
-                            text = stringResource(R.string.action_retry_test),
-                            style = AppTypography.LabelMedium
-                        )
-                    }
-
-                    OutlinedButton(
-                        onClick = onRepeatLesson,
-                        modifier = Modifier
-                            .weight(1f)
-                            .height(dims.buttonHeightStandard),
-                        shape = RoundedCornerShape(dims.radiusLarge)
-                    ) {
-                        Text(
-                            text = stringResource(R.string.action_repeat_lesson),
-                            style = AppTypography.LabelMedium
-                        )
-                    }
-                }
-            }
-        }
-    }
-}
-
-/**
- * Reusable stat box inside the completion banner on [LessonResultScreen].
- */
-@Composable
-private fun ResultStatBox(
-    value: String,
-    label: String,
-    modifier: Modifier = Modifier
-) {
-    val dims = LocalDimensions.current
-
-    Column(
-        modifier = modifier
-            .clip(RoundedCornerShape(dims.radiusMedium))
-            .background(MaterialTheme.colorScheme.surface)
-            .padding(dims.spaceMedium),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Text(
-            text = value,
-            style = AppTypography.HeadlineMedium,
-            color = MaterialTheme.colorScheme.primary
-        )
-        Text(
-            text = label,
-            style = AppTypography.LabelSmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
-    }
+    )
 }

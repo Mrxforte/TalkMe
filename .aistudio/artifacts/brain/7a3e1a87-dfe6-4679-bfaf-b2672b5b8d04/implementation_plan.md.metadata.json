@@ -1,6 +1,6 @@
 {
-  "summary":  "Yopiq darslar uchun 3D oltin-kumush osma qulf va zanjir halqasi dizayni, qulflangan dars bosilganda tebranish/ovoz/vibratsiya effekti hamda keyingi darsga o'tishda qulfning silkinib ochilishi, zarralar sochilishi va asfalt yo'lning yorishishi animatsiyasi rejasi.",
-  "updatedAt":  "2026-10-30T19:29:52.344996714Z",
+  "summary":  "Completed pixel-perfect migration of the TalkMe React + TypeScript application to native Android Jetpack Compose in /app. Built a unified design system, reusable Compose design components, reactive state architecture mirroring AppContext, all 14 screens and lesson views (including Lesson 1 Hello A0, 10-Stage Grammar Framework, and Course Levels 3D nature map with padlock), and connected native TextToSpeech synthesis. Both compile_applet and lint_applet pass with zero errors.",
+  "updatedAt":  "2026-11-01T03:49:44.282196638Z",
   "requestFeedback":  true,
   "userFacing":  true
 }

@@ -1,0 +1,144 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 500" width="100%" height="100%">
+  <defs>
+    <!-- Background Gradient (matching grammar_fundamentals soft blue-lilac studio) -->
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#F0F9FF" />
+      <stop offset="45%" stop-color="#E0F2FE" />
+      <stop offset="100%" stop-color="#F5F3FF" />
+    </linearGradient>
+
+    <!-- Studio Floor -->
+    <linearGradient id="floorGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.9" />
+      <stop offset="100%" stop-color="#BAE6FD" stop-opacity="0.8" />
+    </linearGradient>
+
+    <!-- Filters -->
+    <filter id="softGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="8" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+    <filter id="cardShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="6" stdDeviation="6" flood-color="#0284C7" flood-opacity="0.15" />
+    </filter>
+    <filter id="starShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="12" stdDeviation="12" flood-color="#0369A1" flood-opacity="0.22" />
+    </filter>
+
+    <!-- Big Star Gradient (Gold) -->
+    <radialGradient id="goldStar" cx="40%" cy="35%" r="65%">
+      <stop offset="0%" stop-color="#FEF08A" />
+      <stop offset="35%" stop-color="#FACC15" />
+      <stop offset="75%" stop-color="#EAB308" />
+      <stop offset="100%" stop-color="#CA8A04" />
+    </radialGradient>
+
+    <!-- Tiny Star Gradient (Silver / Cyan) -->
+    <radialGradient id="silverStar" cx="40%" cy="35%" r="65%">
+      <stop offset="0%" stop-color="#FFFFFF" />
+      <stop offset="40%" stop-color="#E0F2FE" />
+      <stop offset="100%" stop-color="#94A3B8" />
+    </radialGradient>
+
+    <!-- 3D Gem Gradient -->
+    <linearGradient id="gemGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#67E8F9" />
+      <stop offset="50%" stop-color="#06B6D4" />
+      <stop offset="100%" stop-color="#0E7490" />
+    </linearGradient>
+  </defs>
+
+  <!-- Studio Background -->
+  <rect width="400" height="500" fill="url(#bgGrad)" />
+
+  <!-- Ambient bokeh bubbles -->
+  <circle cx="70" cy="80" r="55" fill="#FFFFFF" opacity="0.65" filter="url(#softGlow)" />
+  <circle cx="340" cy="110" r="70" fill="#FFFFFF" opacity="0.55" filter="url(#softGlow)" />
+  <circle cx="60" cy="420" r="60" fill="#E0F2FE" opacity="0.6" filter="url(#softGlow)" />
+  <circle cx="340" cy="400" r="65" fill="#EDE9FE" opacity="0.6" filter="url(#softGlow)" />
+
+  <!-- Floating rule cards in top background -->
+  <g transform="translate(40, 45)" filter="url(#cardShadow)">
+    <rect width="125" height="58" rx="14" fill="#FFFFFF" opacity="0.95" />
+    <text x="14" y="24" font-family="system-ui, -apple-system, sans-serif" font-weight="800" font-size="11" fill="#0284C7">Daraja / Degrees</text>
+    <text x="14" y="44" font-family="system-ui, -apple-system, sans-serif" font-weight="700" font-size="11" fill="#64748B">Big • Bigger • Biggest</text>
+  </g>
+
+  <g transform="translate(240, 45)" filter="url(#cardShadow)">
+    <rect width="120" height="58" rx="14" fill="#FFFFFF" opacity="0.95" />
+    <text x="14" y="24" font-family="system-ui, -apple-system, sans-serif" font-weight="800" font-size="11" fill="#7C3AED">Xususiyat / Trait</text>
+    <text x="14" y="44" font-family="system-ui, -apple-system, sans-serif" font-weight="700" font-size="11" fill="#64748B">Fast, Bright, Cute</text>
+  </g>
+
+  <!-- Studio Ground Base -->
+  <ellipse cx="200" cy="395" rx="150" ry="40" fill="#0369A1" opacity="0.12" filter="url(#softGlow)" />
+  <ellipse cx="200" cy="380" rx="140" ry="36" fill="url(#floorGrad)" />
+
+  <!-- ========================================================
+       CENTERPIECE: BIG GOLDEN 3D STAR VS SMALL SILVER STAR & GEM
+       ======================================================== -->
+  <g transform="translate(200, 260)" filter="url(#starShadow)">
+    <!-- 1. GIGANTIC 3D GOLDEN STAR ("BIG") in center-left -->
+    <g transform="translate(-35, -20)">
+      <!-- Star Shadow on ground -->
+      <ellipse cx="0" cy="72" rx="55" ry="16" fill="#78350F" opacity="0.25" filter="url(#softGlow)" />
+
+      <!-- 3D Star Path -->
+      <path d="M 0 -65 L 18 -20 L 64 -14 L 30 18 L 38 64 L 0 40 L -38 64 L -30 18 L -64 -14 L -18 -20 Z" fill="url(#goldStar)" stroke="#FEF08A" stroke-width="2.5" />
+
+      <!-- 3D Facet Highlights on Star -->
+      <path d="M 0 -65 L 0 0 L 18 -20 Z" fill="#FFFFFF" opacity="0.35" />
+      <path d="M 64 -14 L 0 0 L 30 18 Z" fill="#FFFFFF" opacity="0.25" />
+      <path d="M -64 -14 L 0 0 L -18 -20 Z" fill="#CA8A04" opacity="0.4" />
+      <path d="M -38 64 L 0 0 L 0 40 Z" fill="#B45309" opacity="0.4" />
+
+      <!-- Cute glossy face on the star -->
+      <circle cx="-10" cy="-2" r="3.5" fill="#78350F" />
+      <circle cx="10" cy="-2" r="3.5" fill="#78350F" />
+      <path d="M -6 8 Q 0 14 6 8" stroke="#78350F" stroke-width="2.5" stroke-linecap="round" fill="none" />
+
+      <!-- Floating Badge: "BIG ⭐" -->
+      <g transform="translate(-28, 48)" filter="url(#cardShadow)">
+        <rect width="56" height="24" rx="12" fill="#F59E0B" stroke="#FEF08A" stroke-width="1.5" />
+        <text x="28" y="16.5" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-weight="900" font-size="12" fill="#FFFFFF">BIG ⭐</text>
+      </g>
+    </g>
+
+    <!-- 2. TINY 3D CUTE SILVER STAR ("SMALL") on right -->
+    <g transform="translate(68, 10)">
+      <!-- Ground Shadow -->
+      <ellipse cx="0" cy="38" rx="22" ry="7" fill="#334155" opacity="0.2" />
+
+      <!-- 3D Tiny Star -->
+      <path d="M 0 -30 L 8 -10 L 30 -6 L 14 8 L 18 30 L 0 18 L -18 30 L -14 8 L -30 -6 L -8 -10 Z" fill="url(#silverStar)" stroke="#FFFFFF" stroke-width="1.5" />
+
+      <!-- Floating Badge: "SMALL" -->
+      <g transform="translate(-32, 28)" filter="url(#cardShadow)">
+        <rect width="64" height="22" rx="11" fill="#0284C7" stroke="#BAE6FD" stroke-width="1.5" />
+        <text x="32" y="15" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-weight="900" font-size="10.5" fill="#FFFFFF">SMALL ✨</text>
+      </g>
+    </g>
+
+    <!-- 3. SPARKLING 3D CYAN GEM ("BRIGHT") on left -->
+    <g transform="translate(-105, 30)">
+      <!-- Shadow -->
+      <ellipse cx="0" cy="24" rx="20" ry="6" fill="#0E7490" opacity="0.2" />
+
+      <!-- 3D Diamond polygon -->
+      <polygon points="0,-22 22,-8 14,16 -14,16 -22,-8" fill="url(#gemGrad)" stroke="#A5F3FC" stroke-width="1.5" />
+      <polygon points="0,-22 0,16 14,16 22,-8" fill="#FFFFFF" opacity="0.25" />
+
+      <!-- Tag -->
+      <g transform="translate(-28, 20)" filter="url(#cardShadow)">
+        <rect width="56" height="20" rx="10" fill="#06B6D4" />
+        <text x="28" y="14" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-weight="800" font-size="9.5" fill="#FFFFFF">BRIGHT</text>
+      </g>
+    </g>
+  </g>
+
+  <!-- Bottom title card -->
+  <g transform="translate(100, 436)" filter="url(#cardShadow)">
+    <rect width="200" height="42" rx="21" fill="#FFFFFF" stroke="#BAE6FD" stroke-width="2" />
+    <text x="100" y="26" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-weight="900" font-size="14" fill="#0284C7">ADJECTIVES (SIFAT)</text>
+  </g>
+</svg>
