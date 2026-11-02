@@ -26,7 +26,16 @@ export const HomeScreen: React.FC = () => {
     currentUser,
     userPhotoURL,
     setActiveProfileTab,
+    selectedCourseId,
   } = useApp();
+
+  const [, setProgressTick] = React.useState<number>(0);
+  React.useEffect(() => {
+    const unsubscribe = subtopicProgressEngine.subscribe(() => {
+      setProgressTick((prev) => prev + 1);
+    });
+    return () => unsubscribe();
+  }, []);
 
   // Determine whether the user is entering for the first time or has ongoing progress
   const subtopicRecords = NOUNS_18_SUBTOPIC_IDS.map((id) =>
@@ -51,9 +60,14 @@ export const HomeScreen: React.FC = () => {
 
   // Find exact lesson index the user is currently on (0..17)
   const firstUncompletedIndex = NOUNS_18_SUBTOPIC_IDS.findIndex((_id, idx) => {
-    const levelId = `nouns_level_${idx + 1}`;
+    const levelId1 = `nouns_level_${idx + 1}`;
+    const levelId2 = `nouns_lvl_${idx + 1}`;
     const rec = subtopicRecords[idx];
-    return !completedLevelIds.includes(levelId) && !rec.isCompleted;
+    const isLevelDone =
+      completedLevelIds.includes(levelId1) ||
+      completedLevelIds.includes(levelId2) ||
+      rec.isCompleted;
+    return !isLevelDone;
   });
 
   const currentLessonIndex =
@@ -82,12 +96,18 @@ export const HomeScreen: React.FC = () => {
   );
 
   const handlePlayCurrentLesson = () => {
+    if (!hasStartedLearning) {
+      navigate('lesson_detail', {
+        courseId: 'english_fundamentals',
+        levelId: 'ef_lvl_1',
+        lessonId: 'ef_01_kirish',
+      });
+      return;
+    }
     navigate('lesson_detail', {
-      courseId: 'nouns',
-      levelId: hasStartedLearning ? currentLevelId : 'nouns_level_1',
-      lessonId: hasStartedLearning
-        ? currentSubtopicId
-        : NOUNS_18_SUBTOPIC_IDS[0],
+      courseId: selectedCourseId || 'nouns',
+      levelId: currentLevelId || 'nouns_level_1',
+      lessonId: currentSubtopicId || NOUNS_18_SUBTOPIC_IDS[0],
     });
   };
 

@@ -4,7 +4,7 @@ import { TalkMeHeader } from '../components/TalkMeHeader';
 import { TalkMeBottomBar } from '../components/TalkMeBottomBar';
 import { getUnlockedCurriculumTopicUnits } from '../domain/learning/unlockedCurriculumAggregator';
 import { useVocabularyKnowledge } from '../knowledge/presentation/hooks/useKnowledgeTracker';
-import { KnowledgeStatus, VocabularyKnowledge } from '../knowledge/domain/entities/VocabularyKnowledge';
+import { KnowledgeStatus } from '../knowledge/domain/entities/VocabularyKnowledge';
 import {
   BookOpen,
   ChevronRight,
@@ -13,14 +13,7 @@ import {
   Volume2,
   Search,
   Lock,
-  Filter,
   ArrowUpDown,
-  Calendar,
-  Clock,
-  Sparkles,
-  ExternalLink,
-  ChevronDown,
-  ChevronUp,
 } from 'lucide-react';
 
 const STATUS_BADGE_META: Record<
@@ -53,19 +46,6 @@ const STATUS_BADGE_META: Record<
   },
 };
 
-function formatShortDate(timestamp?: number): string {
-  if (!timestamp || timestamp <= 0) return 'Hali mashq qilinmagan';
-  try {
-    return new Date(timestamp).toLocaleDateString('uz-UZ', {
-      day: '2-digit',
-      month: 'short',
-      year: 'numeric',
-    });
-  } catch {
-    return 'Yaqinda';
-  }
-}
-
 export const LearnedWordsScreen: React.FC = () => {
   const {
     navigate,
@@ -80,18 +60,15 @@ export const LearnedWordsScreen: React.FC = () => {
   const [statusFilter, setStatusFilter] = useState<
     KnowledgeStatus | 'all' | 'learned_or_mastered'
   >('all');
-  const [levelFilter, setLevelFilter] = useState<string>('all');
   const [courseOrTopicFilter, setCourseOrTopicFilter] = useState<string>('all');
   const [sortBy, setSortBy] = useState<'recently_learned' | 'alphabetical' | 'mastery_desc'>(
     'recently_learned'
   );
-  const [includeUntrackedCatalog, setIncludeUntrackedCatalog] = useState<boolean>(false);
-  const [expandedWordId, setExpandedWordId] = useState<string | null>(null);
+  const [includeUntrackedCatalog, setIncludeUntrackedCatalog] = useState<boolean>(true);
 
   const { items: trackedWords, stats } = useVocabularyKnowledge({
     searchQuery,
     status: statusFilter,
-    levelId: levelFilter,
     courseOrTopicId: courseOrTopicFilter,
     sortBy,
     includeCatalogUntracked: includeUntrackedCatalog,
@@ -101,12 +78,6 @@ export const LearnedWordsScreen: React.FC = () => {
   const { items: allTrackedWords } = useVocabularyKnowledge({
     includeCatalogUntracked: includeUntrackedCatalog,
   });
-
-  const availableLevels = useMemo(() => {
-    const set = new Set<string>();
-    allTrackedWords.forEach((w) => w.levelIds.forEach((lvl) => set.add(lvl)));
-    return Array.from(set);
-  }, [allTrackedWords]);
 
   const availableTopics = useMemo(() => {
     const set = new Set<string>();
@@ -119,12 +90,6 @@ export const LearnedWordsScreen: React.FC = () => {
   }, [allTrackedWords]);
 
   const unlockedUnits = getUnlockedCurriculumTopicUnits(completedLevelIds);
-
-  const handleOpenSourceLesson = (word: VocabularyKnowledge) => {
-    const lessonId =
-      word.subtopicIds[0] || word.lessonIds[0] || 'noun_01_what_is_a_noun';
-    navigate('lesson_detail', { lessonId });
-  };
 
   return (
     <div className="min-h-screen bg-[#F5F6FA] pb-24 text-[#212121]">
@@ -241,24 +206,8 @@ export const LearnedWordsScreen: React.FC = () => {
                 })}
               </div>
 
-              {/* Level, Topic & Sort Selectors */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-1">
-                <div className="flex items-center gap-2 bg-[#F5F6FA] px-3 py-2 rounded-lg border border-[#E0E4EC]">
-                  <Filter className="w-3.5 h-3.5 text-[#3949AB] shrink-0" />
-                  <select
-                    value={levelFilter}
-                    onChange={(e) => setLevelFilter(e.target.value)}
-                    className="w-full bg-transparent text-xs font-semibold text-[#212121] focus:outline-none cursor-pointer"
-                  >
-                    <option value="all">Barcha darajalar</option>
-                    {availableLevels.map((lvl) => (
-                      <option key={lvl} value={lvl}>
-                        Daraja: {lvl}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
+              {/* Topic & Sort Selectors */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
                 <div className="flex items-center gap-2 bg-[#F5F6FA] px-3 py-2 rounded-lg border border-[#E0E4EC]">
                   <BookOpen className="w-3.5 h-3.5 text-[#3949AB] shrink-0" />
                   <select
@@ -352,214 +301,70 @@ export const LearnedWordsScreen: React.FC = () => {
                   const isLearned =
                     word.status === 'learned' || word.status === 'mastered';
                   const badge = STATUS_BADGE_META[word.status];
-                  const isExpanded = expandedWordId === word.id;
 
                   return (
                     <div
                       key={word.id}
-                      className="p-4 hover:bg-slate-50/60 transition-colors space-y-3"
+                      className="p-4 hover:bg-slate-50/70 transition-colors flex items-center justify-between gap-3"
                     >
-                      <div className="flex items-start justify-between gap-3">
-                        <div
-                          className="min-w-0 flex-1 cursor-pointer"
-                          onClick={() =>
-                            setExpandedWordId(isExpanded ? null : word.id)
-                          }
-                        >
-                          <div className="flex flex-wrap items-center gap-2">
-                            {word.emoji && (
-                              <span className="text-lg shrink-0">{word.emoji}</span>
-                            )}
-                            <span className="text-base font-bold text-[#212121]">
-                              {word.displayWord}
-                            </span>
-                            {word.pronunciation && (
-                              <span className="text-xs text-[#616161] font-mono">
-                                {word.pronunciation}
-                              </span>
-                            )}
-                            <span
-                              className={`text-[11px] font-bold px-2 py-0.5 rounded-md border ${badge.bg} ${badge.text} ${badge.border}`}
-                            >
-                              {badge.labelUz}
-                            </span>
-                          </div>
-
-                          <p className="text-sm font-semibold text-[#00897B] mt-1">
-                            {word.translation}
-                          </p>
-
-                          <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-[#616161] mt-1.5">
-                            {word.partOfSpeech && (
-                              <span className="font-medium">{word.partOfSpeech}</span>
-                            )}
-                            {word.levelIds.length > 0 && (
-                              <span>Daraja: {word.levelIds.join(', ')}</span>
-                            )}
-                            <span className="tabular-nums">
-                              O‘zlashtirish: {word.masteryScore}%
-                            </span>
-                          </div>
+                      <div className="min-w-0 flex-1">
+                        <div className="flex flex-wrap items-center gap-2">
+                          {word.emoji && (
+                            <span className="text-xl shrink-0">{word.emoji}</span>
+                          )}
+                          <span className="text-base font-bold text-[#212121]">
+                            {word.displayWord}
+                          </span>
+                          <span
+                            className={`text-[11px] font-bold px-2 py-0.5 rounded-md border ${badge.bg} ${badge.text} ${badge.border}`}
+                          >
+                            {badge.labelUz}
+                          </span>
                         </div>
 
-                        <div className="flex items-center gap-2 shrink-0">
-                          <button
-                            type="button"
-                            onClick={() => playTts(word.displayWord)}
-                            className="w-10 h-10 rounded-lg bg-[#E8EAF6] text-[#3949AB] flex items-center justify-center hover:bg-[#3949AB] hover:text-white transition-colors cursor-pointer"
-                            title="Talaffuzni tinglash"
-                          >
-                            <Volume2 className="w-4 h-4" />
-                          </button>
+                        <p className="text-sm font-semibold text-[#00897B] mt-1">
+                          {word.translation}
+                        </p>
 
-                          <button
-                            type="button"
-                            onClick={() => toggleWordLearned(word.id)}
-                            className={`min-h-[40px] px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer whitespace-nowrap ${
-                              isLearned
-                                ? 'bg-[#E0F2F1] text-[#00897B]'
-                                : 'bg-[#E8EAF6] text-[#3949AB]'
-                            }`}
-                          >
-                            {isLearned ? (
-                              <>
-                                <Check className="w-3.5 h-3.5 stroke-[2.5]" />
-                                <span>Yodlandi</span>
-                              </>
-                            ) : (
-                              <>
-                                <RotateCcw className="w-3.5 h-3.5" />
-                                <span>O‘rganish</span>
-                              </>
-                            )}
-                          </button>
-
-                          <button
-                            type="button"
-                            onClick={() =>
-                              setExpandedWordId(isExpanded ? null : word.id)
-                            }
-                            className="w-9 h-9 rounded-lg bg-[#F5F6FA] text-[#616161] hover:text-[#212121] flex items-center justify-center cursor-pointer"
-                            title="Batafsil ma’lumot"
-                          >
-                            {isExpanded ? (
-                              <ChevronUp className="w-4 h-4" />
-                            ) : (
-                              <ChevronDown className="w-4 h-4" />
-                            )}
-                          </button>
-                        </div>
+                        {word.partOfSpeech && (
+                          <div className="text-xs text-[#616161] mt-1">
+                            <span className="font-medium">{word.partOfSpeech}</span>
+                          </div>
+                        )}
                       </div>
 
-                      {/* Expanded Word Details View */}
-                      {isExpanded && (
-                        <div className="pt-3 border-t border-[#E0E4EC] space-y-3 text-xs bg-[#F5F6FA]/70 p-3.5 rounded-xl">
-                          {word.exampleEn && (
-                            <div className="p-3 rounded-lg bg-white border border-[#E0E4EC] flex items-center justify-between gap-3">
-                              <div>
-                                <div className="font-bold text-[#212121] text-sm">
-                                  {word.exampleEn}
-                                </div>
-                                {word.exampleUz && (
-                                  <div className="text-[#00897B] font-medium mt-0.5">
-                                    {word.exampleUz}
-                                  </div>
-                                )}
-                              </div>
-                              <button
-                                type="button"
-                                onClick={() => playTts(word.exampleEn!)}
-                                className="w-9 h-9 rounded-lg bg-[#E8EAF6] text-[#3949AB] flex items-center justify-center shrink-0 cursor-pointer"
-                                title="Misolni eshitish"
-                              >
-                                <Volume2 className="w-4 h-4" />
-                              </button>
-                            </div>
+                      <div className="flex items-center gap-2 shrink-0">
+                        <button
+                          type="button"
+                          onClick={() => playTts(word.displayWord)}
+                          className="w-10 h-10 rounded-xl bg-[#E8EAF6] text-[#3949AB] flex items-center justify-center hover:bg-[#3949AB] hover:text-white transition-colors cursor-pointer shadow-xs active:scale-95"
+                          title="Talaffuzni tinglash"
+                        >
+                          <Volume2 className="w-5 h-5" />
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => toggleWordLearned(word.id)}
+                          className={`min-h-[40px] px-3.5 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer whitespace-nowrap shadow-xs active:scale-95 ${
+                            isLearned
+                              ? 'bg-[#E0F2F1] text-[#00897B] hover:bg-[#B2DFDB]'
+                              : 'bg-[#E8EAF6] text-[#3949AB] hover:bg-[#C5CAE9]'
+                          }`}
+                        >
+                          {isLearned ? (
+                            <>
+                              <Check className="w-3.5 h-3.5 stroke-[2.5]" />
+                              <span>Yodlandi</span>
+                            </>
+                          ) : (
+                            <>
+                              <RotateCcw className="w-3.5 h-3.5" />
+                              <span>O‘rganish</span>
+                            </>
                           )}
-
-                          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                            <div className="p-2.5 rounded-lg bg-white border border-[#E0E4EC]">
-                              <span className="text-[#616161] block">Ko‘rish / Mashq</span>
-                              <span className="font-bold text-[#212121] text-sm tabular-nums">
-                                {word.exposureCount} / {word.practiceCount} marta
-                              </span>
-                            </div>
-                            <div className="p-2.5 rounded-lg bg-white border border-[#E0E4EC]">
-                              <span className="text-[#616161] block">To‘g‘ri / Xato</span>
-                              <span className="font-bold text-[#00897B] text-sm tabular-nums">
-                                {word.correctCount} ✓ · {word.incorrectCount} ✗
-                              </span>
-                            </div>
-                            <div className="p-2.5 rounded-lg bg-white border border-[#E0E4EC]">
-                              <span className="text-[#616161] flex items-center gap-1">
-                                <Calendar className="w-3 h-3" /> Yodlangan sana
-                              </span>
-                              <span className="font-bold text-[#212121]">
-                                {formatShortDate(word.firstLearnedAt || word.firstIntroducedAt)}
-                              </span>
-                            </div>
-                            <div className="p-2.5 rounded-lg bg-white border border-[#E0E4EC]">
-                              <span className="text-[#616161] flex items-center gap-1">
-                                <Clock className="w-3 h-3" /> Oxirgi mashq
-                              </span>
-                              <span className="font-bold text-[#212121]">
-                                {formatShortDate(word.lastPracticedAt)}
-                              </span>
-                            </div>
-                          </div>
-
-                          {word.relatedForms && word.relatedForms.length > 0 && (
-                            <div className="flex flex-wrap items-center gap-1.5">
-                              <span className="font-semibold text-[#616161]">
-                                So‘z shakllari:
-                              </span>
-                              {word.relatedForms.map((form) => (
-                                <span
-                                  key={form}
-                                  className="px-2 py-0.5 rounded bg-white border border-[#E0E4EC] font-mono text-[#3949AB] font-semibold"
-                                >
-                                  {form}
-                                </span>
-                              ))}
-                            </div>
-                          )}
-
-                          <div className="flex flex-wrap items-center justify-between gap-2 pt-1">
-                            <div className="text-[#616161]">
-                              <span className="font-semibold">Manba darslar: </span>
-                              <span>
-                                {[...word.subtopicIds, ...word.topicIds]
-                                  .slice(0, 3)
-                                  .join(', ') || 'Asosiy kurs'}
-                              </span>
-                              {word.srsReview && (
-                                <span className="ml-2 text-[#00897B] font-semibold">
-                                  · FSRS: {word.srsReview.reps} takrorlash
-                                </span>
-                              )}
-                            </div>
-
-                            <div className="flex items-center gap-2">
-                              <button
-                                type="button"
-                                onClick={() => navigate('repeat')}
-                                className="px-3 py-1.5 rounded-lg bg-white border border-[#E0E4EC] text-[#3949AB] font-semibold hover:border-[#3949AB] flex items-center gap-1 cursor-pointer"
-                              >
-                                <Sparkles className="w-3.5 h-3.5" />
-                                <span>FSRS Takrorlash</span>
-                              </button>
-                              <button
-                                type="button"
-                                onClick={() => handleOpenSourceLesson(word)}
-                                className="px-3 py-1.5 rounded-lg bg-[#3949AB] text-white font-semibold hover:bg-[#283593] flex items-center gap-1 cursor-pointer"
-                              >
-                                <span>Asl darsni ochish</span>
-                                <ExternalLink className="w-3.5 h-3.5" />
-                              </button>
-                            </div>
-                          </div>
-                        </div>
-                      )}
+                        </button>
+                      </div>
                     </div>
                   );
                 })}
@@ -593,8 +398,6 @@ export const LearnedWordsScreen: React.FC = () => {
                       <div className="min-w-0">
                         <div className="flex items-center gap-2 text-xs text-[#616161] font-medium">
                           <span className="text-[#3949AB] font-semibold">{unit.section}</span>
-                          <span aria-hidden="true">·</span>
-                          <span>Daraja {unit.level}</span>
                         </div>
                         <h3 className="text-sm font-bold text-[#212121] mt-0.5 truncate group-hover:text-[#3949AB] transition-colors">
                           {unit.title}

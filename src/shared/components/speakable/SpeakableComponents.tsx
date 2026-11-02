@@ -62,9 +62,6 @@ export const SpeakableWord: React.FC<SpeakableWordProps> = ({
       } ${className}`}
     >
       <span>{word}</span>
-      {phonetic && (
-        <span className="text-[10px] font-normal opacity-75">({phonetic})</span>
-      )}
       {showIcon && <Volume2 className="w-3 h-3 shrink-0 text-[#3949AB]" />}
     </span>
   );

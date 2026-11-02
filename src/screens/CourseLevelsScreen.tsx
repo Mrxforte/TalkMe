@@ -185,11 +185,33 @@ export const COURSE_CURRICULA: Record<
       },
     ],
   },
+  english_fundamentals: {
+    title: 'English Fundamentals',
+    subtitle: 'Ingliz tili asoslari va ilk tushunchalar',
+    section: 'BO‘LIM 0 · ASOSLAR',
+    topics: [
+      {
+        title: '1-Dars: Kirish',
+        subtitle: 'Til, harflar, tovushlar, so‘zlar va grammatika haqida tushuncha',
+        nodeType: 'STAR',
+        xpReward: 25,
+        subtopicId: 'ef_01_kirish',
+      },
+    ],
+  },
   grammar_fundamentals: {
-    title: 'Grammar Fundamentals',
+    title: 'English Fundamentals',
     subtitle: 'Asosiy qoidalar va so‘z tuzilishi',
-    section: 'BO‘LIM 1',
-    topics: [],
+    section: 'BO‘LIM 0 · ASOSLAR',
+    topics: [
+      {
+        title: '1-Dars: Kirish',
+        subtitle: 'Til, harflar, tovushlar, so‘zlar va grammatika haqida tushuncha',
+        nodeType: 'STAR',
+        xpReward: 25,
+        subtopicId: 'ef_01_kirish',
+      },
+    ],
   },
   verbs: {
     title: 'Fe‘l va Zamonlar',
@@ -262,10 +284,18 @@ export const CourseLevelsScreen: React.FC = () => {
 
   const [rattlingNodeId, setRattlingNodeId] = useState<string | null>(null);
   const [unlockingNodeId, setUnlockingNodeId] = useState<string | null>(null);
+  const [, setProgressTick] = useState<number>(0);
   const currentNodeRef = useRef<HTMLDivElement | null>(null);
   const bottomMarkerRef = useRef<HTMLDivElement | null>(null);
   const rattleTimeoutRef = useRef<number | null>(null);
   const unlockTimeoutRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    const unsubscribe = subtopicProgressEngine.subscribe(() => {
+      setProgressTick((prev) => prev + 1);
+    });
+    return () => unsubscribe();
+  }, []);
 
   const activeCourseKey =
     selectedCourseId && COURSE_CURRICULA[selectedCourseId]
@@ -341,8 +371,13 @@ export const CourseLevelsScreen: React.FC = () => {
       ? subtopicProgressEngine.getRecord(node.subtopicId).isCompleted
       : false;
 
+    const altId1 = node.id.replace('nouns_lvl_', 'nouns_level_');
+    const altId2 = node.id.replace('nouns_level_', 'nouns_lvl_');
+
     const isCompleted =
       completedLevelIds.includes(node.id) ||
+      completedLevelIds.includes(altId1) ||
+      completedLevelIds.includes(altId2) ||
       (node.subtopicId ? completedLevelIds.includes(node.subtopicId) : false) ||
       subtopicCompleted;
 
@@ -478,9 +513,10 @@ export const CourseLevelsScreen: React.FC = () => {
 
   const handleQuickCompleteAndUnlockNext = (node: ConstructedNode) => {
     if (node.subtopicId) {
-      subtopicProgressEngine.completeSubtopicWrapUp(node.subtopicId);
+      subtopicProgressEngine.completeSubtopicWrapUp(node.subtopicId, true);
     }
-    awardXpAndDiamonds(node.xpReward, node.nodeType === 'CHEST' ? 15 : 5, node.id);
+    const canonicalId = node.id.replace('nouns_lvl_', 'nouns_level_');
+    awardXpAndDiamonds(node.xpReward, node.nodeType === 'CHEST' ? 15 : 5, canonicalId);
   };
 
   const scrollToCurrentLesson = () => {

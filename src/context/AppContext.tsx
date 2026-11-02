@@ -62,6 +62,7 @@ import {
 } from '../domain/learning/unlockedCurriculumAggregator';
 import { globalKnowledgeTracker } from '../knowledge/domain/services/GlobalKnowledgeTracker';
 import { localKnowledgeRepository } from '../knowledge/data/local/LocalKnowledgeRepository';
+import { subtopicProgressEngine } from '../engines/subtopic-engine/subtopicProgressEngine';
 
 interface AppContextType {
   currentScreen: ScreenRoute;
@@ -251,6 +252,8 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     globalKnowledgeTracker.toLegacyMasteredRuleItems()
   );
 
+  const [, setSubtopicTick] = useState<number>(0);
+
   useEffect(() => {
     // Hydrate from IndexedDB if localStorage was cleared
     localKnowledgeRepository.hydrateFromIndexedDbIfNeeded().then((hydrated) => {
@@ -262,13 +265,40 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       }
     });
 
-    const unsubscribe = globalKnowledgeTracker.subscribe(() => {
+    const unsubscribeTracker = globalKnowledgeTracker.subscribe(() => {
       setKnowledgeStats(globalKnowledgeTracker.getGlobalStatistics());
       setUserLearnedWords(globalKnowledgeTracker.toLegacyLearnedWordItems());
       setUserMasteredRules(globalKnowledgeTracker.toLegacyMasteredRuleItems());
     });
 
-    return () => unsubscribe();
+    const unsubscribeSubtopics = subtopicProgressEngine.subscribe(() => {
+      setSubtopicTick((prev) => prev + 1);
+    });
+
+    const handleWindowSync = () => {
+      globalKnowledgeTracker.loadFromStorage();
+      setKnowledgeStats(globalKnowledgeTracker.getGlobalStatistics());
+      setUserLearnedWords(globalKnowledgeTracker.toLegacyLearnedWordItems());
+      setUserMasteredRules(globalKnowledgeTracker.toLegacyMasteredRuleItems());
+      setSubtopicTick((prev) => prev + 1);
+    };
+
+    if (typeof window !== 'undefined') {
+      window.addEventListener('storage', handleWindowSync);
+      document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible') {
+          handleWindowSync();
+        }
+      });
+    }
+
+    return () => {
+      unsubscribeTracker();
+      unsubscribeSubtopics();
+      if (typeof window !== 'undefined') {
+        window.removeEventListener('storage', handleWindowSync);
+      }
+    };
   }, []);
 
   // Global Learning Framework Tracker State
@@ -691,9 +721,19 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       return nextXp;
     });
     setDiamonds((prev) => prev + diamondsBonus);
-    if (levelId && !completedLevelIds.includes(levelId)) {
-      setCompletedLevelIds((prev) => [...prev, levelId]);
-      setRecentlyCompletedLevelId(levelId);
+    if (levelId) {
+      const canonicalLevelId = levelId.replace('nouns_lvl_', 'nouns_level_');
+      const altLevelId = levelId.replace('nouns_level_', 'nouns_lvl_');
+      setCompletedLevelIds((prev) => {
+        if (prev.includes(canonicalLevelId) && prev.includes(altLevelId)) {
+          return prev;
+        }
+        const next = new Set(prev);
+        next.add(canonicalLevelId);
+        next.add(altLevelId);
+        return Array.from(next);
+      });
+      setRecentlyCompletedLevelId(canonicalLevelId);
       setWeeklyCompletedLessons((prev) => Math.min(5, prev + 1));
     }
   };

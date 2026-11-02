@@ -97,10 +97,10 @@ export const UniversalSubtopicPlayer: React.FC<UniversalSubtopicPlayerProps> = (
   const activeSection =
     subtopic.sections.find((s) => s.stageNumber === activeStageNumber) || subtopic.sections[0];
 
-  const roadmapLevelId = `nouns_lvl_${subtopic.orderIndex}`;
+  const roadmapLevelId = `nouns_level_${subtopic.orderIndex}`;
 
   const handleCompleteWrapUp = () => {
-    const updated = subtopicProgressEngine.completeSubtopicWrapUp(subtopic.id);
+    const updated = subtopicProgressEngine.completeSubtopicWrapUp(subtopic.id, true);
     setProgressRecord({ ...updated });
     if (updated.isCompleted) {
       confetti({ particleCount: 75, spread: 80, origin: { y: 0.6 } });

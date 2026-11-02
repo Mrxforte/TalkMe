@@ -55,9 +55,27 @@ function createInitialRecord(subtopicId: string): SubtopicProgressRecord {
 
 class SubtopicProgressEngine {
   private records: Map<string, SubtopicProgressRecord> = new Map();
+  private listeners: Set<() => void> = new Set();
 
   constructor() {
     this.loadFromStorage();
+  }
+
+  subscribe(listener: () => void): () => void {
+    this.listeners.add(listener);
+    return () => {
+      this.listeners.delete(listener);
+    };
+  }
+
+  private notifyListeners(): void {
+    this.listeners.forEach((fn) => {
+      try {
+        fn();
+      } catch {
+        // Ignore subscriber error
+      }
+    });
   }
 
   private loadFromStorage(): void {
@@ -87,6 +105,7 @@ class SubtopicProgressEngine {
     } catch {
       // Ignore quota errors
     }
+    this.notifyListeners();
   }
 
   getRecord(subtopicId: string): SubtopicProgressRecord {
@@ -264,13 +283,21 @@ class SubtopicProgressEngine {
     };
   }
 
-  completeSubtopicWrapUp(subtopicId: string): SubtopicProgressRecord {
+  completeSubtopicWrapUp(subtopicId: string, forcePass = false): SubtopicProgressRecord {
     const rec = this.getRecord(subtopicId);
     if (!rec.completedStageNumbers.includes(7)) {
       rec.completedStageNumbers = [...rec.completedStageNumbers, 7].sort((a, b) => a - b);
     }
 
-    // A Subtopic is only marked completed when the learner passes its assessment AND reaches Wrap-up
+    if (forcePass) {
+      rec.assessmentPassed = true;
+      rec.assessmentBestScorePercent = Math.max(rec.assessmentBestScorePercent, 100);
+      if (!rec.completedStageNumbers.includes(6)) {
+        rec.completedStageNumbers = [...rec.completedStageNumbers, 6].sort((a, b) => a - b);
+      }
+    }
+
+    // A Subtopic is marked completed when the learner passes its assessment AND reaches Wrap-up
     if (rec.assessmentPassed) {
       rec.isCompleted = true;
       rec.completedAt = Date.now();
@@ -293,6 +320,15 @@ class SubtopicProgressEngine {
           learningEngine.markLessonCompleted('lesson_numbers_0_10');
         }
       }
+
+      // Automatically promote this subtopic's grammar rules and vocabulary to 'learned'
+      globalKnowledgeTracker.recordSubtopicAssessmentEvaluated({
+        subtopicId,
+        passed: true,
+        scorePercent: Math.max(85, rec.assessmentBestScorePercent || 100),
+        questionResults: [],
+        attemptNumber: Math.max(1, rec.assessmentAttempts),
+      });
     }
 
     this.records.set(subtopicId, { ...rec });

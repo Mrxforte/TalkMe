@@ -170,10 +170,6 @@ export const RepeatScreen: React.FC = () => {
               </button>
             </div>
 
-            <p className="text-sm font-semibold text-[#5E4B8B] -mt-2">
-              {currentItem.phonetic}
-            </p>
-
             {/* Hidden vs Revealed Answer */}
             {!isAnswerRevealed ? (
               <div className="pt-4">

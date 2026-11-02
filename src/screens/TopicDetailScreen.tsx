@@ -49,8 +49,6 @@ export const TopicWordsDetailScreen: React.FC = () => {
         <div className="rounded-xl p-5 bg-[#3949AB] text-white shadow-[0_2px_6px_rgba(57,73,171,0.2)] space-y-2.5">
           <div className="flex items-center gap-2 text-xs text-white/80 font-medium">
             <span>{topic.section}</span>
-            <span aria-hidden="true">·</span>
-            <span>Daraja {topic.level}</span>
           </div>
 
           <h2 className="text-lg font-bold text-white leading-snug">{topic.title}</h2>
@@ -79,11 +77,6 @@ export const TopicWordsDetailScreen: React.FC = () => {
                       <span className="text-base font-bold text-[#212121] truncate">
                         {word.word}
                       </span>
-                      {word.phonetic && (
-                        <span className="text-xs text-[#616161] font-mono">
-                          {word.phonetic}
-                        </span>
-                      )}
                     </div>
                     <p className="text-sm font-semibold text-[#00897B] mt-0.5">
                       {word.translation}
@@ -197,8 +190,6 @@ export const TopicRulesDetailScreen: React.FC = () => {
         <div className="rounded-xl p-5 bg-[#00897B] text-white shadow-[0_2px_6px_rgba(0,137,123,0.2)] space-y-2.5">
           <div className="flex items-center gap-2 text-xs text-white/80 font-medium">
             <span>{topic.section}</span>
-            <span aria-hidden="true">·</span>
-            <span>Daraja {topic.level}</span>
           </div>
 
           <h2 className="text-lg font-bold text-white leading-snug">{topic.title}</h2>

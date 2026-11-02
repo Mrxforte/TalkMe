@@ -54,9 +54,13 @@ export const MAJOR_TOPICS_CATALOG: MajorTopicWithSubtopics[] = [
 // SUBTOPICS REPOSITORY (ONLY NOUNS 18 SUBTOPICS)
 // ============================================================================
 
+import { EF_01_KIRISH_SUBTOPIC } from '../../features/grammar/content/lessons/lesson01EnglishFundamentalsKirish';
+
 export const SUBTOPICS_REPOSITORY: Record<string, SubtopicMicroCourse> = {
   ...NOUNS_CURRICULUM_PART_1,
   ...NOUNS_CURRICULUM_PART_2,
+  ef_01_kirish: EF_01_KIRISH_SUBTOPIC,
+  lesson_01_kirish: EF_01_KIRISH_SUBTOPIC,
 
   // Backward-compatible aliases pointing to the 18-Subtopic Nouns Curriculum
   what_is_a_noun: NOUNS_CURRICULUM_PART_1.noun_01_what_is_a_noun,

@@ -14,7 +14,6 @@ import {
   Volume2,
   Lock,
   Search,
-  Filter,
   ArrowUpDown,
   BookOpen,
   Calendar,
@@ -80,18 +79,16 @@ export const MasteredRulesScreen: React.FC = () => {
   const [statusFilter, setStatusFilter] = useState<
     KnowledgeStatus | 'all' | 'learned_or_mastered'
   >('all');
-  const [levelFilter, setLevelFilter] = useState<string>('all');
   const [topicFilter, setTopicFilter] = useState<string>('all');
   const [sortBy, setSortBy] = useState<'recently_learned' | 'alphabetical' | 'mastery_desc'>(
     'recently_learned'
   );
-  const [includeUntrackedCatalog, setIncludeUntrackedCatalog] = useState<boolean>(false);
+  const [includeUntrackedCatalog, setIncludeUntrackedCatalog] = useState<boolean>(true);
   const [expandedRuleId, setExpandedRuleId] = useState<string | null>(null);
 
   const { items: trackedRules, stats } = useGrammarKnowledge({
     searchQuery,
     status: statusFilter,
-    levelId: levelFilter,
     topicId: topicFilter,
     sortBy,
     includeCatalogUntracked: includeUntrackedCatalog,
@@ -100,12 +97,6 @@ export const MasteredRulesScreen: React.FC = () => {
   const { items: allTrackedRules } = useGrammarKnowledge({
     includeCatalogUntracked: includeUntrackedCatalog,
   });
-
-  const availableLevels = useMemo(() => {
-    const set = new Set<string>();
-    allTrackedRules.forEach((r) => r.levelIds.forEach((lvl) => set.add(lvl)));
-    return Array.from(set);
-  }, [allTrackedRules]);
 
   const availableTopics = useMemo(() => {
     const set = new Set<string>();
@@ -240,24 +231,8 @@ export const MasteredRulesScreen: React.FC = () => {
                 })}
               </div>
 
-              {/* Level, Topic & Sort Dropdowns */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-1">
-                <div className="flex items-center gap-2 bg-[#F5F6FA] px-3 py-2 rounded-lg border border-[#E0E4EC]">
-                  <Filter className="w-3.5 h-3.5 text-[#00897B] shrink-0" />
-                  <select
-                    value={levelFilter}
-                    onChange={(e) => setLevelFilter(e.target.value)}
-                    className="w-full bg-transparent text-xs font-semibold text-[#212121] focus:outline-none cursor-pointer"
-                  >
-                    <option value="all">Barcha darajalar</option>
-                    {availableLevels.map((lvl) => (
-                      <option key={lvl} value={lvl}>
-                        Daraja: {lvl}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
+              {/* Topic & Sort Dropdowns */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
                 <div className="flex items-center gap-2 bg-[#F5F6FA] px-3 py-2 rounded-lg border border-[#E0E4EC]">
                   <BookOpen className="w-3.5 h-3.5 text-[#00897B] shrink-0" />
                   <select
@@ -474,7 +449,6 @@ export const MasteredRulesScreen: React.FC = () => {
                       {/* Footer Metadata & Original Lesson Link */}
                       <div className="pt-2.5 border-t border-[#E0E4EC] flex flex-wrap items-center justify-between gap-2 text-xs text-[#616161]">
                         <div className="flex flex-wrap items-center gap-3">
-                          <span>Daraja: {rule.levelIds.join(', ') || 'A0-A1'}</span>
                           <span className="tabular-nums">
                             O‘zlashtirish: {rule.masteryScore}%
                           </span>
@@ -525,8 +499,6 @@ export const MasteredRulesScreen: React.FC = () => {
                       <div className="min-w-0">
                         <div className="flex items-center gap-2 text-xs text-[#616161] font-medium">
                           <span className="text-[#00897B] font-semibold">{unit.section}</span>
-                          <span aria-hidden="true">·</span>
-                          <span>Daraja {unit.level}</span>
                         </div>
                         <h3 className="text-sm font-bold text-[#212121] mt-0.5 truncate group-hover:text-[#00897B] transition-colors">
                           {unit.title}

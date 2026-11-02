@@ -988,7 +988,6 @@ export const GrammarLessonFrameworkView: React.FC<GrammarLessonFrameworkViewProp
                           <h4 className="text-base sm:text-lg font-black text-white">
                             {voc.wordEn}
                           </h4>
-                          <span className="text-xs font-mono text-indigo-300">{voc.ipa}</span>
                         </div>
                         <p className="text-sm font-extrabold text-emerald-300">
                           {voc.translationUz} ({voc.partOfSpeech})

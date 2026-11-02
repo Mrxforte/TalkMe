@@ -370,9 +370,6 @@ export const SkillPracticeScreen: React.FC = () => {
                         </button>
                       </div>
 
-                      {item.phonetic && (
-                        <p className="text-xs text-[#616161] font-mono">{item.phonetic}</p>
-                      )}
                       <p className="text-xs font-semibold text-[#00897B]">{item.textUz}</p>
                     </div>
 

@@ -4,6 +4,7 @@ import { TalkMeHeader } from '../components/TalkMeHeader';
 import { Bookmark, BookOpen } from 'lucide-react';
 import { COURSE_CURRICULA } from './CourseLevelsScreen';
 import { UniversalSubtopicPlayer } from '../features/subtopic-player/UniversalSubtopicPlayer';
+import { EnglishFundamentalsKirishView } from '../features/grammar/components/EnglishFundamentalsKirishView';
 import {
   SUBTOPICS_REPOSITORY,
   NOUNS_18_SUBTOPIC_IDS,
@@ -31,12 +32,18 @@ export const LessonDetailScreen: React.FC = () => {
     if (selectedFrameworkLessonId && SUBTOPICS_REPOSITORY[selectedFrameworkLessonId]) {
       return selectedFrameworkLessonId;
     }
+    if (
+      selectedCourseId === 'english_fundamentals' ||
+      selectedCourseId === 'grammar_fundamentals'
+    ) {
+      return 'ef_01_kirish';
+    }
     const match = selectedLevelId ? selectedLevelId.match(/(\d+)/) : null;
     const idx = match ? Math.max(0, parseInt(match[1], 10) - 1) : 0;
     return NOUNS_18_SUBTOPIC_IDS[idx] || 'noun_01_what_is_a_noun';
   };
 
-  const [activeSubtopicId] = useState<string>(resolveSubtopicId());
+  const activeSubtopicId = resolveSubtopicId();
 
   const courseKey = selectedCourseId || 'nouns';
   const curriculum = COURSE_CURRICULA[courseKey] || COURSE_CURRICULA.nouns;
@@ -83,7 +90,11 @@ export const LessonDetailScreen: React.FC = () => {
           }
         />
 
-        <UniversalSubtopicPlayer initialSubtopicId={activeSubtopicId} />
+        {activeSubtopicId === 'ef_01_kirish' ? (
+          <EnglishFundamentalsKirishView />
+        ) : (
+          <UniversalSubtopicPlayer initialSubtopicId={activeSubtopicId} />
+        )}
       </div>
     </div>
   );
