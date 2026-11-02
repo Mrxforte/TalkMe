@@ -1,8 +1,24 @@
 @import "tailwindcss";
 
+:root {
+  --md-primary: #3949AB;
+  --md-primary-dark: #283593;
+  --md-primary-light: #E8EAF6;
+  --md-secondary: #00897B;
+  --md-secondary-dark: #00695C;
+  --md-secondary-light: #E0F2F1;
+  --md-bg: #F5F6FA;
+  --md-surface: #FFFFFF;
+  --md-text-primary: #212121;
+  --md-text-secondary: #616161;
+  --md-border: #E0E4EC;
+}
+
 @layer base {
   body {
-    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background-color: var(--md-bg);
+    color: var(--md-text-primary);
   }
 }
 
@@ -17,20 +33,20 @@
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(94, 75, 139, 0.2);
+  background: rgba(57, 73, 171, 0.22);
   border-radius: 9999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(94, 75, 139, 0.4);
+  background: rgba(57, 73, 171, 0.4);
 }
 
-/* Duolingo tactile 3D button press effect */
-.duo-btn-3d {
-  transition: all 0.08s ease-in-out;
+/* Material tactile node button press effect */
+.mat-node-btn {
+  transition: transform 0.12s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.12s cubic-bezier(0.4, 0, 0.2, 1);
 }
-.duo-btn-3d:active {
-  transform: translateY(4px);
+.mat-node-btn:active {
+  transform: translateY(3px);
 }
 
 /* 3D Nature & Landscape Animations */

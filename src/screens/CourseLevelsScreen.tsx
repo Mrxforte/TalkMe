@@ -682,11 +682,8 @@ export const CourseLevelsScreen: React.FC = () => {
     recentlyCompletedLevelId,
     clearRecentlyCompletedLevel,
     awardXpAndDiamonds,
-    playTts,
-    isTtsSpeaking,
   } = useApp();
 
-  const [selectedNode, setSelectedNode] = useState<LevelNodeItem | null>(null);
   const [rattlingNodeId, setRattlingNodeId] = useState<string | null>(null);
   const [unlockingNodeId, setUnlockingNodeId] = useState<string | null>(null);
   const currentNodeRef = useRef<HTMLDivElement | null>(null);
@@ -702,17 +699,10 @@ export const CourseLevelsScreen: React.FC = () => {
   const curriculum = COURSE_CURRICULA[activeCourseKey];
   const topics = curriculum.topics;
 
-  // Build the complete bottom-to-top roadmap nodes with chests
-  // Step 1: Base topics from Lesson 1 to Lesson N
-  // In between, we insert a Mid-Chest at ~halfway, and a Grand Chest / Trophy at the top!
   const midIndex = Math.floor(topics.length / 2);
 
-  // We assign a step progression:
-  // Step 0: Lesson 1 (at bottom)
-  // ...
-  // Step N: Top / Mastery Chest (at top)
   interface ConstructedNode extends LevelNodeItem {
-    stepIndexFromBottom: number; // 0 is bottom, grows up
+    stepIndexFromBottom: number;
     isChest?: boolean;
     isMilestone?: boolean;
   }
@@ -721,12 +711,11 @@ export const CourseLevelsScreen: React.FC = () => {
   let stepCounter = 0;
 
   topics.forEach((topic, idx) => {
-    // If we reached the midpoint, insert a halfway treasure chest
     if (idx === midIndex) {
       nodesFromBottom.push({
         id: `chest_mid_${activeCourseKey}`,
-        title: 'Xazina Sandig‘i',
-        subtitle: `O‘rta marra mukofoti: +25 XP va 15 Olmos`,
+        title: 'O‘rta Marra Mukofoti',
+        subtitle: 'O‘rta marra mukofoti: +25 XP va 15 Olmos',
         nodeType: 'CHEST',
         status: 'LOCKED',
         stars: 0,
@@ -737,25 +726,23 @@ export const CourseLevelsScreen: React.FC = () => {
       });
     }
 
-    // Determine status: completed if in completedLevelIds or if earlier than first incomplete
     const levelId = `${activeCourseKey}_lvl_${idx + 1}`;
     nodesFromBottom.push({
       id: levelId,
       title: topic.title,
       subtitle: topic.subtitle,
       nodeType: topic.nodeType,
-      status: 'LOCKED', // will be resolved in next pass
+      status: 'LOCKED',
       stars: 0,
-      horizontalOffsetRatio: 0, // will calculate sinusoidal wave
+      horizontalOffsetRatio: 0,
       xpReward: topic.xpReward,
       stepIndexFromBottom: stepCounter++,
     });
   });
 
-  // Top final Grand Chest / Trophy at the apex of the mountain
   nodesFromBottom.push({
     id: `chest_grand_${activeCourseKey}`,
-    title: 'Yakuniy Katta Xazina & Sertifikat',
+    title: 'Yakuniy Mukofot va Sertifikat',
     subtitle: `${curriculum.title} kursi yakuni va 50 Olmos`,
     nodeType: 'CHEST',
     status: 'LOCKED',
@@ -767,8 +754,6 @@ export const CourseLevelsScreen: React.FC = () => {
     isMilestone: true,
   });
 
-  // Now resolve statuses and sinusoidal horizontal offsets:
-  // Step 0 (Lesson 1) is at the bottom.
   let foundCurrent = false;
 
   const resolvedNodes = nodesFromBottom.map((node, i) => {
@@ -786,8 +771,6 @@ export const CourseLevelsScreen: React.FC = () => {
       status = 'LOCKED';
     }
 
-    // Horizontal offset: Unique zigzag geometry for each of the 11 courses!
-    // The final apex milestone chest sits centered (0), all other levels & mid-chests follow the asphalt highway
     let horizontalOffsetRatio = 0;
     if (node.isMilestone) {
       horizontalOffsetRatio = 0;
@@ -807,15 +790,12 @@ export const CourseLevelsScreen: React.FC = () => {
     };
   });
 
-  // Make sure at least the first node is CURRENT if none are completed
   if (!resolvedNodes.some((n) => n.status === 'CURRENT' || n.status === 'COMPLETED')) {
     resolvedNodes[0].status = 'CURRENT';
   }
 
-  // Visual order from TOP (Apex Grand Chest) to BOTTOM (1-Dars)
   const visualNodesFromTopToBottom = [...resolvedNodes].reverse();
 
-  // Trigger 3D padlock unlock + chain snap + particle burst + road light surge
   const triggerUnlockForNode = (targetNodeId: string) => {
     if (unlockTimeoutRef.current) {
       window.clearTimeout(unlockTimeoutRef.current);
@@ -828,7 +808,7 @@ export const CourseLevelsScreen: React.FC = () => {
         particleCount: 55,
         spread: 68,
         origin: { y: 0.58 },
-        colors: ['#FFD700', '#58CC02', '#38BDF8', '#F59E0B', '#A855F7'],
+        colors: ['#3949AB', '#00897B', '#5C6BC0', '#26A69A'],
       });
     } catch {
       // Ignore confetti errors
@@ -839,7 +819,6 @@ export const CourseLevelsScreen: React.FC = () => {
     }, 1450);
   };
 
-  // Locked node click: ONLY shake/rattle the 3D lock + metallic sound + vibration (never open modal)
   const handleLockedNodeClick = (nodeId: string) => {
     if (rattleTimeoutRef.current) {
       window.clearTimeout(rattleTimeoutRef.current);
@@ -852,11 +831,9 @@ export const CourseLevelsScreen: React.FC = () => {
     }, 560);
   };
 
-  // Detect when a lesson was just completed and play the 3D unlock ceremony on the newly unlocked node
   useEffect(() => {
     if (!recentlyCompletedLevelId) return;
 
-    // Find the newly active CURRENT node (or the node right after the completed one)
     const completedIdx = resolvedNodes.findIndex((n) => n.id === recentlyCompletedLevelId);
     const newlyUnlockedNode =
       completedIdx !== -1 && completedIdx + 1 < resolvedNodes.length
@@ -876,7 +853,6 @@ export const CourseLevelsScreen: React.FC = () => {
     }
   }, [recentlyCompletedLevelId, activeCourseKey]);
 
-  // Scroll to active/current level or bottom on initial course change
   useEffect(() => {
     const timer = setTimeout(() => {
       if (currentNodeRef.current) {
@@ -888,7 +864,6 @@ export const CourseLevelsScreen: React.FC = () => {
     return () => clearTimeout(timer);
   }, [activeCourseKey]);
 
-  // Cleanup timers on unmount
   useEffect(() => {
     return () => {
       if (rattleTimeoutRef.current) window.clearTimeout(rattleTimeoutRef.current);
@@ -896,8 +871,8 @@ export const CourseLevelsScreen: React.FC = () => {
     };
   }, []);
 
-  const handleStartNode = (node: LevelNodeItem) => {
-    setSelectedNode(null);
+  // Direct screen navigation instead of bottom sheet modal
+  const handleOpenNodeScreen = (node: LevelNodeItem) => {
     if (node.nodeType === 'CHEST') {
       awardXpAndDiamonds(node.xpReward, 15, node.id);
       navigate('lesson_result', { levelId: node.id, courseId: activeCourseKey });
@@ -909,10 +884,7 @@ export const CourseLevelsScreen: React.FC = () => {
     }
   };
 
-
-  // Complete current active lesson & immediately watch the next 3D lock open on the roadmap
   const handleQuickCompleteAndUnlockNext = (node: LevelNodeItem) => {
-    setSelectedNode(null);
     awardXpAndDiamonds(node.xpReward, node.nodeType === 'CHEST' ? 15 : 5, node.id);
   };
 
@@ -934,19 +906,16 @@ export const CourseLevelsScreen: React.FC = () => {
 
   const activeCurrentNode = resolvedNodes.find((n) => n.status === 'CURRENT') || null;
 
-  // Coordinate calculations for the dynamic SVG connecting road
   const stepHeight = 110;
   const topPadding = 60;
   const totalSvgHeight = (visualNodesFromTopToBottom.length - 1) * stepHeight + topPadding * 2;
 
-  // Build SVG coordinates for each node from top (index 0) to bottom (index N-1)
   const svgPoints = visualNodesFromTopToBottom.map((node, vIdx) => {
     const x = 180 + node.horizontalOffsetRatio * 150;
     const y = topPadding + vIdx * stepHeight;
     return { x, y };
   });
 
-  // Full pathD for base roadbed shadow & shoulder
   let pathD = '';
   if (svgPoints.length > 0) {
     pathD = `M ${svgPoints[0].x} ${svgPoints[0].y}`;
@@ -958,7 +927,6 @@ export const CourseLevelsScreen: React.FC = () => {
     }
   }
 
-  // Individual road segments from lower node (svgPoints[i]) climbing UP to upper node (svgPoints[i - 1])
   const roadSegments = [];
   for (let i = 1; i < svgPoints.length; i++) {
     const upperNode = visualNodesFromTopToBottom[i - 1];
@@ -966,7 +934,6 @@ export const CourseLevelsScreen: React.FC = () => {
     const pUpper = svgPoints[i - 1];
     const pLower = svgPoints[i];
     const cy = (pUpper.y + pLower.y) / 2;
-    // Path drawn from lower node UP to upper node so stroke-dashoffset animates upwards!
     const segPathUpward = `M ${pLower.x} ${pLower.y} C ${pLower.x} ${cy}, ${pUpper.x} ${cy}, ${pUpper.x} ${pUpper.y}`;
     const isSegmentUnlocked =
       upperNode.status === 'COMPLETED' || upperNode.status === 'CURRENT';
@@ -983,190 +950,152 @@ export const CourseLevelsScreen: React.FC = () => {
   const biome = BIOMES[activeCourseKey] || BIOMES['grammar_fundamentals'];
 
   return (
-    <div className={`min-h-screen bg-gradient-to-b ${biome.bgGradient} pb-28 text-[#1D1B20] transition-colors duration-500`}>
-      {/* ==========================================
-          1. TOP DUOLINGO STATUS BAR
-         ========================================== */}
-      <div className="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-[#E5E5E5] px-4 py-2.5 flex items-center justify-between shadow-2xs">
-        <div className="flex items-center gap-2">
-          <button
-            onClick={goBack}
-            className="w-9 h-9 rounded-full flex items-center justify-center hover:bg-gray-100 text-[#1D1B20] transition-colors cursor-pointer"
-            aria-label="Orqaga"
-          >
-            <ChevronLeft className="w-5 h-5" />
-          </button>
-
-          {/* Language Flag Chip */}
-          <div className="px-2.5 py-1 rounded-lg bg-[#F0F0F0] border border-[#E0E0E0] text-xs font-bold text-gray-700 flex items-center gap-1.5 select-none">
-            <span>🇺🇸</span>
-            <span>English</span>
-          </div>
-        </div>
-
-        {/* Streak Flame */}
-        <div className="flex items-center gap-1.5 px-3 py-1 rounded-xl bg-[#FFF4E5] text-[#FF9600] font-black text-xs">
-          <Flame className="w-4 h-4 fill-[#FF9600]" />
-          <span>{streakDays}</span>
-        </div>
-
-        {/* Diamonds */}
-        <div className="flex items-center gap-1.5 px-3 py-1 rounded-xl bg-[#E5F6FE] text-[#1CB0F6] font-black text-xs">
-          <span>💎</span>
-          <span>{diamonds.toLocaleString()}</span>
-        </div>
-
-        {/* Course Topics Total */}
-        <div className="px-2.5 py-1 rounded-xl bg-[#F3EFFC] text-[#5E4B8B] font-bold text-xs flex items-center gap-1">
-          <BookOpen className="w-3.5 h-3.5" />
-          <span>{topics.length} dars</span>
-        </div>
-      </div>
-
-      <div className="px-4 pt-3 max-w-md mx-auto">
-        {/* ==========================================
-            2. DUOLINGO UNIT BANNER WITH 3D DEPTH & BIOME TAG
-           ========================================== */}
-        <div className="relative rounded-2xl bg-[#46A302] pb-1.5 shadow-md">
-          <div className="rounded-2xl bg-[#58CC02] p-4 text-white flex items-center justify-between">
-            <div className="pr-2">
-              <div className="flex flex-wrap items-center gap-2">
-                <span className="text-[11px] font-black tracking-wider uppercase text-white/90">
-                  {curriculum.section}
-                </span>
-                <span className="text-[10px] bg-white/25 px-2 py-0.5 rounded-full font-bold">
-                  {completedCount}/{topics.length} yakunlandi
-                </span>
-                {/* Course Biome Environment Badge */}
-                <span className="text-[10px] bg-black/20 px-2 py-0.5 rounded-full font-semibold flex items-center gap-1">
-                  <span>{biome.badgeEmoji}</span>
-                  <span>{biome.nameUz}</span>
-                </span>
-              </div>
-              <h2 className="text-xl font-black mt-1 tracking-tight">{curriculum.title}</h2>
-              <p className="text-xs text-white/90 mt-0.5 font-medium line-clamp-1">
-                {biome.subtitleUz || curriculum.subtitle}
-              </p>
-            </div>
-
+    <div className="min-h-screen bg-[#F5F6FA] pb-28 text-[#212121]">
+      {/* 1. MATERIAL DESIGN 2 TOP APP BAR */}
+      <header className="sticky top-0 z-30 bg-white border-b border-[#E0E4EC] px-4 py-2.5 shadow-[0_1px_3px_rgba(0,0,0,0.05)]">
+        <div className="max-w-3xl mx-auto flex items-center justify-between">
+          <div className="flex items-center gap-2.5">
             <button
-              onClick={() => navigate('courses')}
-              className="w-11 h-11 shrink-0 rounded-xl bg-white/20 border border-white/50 flex items-center justify-center text-white hover:bg-white/30 transition-all cursor-pointer shadow-xs active:scale-95"
-              title="Barcha Kurslar"
+              onClick={goBack}
+              className="w-10 h-10 rounded-lg border border-[#E0E4EC] flex items-center justify-center hover:bg-[#E8EAF6] text-[#3949AB] transition-colors cursor-pointer"
+              aria-label="Orqaga"
             >
-              <BookOpen className="w-5 h-5" />
+              <ChevronLeft className="w-5 h-5" />
             </button>
+
+            <div>
+              <span className="text-xs font-semibold text-[#616161] block leading-none">
+                {curriculum.section}
+              </span>
+              <span className="text-sm font-bold text-[#212121] truncate max-w-[180px] block mt-0.5">
+                {curriculum.title}
+              </span>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3 text-xs font-semibold text-[#616161] tabular-nums">
+            <span className="flex items-center gap-1 text-[#3949AB]">
+              <Flame className="w-4 h-4" />
+              {streakDays} kun
+            </span>
+            <span aria-hidden="true">·</span>
+            <span>{diamonds.toLocaleString()} olmos</span>
+            <span aria-hidden="true">·</span>
+            <span className="text-[#00897B]">{topics.length} dars</span>
           </div>
         </div>
+      </header>
 
-        {/* ==========================================
-            ROADMAP & 3D PADLOCK STATUS INDICATOR
-           ========================================== */}
-        <div className="mt-3 flex items-center justify-between gap-2 text-xs font-bold text-[#374151] bg-white/90 backdrop-blur-xs py-2 px-3 rounded-xl border border-white/70 shadow-xs">
-          <div className="flex items-center gap-2 min-w-0">
-            <span className="text-sm shrink-0">🔐</span>
-            <div className="truncate">
-              <span className="font-extrabold text-[#111827]">3D Qulf Yo‘li: </span>
-              <span className="text-gray-600 font-medium">Darsni tugatib keyingi qulfni oching</span>
+      <div className="px-4 pt-4 max-w-md mx-auto space-y-3">
+        {/* 2. MATERIAL 2 UNIT BANNER */}
+        <div className="rounded-xl bg-[#3949AB] p-4 text-white shadow-[0_2px_6px_rgba(57,73,171,0.2)] flex items-center justify-between">
+          <div className="pr-2">
+            <div className="flex flex-wrap items-center gap-2 text-xs text-white/80 font-medium">
+              <span>{curriculum.section}</span>
+              <span aria-hidden="true">·</span>
+              <span className="tabular-nums">
+                {completedCount}/{topics.length} yakunlandi
+              </span>
+              <span aria-hidden="true">·</span>
+              <span>{biome.nameUz}</span>
             </div>
+            <h2 className="text-lg font-bold mt-1 tracking-tight">{curriculum.title}</h2>
+            <p className="text-xs text-white/85 mt-0.5 line-clamp-1">
+              {biome.subtitleUz || curriculum.subtitle}
+            </p>
+          </div>
+
+          <button
+            onClick={() => navigate('courses')}
+            className="w-11 h-11 shrink-0 rounded-lg bg-white/15 border border-white/30 flex items-center justify-center text-white hover:bg-white/25 transition-colors cursor-pointer"
+            title="Barcha Kurslar"
+          >
+            <BookOpen className="w-5 h-5" />
+          </button>
+        </div>
+
+        {/* 3. ROADMAP STATUS & QUICK UNLOCK BAR */}
+        <div className="flex items-center justify-between gap-2 text-xs bg-white py-2.5 px-3.5 rounded-xl border border-[#E0E4EC] shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
+          <div className="min-w-0 truncate">
+            <span className="font-bold text-[#212121]">O‘quv Xaritasi: </span>
+            <span className="text-[#616161]">Mavzuni bosing va alohida sahifada o‘rganing</span>
           </div>
 
           {activeCurrentNode ? (
             <button
               onClick={() => handleQuickCompleteAndUnlockNext(activeCurrentNode)}
-              className="shrink-0 flex items-center gap-1 text-[11px] font-extrabold text-amber-950 bg-gradient-to-r from-[#FFD700] to-[#F59E0B] hover:from-[#FDE047] hover:to-[#F59E0B] px-2.5 py-1 rounded-lg shadow-2xs active:scale-95 transition-all cursor-pointer border border-amber-300"
-              title="Hozirgi darsni yakunlab keyingi 3D qulf ochilishini ko‘rish"
+              className="shrink-0 min-h-[34px] px-3 py-1 rounded-lg bg-[#00897B] hover:bg-[#00695C] text-white text-xs font-semibold transition-colors cursor-pointer flex items-center gap-1"
+              title="Hozirgi darsni yakunlab keyingi qulfni ochish"
             >
-              <Sparkles className="w-3 h-3 text-amber-900" />
               <span>Qulfni ochish</span>
             </button>
           ) : (
-            <div className="shrink-0 flex items-center gap-1 text-[11px] font-extrabold text-[#0284C7] bg-[#E0F2FE] px-2 py-0.5 rounded-lg">
-              <Trophy className="w-3 h-3 text-amber-500" />
-              <span>Barchasi ochiq!</span>
-            </div>
+            <span className="shrink-0 text-xs font-semibold text-[#00897B]">
+              Barchasi ochiq
+            </span>
           )}
         </div>
 
-        {/* ==========================================
-            3. DYNAMIC ROADMAP: 3D NATURE & ASPHALT HIGHWAY
-           ========================================== */}
+        {/* 4. DYNAMIC ROADMAP PATH */}
         <div
-          className="relative mt-4 rounded-3xl overflow-hidden shadow-inner bg-white/20 backdrop-blur-2xs border border-white/40"
+          className="relative mt-3 rounded-2xl overflow-hidden bg-white border border-[#E0E4EC] shadow-[0_1px_4px_rgba(0,0,0,0.06)]"
           style={{ height: `${totalSvgHeight}px` }}
         >
-          {/* A. 3D Animated Nature Landscape (Rivers, Waterfalls, Windmills, Trees, Bridges) */}
           <CourseNatureLandscape
             courseKey={activeCourseKey}
             totalHeight={totalSvgHeight}
             points={svgPoints}
           />
 
-          {/* B. Real Multi-Layered Asphalt Highway ("Asfalt Yoli") with Locked vs Illuminated Segments */}
           <svg
             className="absolute top-0 left-0 w-full h-full pointer-events-none select-none z-10"
             viewBox={`0 0 360 ${totalSvgHeight}`}
             fill="none"
           >
-            {/* 1. Continuous Road bed drop shadow on terrain */}
             <path
               d={pathD}
-              stroke="rgba(15, 23, 42, 0.24)"
-              strokeWidth="38"
+              stroke="rgba(15, 23, 42, 0.2)"
+              strokeWidth="36"
               strokeLinecap="round"
               strokeLinejoin="round"
             />
-            {/* 2. Continuous Concrete curb & gravel shoulder */}
             <path
               d={pathD}
               stroke="#475569"
-              strokeWidth="33"
+              strokeWidth="31"
               strokeLinecap="round"
               strokeLinejoin="round"
             />
 
-            {/* 3. Segment-by-Segment Locked vs Unlocked/Illuminated Asphalt Road */}
             {roadSegments.map((seg) => (
               <g key={seg.id}>
                 {seg.isSegmentUnlocked ? (
                   <>
-                    {/* Illuminated Golden-Emerald outer aura on unlocked road */}
-                    <path
-                      d={seg.segPathUpward}
-                      stroke="rgba(250, 204, 21, 0.28)"
-                      strokeWidth="34"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                    {/* Crisp white highway border edges */}
                     <path
                       d={seg.segPathUpward}
                       stroke="#F8FAFC"
-                      strokeWidth="28"
+                      strokeWidth="26"
                       strokeLinecap="round"
                       strokeLinejoin="round"
                     />
-                    {/* Rich dark asphalt highway pavement */}
                     <path
                       d={seg.segPathUpward}
                       stroke="#1E293B"
-                      strokeWidth="24"
+                      strokeWidth="22"
                       strokeLinecap="round"
                       strokeLinejoin="round"
                     />
-                    {/* Smooth illuminated asphalt inner surface */}
                     <path
                       d={seg.segPathUpward}
                       stroke="#334155"
-                      strokeWidth="21"
+                      strokeWidth="19"
                       strokeLinecap="round"
                       strokeLinejoin="round"
                     />
-                    {/* Vibrant glowing golden yellow center lane divider */}
                     <path
                       d={seg.segPathUpward}
-                      stroke="#FBBF24"
-                      strokeWidth="3.5"
+                      stroke="#E2E8F0"
+                      strokeWidth="3"
                       strokeDasharray="10 14"
                       strokeLinecap="round"
                       strokeLinejoin="round"
@@ -1174,11 +1103,10 @@ export const CourseLevelsScreen: React.FC = () => {
                   </>
                 ) : (
                   <>
-                    {/* Locked/Unreached Road Segment: muted slate edges & darker unlit asphalt */}
                     <path
                       d={seg.segPathUpward}
                       stroke="#94A3B8"
-                      strokeWidth="27"
+                      strokeWidth="25"
                       strokeLinecap="round"
                       strokeLinejoin="round"
                       opacity="0.7"
@@ -1186,24 +1114,15 @@ export const CourseLevelsScreen: React.FC = () => {
                     <path
                       d={seg.segPathUpward}
                       stroke="#1E2430"
-                      strokeWidth="23"
+                      strokeWidth="21"
                       strokeLinecap="round"
                       strokeLinejoin="round"
                       opacity="0.82"
                     />
-                    <path
-                      d={seg.segPathUpward}
-                      stroke="#262D3B"
-                      strokeWidth="20"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      opacity="0.82"
-                    />
-                    {/* Dimmed grey-slate dashed center line on locked road */}
                     <path
                       d={seg.segPathUpward}
                       stroke="#64748B"
-                      strokeWidth="2.8"
+                      strokeWidth="2.5"
                       strokeDasharray="8 16"
                       strokeLinecap="round"
                       strokeLinejoin="round"
@@ -1212,13 +1131,12 @@ export const CourseLevelsScreen: React.FC = () => {
                   </>
                 )}
 
-                {/* Animated Golden-Emerald Light Surge when this segment is actively unlocking! */}
                 {seg.isSegmentUnlockingNow && (
                   <>
                     <path
                       d={seg.segPathUpward}
-                      stroke="#FDE047"
-                      strokeWidth="26"
+                      stroke="#3949AB"
+                      strokeWidth="24"
                       strokeLinecap="round"
                       strokeLinejoin="round"
                       strokeDasharray="320"
@@ -1227,7 +1145,7 @@ export const CourseLevelsScreen: React.FC = () => {
                     />
                     <path
                       d={seg.segPathUpward}
-                      stroke="#4ADE80"
+                      stroke="#00897B"
                       strokeWidth="12"
                       strokeLinecap="round"
                       strokeLinejoin="round"
@@ -1240,7 +1158,7 @@ export const CourseLevelsScreen: React.FC = () => {
             ))}
           </svg>
 
-          {/* C. Level Node Checkpoints on the Asphalt Highway */}
+          {/* Level Node Checkpoints */}
           <div className="relative z-20 w-full h-full">
             {visualNodesFromTopToBottom.map((node, vIdx) => {
               const isCurrent = node.status === 'CURRENT';
@@ -1254,9 +1172,7 @@ export const CourseLevelsScreen: React.FC = () => {
               const isUnlocking = unlockingNodeId === node.id;
               const showPadlockOverlay = isLocked || isUnlocking;
 
-              // Top position
               const topPx = topPadding + vIdx * stepHeight - 36;
-              // Horizontal translation
               const xTranslate = node.horizontalOffsetRatio * 150;
 
               return (
@@ -1269,72 +1185,58 @@ export const CourseLevelsScreen: React.FC = () => {
                     transform: `translate(calc(-50% + ${xTranslate}px), 0)`,
                   }}
                 >
-                  {/* Floating Hint Tooltip when user taps a locked node */}
                   {isRattling && isLocked && (
-                    <div className="absolute -top-9 whitespace-nowrap bg-[#1E293B]/95 text-amber-300 text-[10px] font-extrabold px-2.5 py-1 rounded-full shadow-lg border border-amber-400/40 z-40 animate-bounce pointer-events-none">
-                      🔒 Oldingi darsni tugating!
+                    <div className="absolute -top-9 whitespace-nowrap bg-[#212121] text-white text-[11px] font-semibold px-3 py-1 rounded-md shadow-md z-40 pointer-events-none">
+                      Oldingi darsni tugating
                     </div>
                   )}
 
-                  {/* Start or Peak Badge */}
                   {isApexAtTop && (
-                    <div className="mb-2 bg-gradient-to-r from-amber-500 to-yellow-400 text-white text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full shadow-sm flex items-center gap-1 animate-pulse">
+                    <div className="mb-2 bg-[#3949AB] text-white text-[10px] font-bold uppercase px-2.5 py-0.5 rounded-md shadow-xs flex items-center gap-1">
                       <Trophy className="w-3 h-3" />
-                      <span>Cho‘qqi (Final)</span>
+                      <span>Yakuniy Marra</span>
                     </div>
                   )}
 
                   {isFirstLessonAtBottom && (
-                    <div className="mb-1 bg-[#58CC02] text-white text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full shadow-sm flex items-center gap-1">
+                    <div className="mb-1 bg-[#00897B] text-white text-[10px] font-bold uppercase px-2.5 py-0.5 rounded-md shadow-xs flex items-center gap-1">
                       <Flag className="w-3 h-3" />
                       <span>1-Dars: Boshlanish</span>
                     </div>
                   )}
 
                   <div className="relative flex items-center justify-center">
-                    {/* Glowing ring for current node */}
-                    {isCurrent && (
-                      <span className="absolute -inset-3 rounded-full bg-[#58CC02]/30 animate-ping pointer-events-none" />
-                    )}
-
-                    {/* Mascot owl next to current node */}
-                    {isCurrent && (
-                      <div
-                        className={`absolute -top-3 ${
-                          node.horizontalOffsetRatio <= 0 ? '-right-11' : '-left-11'
-                        } w-11 h-11 rounded-full bg-[#E8F8EE] border-2 border-[#58CC02] flex items-center justify-center text-xl shadow-md z-20 animate-bounce`}
-                      >
-                        🦉
-                      </div>
-                    )}
-
-                    {/* Tactile 3D Circular Button */}
+                    {/* Material 2 Circular Node Button */}
                     <div
                       onClick={() => {
                         if (isLocked) {
                           handleLockedNodeClick(node.id);
                         } else {
-                          setSelectedNode(node);
+                          handleOpenNodeScreen(node);
                         }
                       }}
-                      className={`relative w-18 h-18 rounded-full cursor-pointer select-none duo-btn-3d ${
+                      className={`relative w-18 h-18 rounded-full cursor-pointer select-none mat-node-btn ${
                         isChest
                           ? isLocked
-                            ? 'bg-[#8C7A5B] pb-1.5'
-                            : 'bg-[#E5A100] pb-1.5'
-                          : isCompleted || isCurrent
-                          ? 'bg-[#46A302] pb-1.5'
+                            ? 'bg-[#64748B] pb-1.5'
+                            : 'bg-[#00695C] pb-1.5'
+                          : isCurrent
+                          ? 'bg-[#283593] pb-1.5 ring-4 ring-[#3949AB]/25'
+                          : isCompleted
+                          ? 'bg-[#00695C] pb-1.5'
                           : 'bg-[#64748B] pb-1.5'
-                      } shadow-md active:scale-95 transition-all`}
+                      } shadow-md`}
                     >
                       <div
                         className={`w-full h-full rounded-full flex items-center justify-center text-white ${
                           isChest
                             ? isLocked
                               ? 'bg-[#CBD5E1] text-[#64748B]'
-                              : 'bg-[#FFC800] text-amber-950'
-                            : isCompleted || isCurrent
-                            ? 'bg-[#58CC02]'
+                              : 'bg-[#00897B] text-white'
+                            : isCurrent
+                            ? 'bg-[#3949AB]'
+                            : isCompleted
+                            ? 'bg-[#00897B]'
                             : 'bg-[#94A3B8] text-[#475569]'
                         }`}
                       >
@@ -1342,29 +1244,32 @@ export const CourseLevelsScreen: React.FC = () => {
                           <Check className="w-8 h-8 stroke-[3]" />
                         ) : (
                           <div className={isLocked ? 'opacity-30 scale-90 transition-all' : ''}>
-                            {node.nodeType === 'MASCOT_INTRO' && <span className="text-2xl">🦉</span>}
+                            {node.nodeType === 'MASCOT_INTRO' && (
+                              <Compass className="w-7 h-7 stroke-[2.2]" />
+                            )}
                             {node.nodeType === 'STAR' && (
-                              <Star className="w-8 h-8 fill-current stroke-current" />
+                              <Star className="w-7 h-7 fill-current stroke-current" />
                             )}
                             {node.nodeType === 'READING' && (
-                              <BookOpen className="w-7 h-7 stroke-[2.5]" />
+                              <BookOpen className="w-7 h-7 stroke-[2.2]" />
                             )}
                             {node.nodeType === 'CHEST' && (
-                              <span className="text-2xl">🎁</span>
+                              <Gift className="w-7 h-7 stroke-[2.2]" />
                             )}
-                            {node.nodeType === 'MIC' && <Mic className="w-7 h-7 stroke-[2.5]" />}
+                            {node.nodeType === 'MIC' && <Mic className="w-7 h-7 stroke-[2.2]" />}
                             {node.nodeType === 'PRACTICE' && (
-                              <RotateCcw className="w-7 h-7 stroke-[2.5]" />
+                              <RotateCcw className="w-7 h-7 stroke-[2.2]" />
                             )}
-                            {node.nodeType === 'CAMERA' && <span className="text-xl">📹</span>}
+                            {node.nodeType === 'CAMERA' && (
+                              <Video className="w-7 h-7 stroke-[2.2]" />
+                            )}
                             {node.nodeType === 'HEADPHONES' && (
-                              <Headphones className="w-7 h-7 stroke-[2.5]" />
+                              <Headphones className="w-7 h-7 stroke-[2.2]" />
                             )}
                           </div>
                         )}
                       </div>
 
-                      {/* 3D Gold-Silver Padlock & Silver Chain Ring Overlay */}
                       {showPadlockOverlay && (
                         <LockedNode3DPadlock
                           idSuffix={node.id}
@@ -1376,22 +1281,22 @@ export const CourseLevelsScreen: React.FC = () => {
                     </div>
                   </div>
 
-                  {/* Stars badge for completed or title chip */}
+                  {/* Node Label */}
                   {isCompleted ? (
-                    <div className="flex items-center gap-1 mt-1 bg-white/90 px-2 py-0.5 rounded-full shadow-2xs border border-[#F0EFF5]">
+                    <div className="flex items-center gap-1 mt-1.5 bg-white/95 px-2.5 py-0.5 rounded-md shadow-2xs border border-[#E0E4EC]">
                       {[1, 2, 3].map((starIdx) => (
                         <Star
                           key={starIdx}
-                          className="w-3 h-3 fill-[#FFC800] text-[#FFC800]"
+                          className="w-3 h-3 fill-[#00897B] text-[#00897B]"
                         />
                       ))}
                     </div>
                   ) : (
                     <span
-                      className={`text-[10px] font-bold mt-1.5 px-2 py-0.5 rounded-md max-w-[118px] text-center truncate ${
+                      className={`text-[10px] font-bold mt-1.5 px-2.5 py-0.5 rounded-md max-w-[124px] text-center truncate ${
                         isCurrent
-                          ? 'bg-[#58CC02] text-white shadow-2xs'
-                          : 'bg-white/80 text-slate-600'
+                          ? 'bg-[#3949AB] text-white shadow-2xs'
+                          : 'bg-white/90 text-[#212121] border border-[#E0E4EC]'
                       }`}
                     >
                       {node.title.split(':')[0]}
@@ -1403,151 +1308,32 @@ export const CourseLevelsScreen: React.FC = () => {
           </div>
         </div>
 
-        {/* Bottom anchor for scrolling */}
-        <div ref={bottomMarkerRef} className="pt-6 pb-2 text-center">
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white border border-gray-200 text-xs font-semibold text-gray-500 shadow-2xs">
-            <span>🏁 1-Darsdan boshlab qulflarni ochib cho‘qqiga chiqing</span>
-          </div>
+        {/* Bottom anchor */}
+        <div ref={bottomMarkerRef} className="pt-4 pb-2 text-center">
+          <span className="text-xs font-medium text-[#616161]">
+            1-Darsdan boshlab bosqichma-bosqich yuqoriga harakatlaning
+          </span>
         </div>
       </div>
 
       {/* Floating Action Controls */}
       <div className="fixed bottom-20 right-4 z-20 flex flex-col gap-2">
-        {/* Jump to Current Lesson */}
         <button
           onClick={scrollToCurrentLesson}
-          className="w-12 h-12 rounded-full bg-[#58CC02] border-2 border-white shadow-lg flex items-center justify-center text-white hover:bg-[#46A302] transition-all cursor-pointer active:scale-95"
+          className="w-11 h-11 rounded-lg bg-[#3949AB] border border-white/40 shadow-md flex items-center justify-center text-white hover:bg-[#283593] transition-colors cursor-pointer"
           title="Hozirgi darsga o‘tish"
         >
           <Flag className="w-5 h-5" />
         </button>
 
-        {/* Jump to Top */}
         <button
           onClick={scrollToTop}
-          className="w-10 h-10 rounded-full bg-white border border-[#E0E0E0] shadow-md flex items-center justify-center text-[#1CB0F6] hover:bg-[#F3EFFC] transition-all cursor-pointer active:scale-95"
-          title="Cho‘qqiga chiqish"
+          className="w-11 h-11 rounded-lg bg-white border border-[#E0E4EC] shadow-md flex items-center justify-center text-[#3949AB] hover:bg-[#E8EAF6] transition-colors cursor-pointer"
+          title="Yuqoriga chiqish"
         >
-          <ArrowUp className="w-5 h-5 stroke-[2.5]" />
+          <ArrowUp className="w-5 h-5" />
         </button>
       </div>
-
-      {/* ==========================================
-          4. INTERACTIVE LEVEL DETAIL BOTTOM SHEET MODAL (Only for Unlocked/Current/Completed Nodes)
-         ========================================== */}
-      {selectedNode && (
-        <div
-          onClick={() => setSelectedNode(null)}
-          className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-end justify-center animate-fade-in"
-        >
-          <div
-            onClick={(e) => e.stopPropagation()}
-            className="w-full max-w-md bg-white rounded-t-3xl p-6 shadow-2xl animate-slide-up border-t border-[#F0EFF5]"
-          >
-            {/* Top drag handle */}
-            <div className="w-12 h-1.5 rounded-full bg-[#E0E0E0] mx-auto mb-4" />
-
-            <div className="flex justify-between items-start">
-              <span
-                className={`text-xs font-black uppercase px-3 py-1 rounded-full ${
-                  selectedNode.status === 'COMPLETED'
-                    ? 'bg-[#E8F8EE] text-[#27AE60]'
-                    : 'bg-[#FFF4E5] text-[#FF9600]'
-                }`}
-              >
-                {selectedNode.status === 'COMPLETED'
-                  ? 'YAKUNLANGAN (3/3 ⭐)'
-                  : 'HOZIRGI OCHIQ BOSQICH'}
-              </span>
-
-              <button
-                onClick={() => setSelectedNode(null)}
-                className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 hover:bg-gray-200 cursor-pointer"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-
-            <div className="flex items-center justify-between gap-3 mt-3">
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-2xl bg-[#E8F8EE] flex items-center justify-center text-2xl shrink-0">
-                  {selectedNode.nodeType === 'CHEST' ? '🎁' : '📘'}
-                </div>
-                <div>
-                  <h3 className="text-lg font-black text-[#1D1B20] leading-tight">
-                    {selectedNode.title}
-                  </h3>
-                  <p className="text-xs text-[#757575] mt-0.5">{selectedNode.subtitle}</p>
-                </div>
-              </div>
-
-              <button
-                type="button"
-                onClick={() =>
-                  playTts(
-                    `Welcome to ${curriculum.title}! Let's practice ${selectedNode.title.replace(/^\d+-Dars:\s*/i, '')}.`
-                  )
-                }
-                className={`w-11 h-11 rounded-2xl flex items-center justify-center shrink-0 transition-all cursor-pointer shadow-xs active:scale-95 ${
-                  isTtsSpeaking
-                    ? 'bg-[#58CC02] text-white animate-pulse'
-                    : 'bg-[#F1EDFA] text-[#5E4B8B] hover:bg-[#5E4B8B] hover:text-white'
-                }`}
-                title="Gemini 3.8 ovozida tinglash"
-              >
-                <Volume2 className="w-5 h-5" />
-              </button>
-            </div>
-
-            {/* Reward Card */}
-            <div className="mt-4 p-3.5 rounded-2xl bg-[#FFF8E7] border border-[#FFC800] flex items-center justify-around">
-              <div className="flex items-center gap-2">
-                <span className="text-lg">⚡</span>
-                <span className="text-sm font-extrabold text-[#D97706]">
-                  +{selectedNode.xpReward} XP
-                </span>
-              </div>
-              <div className="w-px h-6 bg-[#FFD97D]" />
-              <div className="flex items-center gap-2">
-                <span className="text-lg">💎</span>
-                <span className="text-sm font-extrabold text-[#0284C7]">
-                  {selectedNode.nodeType === 'CHEST' ? '+15 Olmos' : '+5 Olmos'}
-                </span>
-              </div>
-            </div>
-
-            {/* Action Buttons */}
-            <div className="mt-6 space-y-2.5">
-              <TalkMeButton
-                text={
-                  selectedNode.nodeType === 'CHEST'
-                    ? 'XAZINANI OCHISH'
-                    : `DARSNI BOSHLASH (+${selectedNode.xpReward} XP)`
-                }
-                onClick={() => handleStartNode(selectedNode)}
-                className="bg-[#58CC02] hover:bg-[#46A302] text-white shadow-md text-base"
-              />
-
-              {selectedNode.status === 'CURRENT' && (
-                <button
-                  onClick={() => handleQuickCompleteAndUnlockNext(selectedNode)}
-                  className="w-full py-2.5 px-4 rounded-2xl bg-gradient-to-r from-amber-400 via-yellow-400 to-amber-500 text-amber-950 font-extrabold text-xs shadow-sm hover:brightness-105 active:scale-98 transition-all cursor-pointer flex items-center justify-center gap-1.5"
-                >
-                  <Sparkles className="w-4 h-4" />
-                  <span>Darsni yakunlab keyingi 3D qulfni ochish ⚡</span>
-                </button>
-              )}
-
-              <button
-                onClick={() => setSelectedNode(null)}
-                className="w-full py-2 text-xs font-bold text-gray-400 hover:text-gray-600 cursor-pointer text-center"
-              >
-                YOPISH
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
 
       <TalkMeBottomBar
         selectedTab={1}

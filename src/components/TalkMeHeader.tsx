@@ -1,5 +1,5 @@
 import React, { ReactNode } from 'react';
-import { ChevronLeft } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 
 interface TalkMeHeaderProps {
   title: string;
@@ -15,25 +15,27 @@ export const TalkMeHeader: React.FC<TalkMeHeaderProps> = ({
   trailingContent,
 }) => {
   return (
-    <div className="flex items-center justify-between py-3 mb-2">
-      <div className="flex items-center gap-3">
+    <header className="flex items-center justify-between py-3 mb-2 border-b border-[#E0E4EC]">
+      <div className="flex items-center gap-3 min-w-0">
         {onBackClick && (
           <button
             onClick={onBackClick}
             type="button"
-            className="w-10 h-10 rounded-full flex items-center justify-center bg-white border border-[#F0EFF5] text-[#1D1B20] hover:bg-[#F3EFFC] hover:text-[#5E4B8B] transition-colors shadow-xs active:scale-95"
+            className="w-11 h-11 rounded-lg flex items-center justify-center bg-white border border-[#E0E4EC] text-[#212121] hover:bg-[#E8EAF6] hover:text-[#3949AB] transition-colors cursor-pointer shrink-0 active:scale-95"
             aria-label="Orqaga"
           >
-            <ChevronLeft className="w-5 h-5 text-[#5E4B8B]" />
+            <ArrowLeft className="w-5 h-5 text-[#3949AB]" />
           </button>
         )}
-        <div>
-          <h1 className="text-xl font-bold text-[#1D1B20] leading-tight tracking-tight">{title}</h1>
-          {subtitle && <p className="text-xs text-[#757575] font-medium mt-0.5">{subtitle}</p>}
+        <div className="min-w-0">
+          <h1 className="text-lg font-bold text-[#212121] leading-snug truncate">{title}</h1>
+          {subtitle && (
+            <p className="text-xs text-[#616161] font-medium mt-0.5 truncate">{subtitle}</p>
+          )}
         </div>
       </div>
 
-      {trailingContent && <div className="flex items-center">{trailingContent}</div>}
-    </div>
+      {trailingContent && <div className="flex items-center shrink-0 ml-2">{trailingContent}</div>}
+    </header>
   );
 };

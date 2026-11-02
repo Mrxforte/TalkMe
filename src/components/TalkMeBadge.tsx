@@ -12,15 +12,15 @@ interface TalkMeBadgeProps {
 export const TalkMeBadge: React.FC<TalkMeBadgeProps> = ({
   text,
   icon,
-  containerColor = 'bg-[#F3EFFC]',
-  textColor = 'text-[#5E4B8B]',
+  containerColor = 'bg-[#E8EAF6]',
+  textColor = 'text-[#3949AB]',
   className = '',
   onClick,
 }) => {
   return (
     <span
       onClick={onClick}
-      className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold tracking-wide transition-all ${containerColor} ${textColor} ${
+      className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-semibold tracking-tight transition-all ${containerColor} ${textColor} ${
         onClick ? 'cursor-pointer hover:opacity-90 active:scale-95' : ''
       } ${className}`}
     >

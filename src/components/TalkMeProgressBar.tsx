@@ -10,9 +10,9 @@ interface TalkMeProgressBarProps {
 
 export const TalkMeProgressBar: React.FC<TalkMeProgressBarProps> = ({
   progress,
-  height = 'h-2.5',
-  progressColor = 'bg-[#5E4B8B]',
-  trackColor = 'bg-[#F0EFF5]',
+  height = 'h-2',
+  progressColor = 'bg-[#3949AB]',
+  trackColor = 'bg-[#E8EAF6]',
   className = '',
 }) => {
   const clamped = Math.max(0, Math.min(1, progress));
@@ -21,7 +21,7 @@ export const TalkMeProgressBar: React.FC<TalkMeProgressBarProps> = ({
   return (
     <div className={`w-full overflow-hidden rounded-full ${trackColor} ${height} ${className}`}>
       <div
-        className={`h-full transition-all duration-500 ease-out rounded-full ${progressColor}`}
+        className={`h-full transition-all duration-300 ease-out rounded-full ${progressColor}`}
         style={{ width: `${percent}%` }}
         role="progressbar"
         aria-valuenow={percent}

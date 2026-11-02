@@ -13,13 +13,15 @@ export const TalkMeCard: React.FC<TalkMeCardProps> = ({
   onClick,
   className = '',
   containerColor = 'bg-white',
-  borderColor = 'border-[#F0EFF5]',
+  borderColor = 'border-[#E0E4EC]',
 }) => {
   return (
     <div
       onClick={onClick}
-      className={`rounded-2xl p-4.5 border transition-all duration-150 shadow-xs ${containerColor} ${borderColor} ${
-        onClick ? 'cursor-pointer hover:border-[#5E4B8B]/40 hover:shadow-md active:scale-[0.99]' : ''
+      className={`rounded-xl p-4 border transition-all duration-150 shadow-[0_1px_3px_rgba(0,0,0,0.06)] ${containerColor} ${borderColor} ${
+        onClick
+          ? 'cursor-pointer hover:border-[#3949AB]/50 hover:shadow-[0_3px_8px_rgba(57,73,171,0.1)] active:scale-[0.99]'
+          : ''
       } ${className}`}
     >
       {children}

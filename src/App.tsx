@@ -6,6 +6,9 @@ import { HomeScreen } from './screens/HomeScreen';
 import { CoursesScreen } from './screens/CoursesScreen';
 import { CourseLevelsScreen } from './screens/CourseLevelsScreen';
 import { LessonDetailScreen } from './screens/LessonDetailScreen';
+import { TopicDetailScreen } from './screens/TopicDetailScreen';
+import { SkillPracticeScreen } from './screens/SkillPracticeScreen';
+import { PracticeCenterScreen } from './features/practice-center/PracticeCenterScreen';
 import { QuizScreen } from './screens/QuizScreen';
 import { LessonResultScreen } from './screens/LessonResultScreen';
 import { LevelUnlockedScreen } from './screens/LevelUnlockedScreen';
@@ -30,6 +33,12 @@ export const AppContent: React.FC = () => {
       return <CourseLevelsScreen />;
     case 'lesson_detail':
       return <LessonDetailScreen />;
+    case 'topic_detail':
+      return <TopicDetailScreen />;
+    case 'skill_practice':
+      return <SkillPracticeScreen />;
+    case 'practice_center':
+      return <PracticeCenterScreen />;
     case 'quiz':
       return <QuizScreen />;
     case 'lesson_result':
@@ -51,7 +60,7 @@ export const AppContent: React.FC = () => {
 
 export const App: React.FC = () => {
   return (
-    <div className="w-full min-h-screen bg-[#FAFAFC] font-sans antialiased">
+    <div className="w-full min-h-screen bg-[#F5F6FA] text-[#212121] font-sans antialiased">
       <AppContent />
     </div>
   );

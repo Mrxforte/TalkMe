@@ -23,16 +23,21 @@ export const TalkMeButton: React.FC<TalkMeButtonProps> = ({
   type = 'button',
   fullWidth = true,
 }) => {
-  let variantClasses = 'bg-[#5E4B8B] text-white hover:bg-[#4E3D75] shadow-xs active:scale-[0.98]';
+  let variantClasses =
+    'bg-[#3949AB] text-white hover:bg-[#283593] shadow-[0_2px_4px_rgba(57,73,171,0.24)] active:scale-[0.99]';
 
   if (variant === 'secondary') {
-    variantClasses = 'bg-[#F1EDFA] text-[#5E4B8B] hover:bg-[#E7E0F7] active:scale-[0.98]';
+    variantClasses =
+      'bg-[#E8EAF6] text-[#3949AB] hover:bg-[#C5CAE9] active:scale-[0.99]';
   } else if (variant === 'outline') {
-    variantClasses = 'bg-white border-2 border-[#5E4B8B] text-[#5E4B8B] hover:bg-[#F3EFFC] active:scale-[0.98]';
+    variantClasses =
+      'bg-white border border-[#3949AB] text-[#3949AB] hover:bg-[#E8EAF6]/50 active:scale-[0.99]';
   } else if (variant === 'danger') {
-    variantClasses = 'bg-rose-500 text-white hover:bg-rose-600 active:scale-[0.98]';
+    variantClasses =
+      'bg-[#D32F2F] text-white hover:bg-[#B71C1C] active:scale-[0.99]';
   } else if (variant === 'ghost') {
-    variantClasses = 'bg-transparent text-[#757575] hover:text-[#1D1B20] hover:bg-gray-100';
+    variantClasses =
+      'bg-transparent text-[#616161] hover:text-[#212121] hover:bg-slate-100';
   }
 
   return (
@@ -40,7 +45,7 @@ export const TalkMeButton: React.FC<TalkMeButtonProps> = ({
       type={type}
       onClick={onClick}
       disabled={disabled}
-      className={`h-13 font-bold rounded-2xl flex items-center justify-center gap-2 px-6 transition-all duration-150 select-none ${
+      className={`min-h-[46px] font-semibold text-sm rounded-lg flex items-center justify-center gap-2 px-5 transition-all duration-150 select-none ${
         fullWidth ? 'w-full' : 'w-auto'
       } ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'} ${variantClasses} ${className}`}
     >

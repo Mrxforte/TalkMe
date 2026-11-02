@@ -6,7 +6,6 @@ import { TalkMeBadge } from '../components/TalkMeBadge';
 import { TalkMeCard } from '../components/TalkMeCard';
 import { TalkMeButton } from '../components/TalkMeButton';
 import {
-  Flame,
   Volume2,
   Mic,
   Sliders,
@@ -17,19 +16,12 @@ import {
   RefreshCw,
   LogOut,
   Search,
-  BookMarked,
   Check,
   RotateCcw,
-  ShieldCheck,
   AlertCircle,
-  Gem,
-  Award,
   ChevronRight,
-  Layers,
-  BookOpen,
 } from 'lucide-react';
-import { TOPIC_LEARNING_GROUPS, TopicLearningGroup } from '../domain/learning/topicCatalog';
-import { TopicDetailsModal } from '../components/TopicDetailsModal';
+import { TOPIC_LEARNING_GROUPS } from '../domain/learning/topicCatalog';
 
 export const ProfileScreen: React.FC = () => {
   const {
@@ -39,11 +31,9 @@ export const ProfileScreen: React.FC = () => {
     userLevel,
     xp,
     diamonds,
-    streakDays,
     currentUser,
     authLoading,
     authError,
-    cloudSyncStatus,
     lastCloudSyncTimestamp,
     signInWithGoogle,
     signOutUser,
@@ -59,7 +49,6 @@ export const ProfileScreen: React.FC = () => {
     navigate,
     goBack,
     playTts,
-    isTtsSpeaking,
   } = useApp();
 
   const [wordSearchQuery, setWordSearchQuery] = useState<string>('');
@@ -67,7 +56,6 @@ export const ProfileScreen: React.FC = () => {
   const [wordViewMode, setWordViewMode] = useState<'topics' | 'list'>('topics');
   const [ruleViewMode, setRuleViewMode] = useState<'topics' | 'list'>('topics');
   const [isSyncingSpin, setIsSyncingSpin] = useState<boolean>(false);
-  const [selectedTopicForModal, setSelectedTopicForModal] = useState<TopicLearningGroup | null>(null);
 
   const handleManualSync = async () => {
     setIsSyncingSpin(true);
@@ -105,7 +93,7 @@ export const ProfileScreen: React.FC = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-[#FAFAFC] pb-24 text-[#1D1B20]">
+    <div className="min-h-screen bg-[#F5F6FA] pb-24 text-[#212121]">
       <div className="px-4 sm:px-5 pt-4 space-y-4 max-w-md mx-auto">
         <TalkMeHeader
           title="Mening Profilim"
@@ -116,26 +104,26 @@ export const ProfileScreen: React.FC = () => {
         {/* ==========================================
             1. USER IDENTITY & CLOUD PROFILE CARD
            ========================================== */}
-        <div className="rounded-3xl p-5 bg-gradient-to-br from-[#F5F2FC] to-[#EDE7F6] border border-[#5E4B8B]/20 shadow-xs space-y-3">
+        <div className="rounded-xl p-5 bg-[#3949AB] text-white shadow-sm space-y-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3.5">
               {userPhotoURL ? (
                 <img
                   src={userPhotoURL}
                   alt={userName}
-                  className="w-13 h-13 rounded-full object-cover border-2 border-white shadow-xs"
+                  className="w-13 h-13 rounded-full object-cover border-2 border-white/40 shadow-xs"
                 />
               ) : (
-                <div className="w-13 h-13 rounded-full bg-white text-[#5E4B8B] font-black text-xl flex items-center justify-center border-2 border-white shadow-xs">
+                <div className="w-13 h-13 rounded-full bg-white text-[#3949AB] font-bold text-xl flex items-center justify-center border-2 border-white shadow-xs">
                   {userName.charAt(0).toUpperCase()}
                 </div>
               )}
               <div>
-                <h2 className="text-lg font-black text-[#1D1B20] leading-snug flex items-center gap-1.5">
+                <h2 className="text-lg font-bold text-white leading-snug flex items-center gap-1.5">
                   {userName}
-                  <Sparkles className="w-4 h-4 text-amber-500 fill-amber-500" />
+                  <Sparkles className="w-4 h-4 text-[#80CBC4]" />
                 </h2>
-                <p className="text-xs text-[#757575] truncate max-w-[180px]">
+                <p className="text-xs text-[#C5CAE9] truncate max-w-[180px]">
                   {userEmail || 'Toshkent · TalkMe O‘quvchisi'}
                 </p>
               </div>
@@ -143,25 +131,25 @@ export const ProfileScreen: React.FC = () => {
 
             <TalkMeBadge
               text={userLevel}
-              containerColor="bg-white"
-              textColor="text-[#5E4B8B]"
+              containerColor="bg-white/15"
+              textColor="text-white"
             />
           </div>
 
           {/* Cloud Sync Status Indicator */}
-          <div className="pt-2 border-t border-[#5E4B8B]/10 flex items-center justify-between">
+          <div className="pt-2.5 border-t border-white/15 flex items-center justify-between">
             {currentUser ? (
               <div className="flex items-center gap-2">
-                <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
-                <span className="text-xs font-bold text-emerald-700 flex items-center gap-1">
+                <span className="w-2.5 h-2.5 rounded-full bg-[#80CBC4] animate-pulse" />
+                <span className="text-xs font-semibold text-[#E0F2F1] flex items-center gap-1">
                   <Cloud className="w-3.5 h-3.5" />
                   Firebase & Bulutga ulangan
                 </span>
               </div>
             ) : (
               <div className="flex items-center gap-2">
-                <span className="w-2.5 h-2.5 rounded-full bg-amber-400" />
-                <span className="text-xs font-bold text-amber-800">
+                <span className="w-2.5 h-2.5 rounded-full bg-white/50" />
+                <span className="text-xs font-medium text-[#C5CAE9]">
                   Lokal rejim (Google ulanmagan)
                 </span>
               </div>
@@ -171,7 +159,7 @@ export const ProfileScreen: React.FC = () => {
               <button
                 type="button"
                 onClick={handleManualSync}
-                className="text-xs text-[#5E4B8B] font-bold flex items-center gap-1 hover:underline cursor-pointer"
+                className="text-xs text-white font-semibold flex items-center gap-1 hover:underline cursor-pointer"
                 title="Hozir sinxronlash"
               >
                 <RefreshCw className={`w-3.5 h-3.5 ${isSyncingSpin ? 'animate-spin' : ''}`} />
@@ -185,30 +173,30 @@ export const ProfileScreen: React.FC = () => {
             2. STATS OVERVIEW (XP, Diamonds, Words, Rules)
            ========================================== */}
         <div className="grid grid-cols-4 gap-2">
-          <div className="p-3 rounded-2xl bg-white border border-[#F0EFF5] text-center shadow-xs">
-            <span className="text-[10px] text-[#757575] font-bold uppercase">XP</span>
-            <p className="text-base font-black text-[#5E4B8B] mt-0.5">{xp.toLocaleString()}</p>
+          <div className="p-3 rounded-xl bg-white border border-[#E0E4EC] text-center shadow-2xs">
+            <span className="text-[10px] text-[#616161] font-bold uppercase">XP</span>
+            <p className="text-base font-bold text-[#3949AB] mt-0.5">{xp.toLocaleString()}</p>
           </div>
 
-          <div className="p-3 rounded-2xl bg-white border border-[#F0EFF5] text-center shadow-xs">
-            <span className="text-[10px] text-[#757575] font-bold uppercase">Olmos</span>
-            <p className="text-base font-black text-amber-600 mt-0.5">{diamonds.toLocaleString()}</p>
+          <div className="p-3 rounded-xl bg-white border border-[#E0E4EC] text-center shadow-2xs">
+            <span className="text-[10px] text-[#616161] font-bold uppercase">Olmos</span>
+            <p className="text-base font-bold text-[#3949AB] mt-0.5">{diamonds.toLocaleString()}</p>
           </div>
 
           <div
             onClick={() => setActiveProfileTab(0)}
-            className="p-3 rounded-2xl bg-white border border-emerald-100 text-center shadow-xs cursor-pointer hover:border-emerald-300 transition-colors"
+            className="p-3 rounded-xl bg-white border border-[#E0E4EC] text-center shadow-2xs cursor-pointer hover:border-[#00897B] transition-colors"
           >
-            <span className="text-[10px] text-emerald-600 font-bold uppercase">So‘zlar</span>
-            <p className="text-base font-black text-emerald-700 mt-0.5">{learnedCount}</p>
+            <span className="text-[10px] text-[#00897B] font-bold uppercase">So‘zlar</span>
+            <p className="text-base font-bold text-[#00897B] mt-0.5">{learnedCount}</p>
           </div>
 
           <div
             onClick={() => setActiveProfileTab(1)}
-            className="p-3 rounded-2xl bg-white border border-indigo-100 text-center shadow-xs cursor-pointer hover:border-indigo-300 transition-colors"
+            className="p-3 rounded-xl bg-white border border-[#E0E4EC] text-center shadow-2xs cursor-pointer hover:border-[#3949AB] transition-colors"
           >
-            <span className="text-[10px] text-indigo-600 font-bold uppercase">Qoidalar</span>
-            <p className="text-base font-black text-indigo-700 mt-0.5">{masteredRulesCount}</p>
+            <span className="text-[10px] text-[#3949AB] font-bold uppercase">Qoidalar</span>
+            <p className="text-base font-bold text-[#3949AB] mt-0.5">{masteredRulesCount}</p>
           </div>
         </div>
 
@@ -223,17 +211,17 @@ export const ProfileScreen: React.FC = () => {
                 key={tab.id}
                 type="button"
                 onClick={() => setActiveProfileTab(tab.id)}
-                className={`py-2 px-3 rounded-full text-xs font-black whitespace-nowrap transition-all cursor-pointer flex items-center gap-1.5 ${
+                className={`py-2 px-3 rounded-lg text-xs font-semibold whitespace-nowrap transition-all cursor-pointer flex items-center gap-1.5 ${
                   isActive
-                    ? 'bg-[#5E4B8B] text-white shadow-xs'
-                    : 'bg-white text-[#757575] border border-[#F0EFF5] hover:bg-[#F3EFFC] hover:text-[#5E4B8B]'
+                    ? 'bg-[#3949AB] text-white shadow-2xs'
+                    : 'bg-white text-[#616161] border border-[#E0E4EC] hover:bg-[#E8EAF6] hover:text-[#3949AB]'
                 }`}
               >
                 <span>{tab.label}</span>
                 {tab.count !== '' && (
                   <span
-                    className={`text-[10px] px-1.5 py-0.2 rounded-full font-extrabold ${
-                      isActive ? 'bg-white/25 text-white' : 'bg-[#F0EFF5] text-[#5E4B8B]'
+                    className={`text-[10px] px-1.5 py-0.2 rounded-md font-bold ${
+                      isActive ? 'bg-white/20 text-white' : 'bg-[#E8EAF6] text-[#3949AB]'
                     }`}
                   >
                     {tab.count}
@@ -251,21 +239,21 @@ export const ProfileScreen: React.FC = () => {
           <div className="space-y-3 pt-1">
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="text-base font-extrabold text-[#1D1B20]">Yodlangan So‘zlar Ro‘yxati</h3>
-                <p className="text-xs text-[#757575]">
+                <h3 className="text-base font-bold text-[#212121]">Yodlangan So‘zlar Ro‘yxati</h3>
+                <p className="text-xs text-[#616161]">
                   {learnedCount} ta o‘zlashtirilgan so‘z · Firestore bulutida saqlanadi
                 </p>
               </div>
 
               {/* View mode toggle */}
-              <div className="flex items-center bg-[#F1EDFA] p-0.5 rounded-xl border border-[#5E4B8B]/20">
+              <div className="flex items-center bg-[#E8EAF6] p-0.5 rounded-lg border border-[#C5CAE9]">
                 <button
                   type="button"
                   onClick={() => setWordViewMode('topics')}
-                  className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                  className={`px-2.5 py-1 rounded-md text-xs font-semibold transition-all cursor-pointer ${
                     wordViewMode === 'topics'
-                      ? 'bg-[#5E4B8B] text-white shadow-xs'
-                      : 'text-[#5E4B8B] hover:text-[#1D1B20]'
+                      ? 'bg-[#3949AB] text-white shadow-2xs'
+                      : 'text-[#3949AB] hover:text-[#212121]'
                   }`}
                 >
                   Mavzular
@@ -273,10 +261,10 @@ export const ProfileScreen: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setWordViewMode('list')}
-                  className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                  className={`px-2.5 py-1 rounded-md text-xs font-semibold transition-all cursor-pointer ${
                     wordViewMode === 'list'
-                      ? 'bg-[#5E4B8B] text-white shadow-xs'
-                      : 'text-[#5E4B8B] hover:text-[#1D1B20]'
+                      ? 'bg-[#3949AB] text-white shadow-2xs'
+                      : 'text-[#3949AB] hover:text-[#212121]'
                   }`}
                 >
                   Ro‘yxat
@@ -287,8 +275,8 @@ export const ProfileScreen: React.FC = () => {
             {/* TOPIC-BASED VIEW */}
             {wordViewMode === 'topics' && (
               <div className="space-y-3">
-                <div className="p-3 rounded-2xl bg-[#E8F8EE] border border-[#27AE60]/30 text-xs font-semibold text-[#2E7D32]">
-                  💡 Katta mavzu ustiga bosing — unda o‘rganiladigan barcha yangi so‘zlar to‘liq ochiladi!
+                <div className="p-3 rounded-xl bg-[#E0F2F1] border border-[#B2DFDB] text-xs font-medium text-[#00695C]">
+                  Katta mavzu ustiga bosing — unda o‘rganiladigan barcha yangi so‘zlar alohida sahifada to‘liq ochiladi.
                 </div>
 
                 {TOPIC_LEARNING_GROUPS.map((topic) => {
@@ -301,26 +289,26 @@ export const ProfileScreen: React.FC = () => {
                   return (
                     <div
                       key={topic.id}
-                      onClick={() => setSelectedTopicForModal(topic)}
-                      className="p-4 rounded-3xl bg-white border border-[#EBE8F3] shadow-xs cursor-pointer hover:border-[#5E4B8B] hover:shadow-sm transition-all group space-y-2.5"
+                      onClick={() => navigate('topic_detail', { topicId: topic.id })}
+                      className="p-4 rounded-xl bg-white border border-[#E0E4EC] shadow-2xs cursor-pointer hover:border-[#3949AB] transition-all group space-y-2.5"
                     >
                       <div className="flex items-start justify-between gap-3">
                         <div className="flex items-start gap-3 min-w-0">
-                          <span className="w-11 h-11 rounded-2xl bg-[#F7F6FB] text-2xl flex items-center justify-center shrink-0 border border-[#EBE8F3] group-hover:scale-105 transition-transform">
+                          <span className="w-11 h-11 rounded-lg bg-[#E8EAF6] text-xl flex items-center justify-center shrink-0 border border-[#C5CAE9]">
                             {topic.iconEmoji}
                           </span>
                           <div className="min-w-0">
-                            <span className="text-[10px] font-black uppercase text-[#5E4B8B] bg-[#F1EDFA] px-2 py-0.5 rounded-md">
+                            <span className="text-[10px] font-bold uppercase text-[#3949AB] bg-[#E8EAF6] px-2 py-0.5 rounded">
                               {topic.section}
                             </span>
-                            <h4 className="text-sm font-black text-[#1D1B20] mt-1 truncate">
+                            <h4 className="text-sm font-bold text-[#212121] mt-1 truncate">
                               {topic.title}
                             </h4>
-                            <p className="text-xs text-[#757575] line-clamp-1">{topic.subtitle}</p>
+                            <p className="text-xs text-[#616161] line-clamp-1">{topic.subtitle}</p>
                           </div>
                         </div>
 
-                        <div className="w-8 h-8 rounded-full bg-[#F7F6FB] group-hover:bg-[#5E4B8B] group-hover:text-white flex items-center justify-center text-[#757575] transition-colors shrink-0">
+                        <div className="w-8 h-8 rounded-lg bg-[#F5F6FA] group-hover:bg-[#3949AB] group-hover:text-white flex items-center justify-center text-[#616161] transition-colors shrink-0">
                           <ChevronRight className="w-4 h-4" />
                         </div>
                       </div>
@@ -332,10 +320,10 @@ export const ProfileScreen: React.FC = () => {
                           return (
                             <span
                               key={w.id}
-                              className={`px-2 py-0.5 rounded-md text-[11px] font-bold flex items-center gap-1 ${
+                              className={`px-2 py-0.5 rounded text-[11px] font-semibold flex items-center gap-1 ${
                                 isLearned
-                                  ? 'bg-[#E8F8EE] text-[#27AE60] border border-[#27AE60]/30'
-                                  : 'bg-[#F7F6FB] text-[#1D1B20] border border-[#EBE8F3]'
+                                  ? 'bg-[#E0F2F1] text-[#00897B] border border-[#B2DFDB]'
+                                  : 'bg-[#F5F6FA] text-[#212121] border border-[#E0E4EC]'
                               }`}
                             >
                               <span>{w.emoji}</span>
@@ -346,13 +334,13 @@ export const ProfileScreen: React.FC = () => {
                         })}
                       </div>
 
-                      <div className="pt-2 border-t border-[#F0EFF5] flex items-center justify-between text-xs">
-                        <span className="font-extrabold text-[#5E4B8B] flex items-center gap-1">
-                          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                      <div className="pt-2 border-t border-[#E0E4EC] flex items-center justify-between text-xs">
+                        <span className="font-semibold text-[#00897B] flex items-center gap-1">
+                          <CheckCircle2 className="w-3.5 h-3.5 text-[#00897B]" />
                           {learnedInTopic}/{topic.words.length} ta yodlangan
                         </span>
-                        <span className="text-[#757575] font-bold flex items-center gap-1 group-hover:text-[#5E4B8B]">
-                          Barcha so‘zlarni ko‘rish →
+                        <span className="text-[#616161] font-semibold flex items-center gap-1 group-hover:text-[#3949AB]">
+                          Sahifani ochish →
                         </span>
                       </div>
                     </div>
@@ -365,13 +353,13 @@ export const ProfileScreen: React.FC = () => {
             {wordViewMode === 'list' && (
               <div className="space-y-2">
                 <div className="relative">
-                  <Search className="w-4 h-4 absolute left-3 top-3 text-[#757575]" />
+                  <Search className="w-4 h-4 absolute left-3 top-3 text-[#616161]" />
                   <input
                     type="text"
                     placeholder="So‘z yoki tarjimasini qidirish..."
                     value={wordSearchQuery}
                     onChange={(e) => setWordSearchQuery(e.target.value)}
-                    className="w-full pl-9 pr-4 py-2.5 rounded-xl bg-white border border-[#EBE8F3] text-xs font-bold text-[#1D1B20] placeholder-[#A09EB0] focus:outline-none focus:border-[#5E4B8B]"
+                    className="w-full pl-9 pr-4 py-2.5 rounded-lg bg-white border border-[#E0E4EC] text-xs font-semibold text-[#212121] placeholder-[#9E9E9E] focus:outline-none focus:border-[#3949AB]"
                   />
                 </div>
 
@@ -379,10 +367,10 @@ export const ProfileScreen: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => setWordFilter('all')}
-                    className={`px-2.5 py-1 rounded-lg text-xs font-bold cursor-pointer ${
+                    className={`px-2.5 py-1 rounded-md text-xs font-semibold cursor-pointer ${
                       wordFilter === 'all'
-                        ? 'bg-[#1D1B20] text-white'
-                        : 'bg-white text-[#757575] border border-[#EBE8F3]'
+                        ? 'bg-[#3949AB] text-white'
+                        : 'bg-white text-[#616161] border border-[#E0E4EC]'
                     }`}
                   >
                     Barchasi ({userLearnedWords.length})
@@ -390,10 +378,10 @@ export const ProfileScreen: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => setWordFilter('learned')}
-                    className={`px-2.5 py-1 rounded-lg text-xs font-bold cursor-pointer ${
+                    className={`px-2.5 py-1 rounded-md text-xs font-semibold cursor-pointer ${
                       wordFilter === 'learned'
-                        ? 'bg-emerald-600 text-white'
-                        : 'bg-white text-emerald-700 border border-emerald-200'
+                        ? 'bg-[#00897B] text-white'
+                        : 'bg-white text-[#00897B] border border-[#B2DFDB]'
                     }`}
                   >
                     ✓ Yodlangan ({learnedCount})
@@ -401,10 +389,10 @@ export const ProfileScreen: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => setWordFilter('learning')}
-                    className={`px-2.5 py-1 rounded-lg text-xs font-bold cursor-pointer ${
+                    className={`px-2.5 py-1 rounded-md text-xs font-semibold cursor-pointer ${
                       wordFilter === 'learning'
-                        ? 'bg-amber-600 text-white'
-                        : 'bg-white text-amber-700 border border-amber-200'
+                        ? 'bg-[#3949AB] text-white'
+                        : 'bg-white text-[#3949AB] border border-[#C5CAE9]'
                     }`}
                   >
                     O‘rganilmoqda ({userLearnedWords.length - learnedCount})
@@ -412,10 +400,9 @@ export const ProfileScreen: React.FC = () => {
                 </div>
 
                 {filteredWords.length === 0 ? (
-                  <div className="p-8 text-center bg-white rounded-2xl border border-dashed border-[#E0DEE8] space-y-2">
-                    <p className="text-2xl">🔍</p>
-                    <p className="text-sm font-bold text-[#1D1B20]">So‘z topilmadi</p>
-                    <p className="text-xs text-[#757575]">Boshqa kalit so‘z bilan qidiring</p>
+                  <div className="p-8 text-center bg-white rounded-xl border border-dashed border-[#E0E4EC] space-y-2">
+                    <p className="text-sm font-bold text-[#212121]">So‘z topilmadi</p>
+                    <p className="text-xs text-[#616161]">Boshqa kalit so‘z bilan qidiring</p>
                   </div>
                 ) : (
                   <div className="space-y-2.5 pt-1">
@@ -424,27 +411,27 @@ export const ProfileScreen: React.FC = () => {
                       return (
                         <div
                           key={item.id}
-                          className="p-3.5 rounded-2xl bg-white border border-[#EBE8F3] shadow-xs flex items-center justify-between gap-3 hover:border-[#5E4B8B]/40 transition-all"
+                          className="p-3.5 rounded-xl bg-white border border-[#E0E4EC] shadow-2xs flex items-center justify-between gap-3 hover:border-[#3949AB] transition-all"
                         >
                           <div className="flex items-center gap-3 min-w-0">
-                            <span className="w-10 h-10 rounded-xl bg-[#F7F6FB] flex items-center justify-center text-xl shrink-0">
+                            <span className="w-10 h-10 rounded-lg bg-[#E8EAF6] flex items-center justify-center text-xl shrink-0">
                               {item.emoji || '📖'}
                             </span>
                             <div className="min-w-0">
                               <div className="flex items-center gap-2">
-                                <span className="text-sm font-black text-[#1D1B20] truncate">
+                                <span className="text-sm font-bold text-[#212121] truncate">
                                   {item.word}
                                 </span>
                                 {item.phonetic && (
-                                  <span className="text-[11px] font-medium text-[#757575]">
+                                  <span className="text-[11px] font-medium text-[#616161]">
                                     {item.phonetic}
                                   </span>
                                 )}
                               </div>
-                              <p className="text-xs font-bold text-emerald-600 truncate">
+                              <p className="text-xs font-semibold text-[#00897B] truncate">
                                 {item.translation}
                               </p>
-                              <span className="text-[10px] text-[#A09EB0] font-semibold">
+                              <span className="text-[10px] text-[#757575] font-medium">
                                 {item.category} • {item.reps} marta takrorlangan
                               </span>
                             </div>
@@ -454,7 +441,7 @@ export const ProfileScreen: React.FC = () => {
                             <button
                               type="button"
                               onClick={() => playTts(item.word)}
-                              className="w-8 h-8 rounded-full bg-[#F1EDFA] text-[#5E4B8B] flex items-center justify-center hover:bg-[#5E4B8B] hover:text-white transition-colors cursor-pointer"
+                              className="w-8 h-8 rounded-lg bg-[#E8EAF6] text-[#3949AB] flex items-center justify-center hover:bg-[#3949AB] hover:text-white transition-colors cursor-pointer"
                               title="Talaffuzni eshitish (TTS)"
                             >
                               <Volume2 className="w-4 h-4" />
@@ -463,15 +450,15 @@ export const ProfileScreen: React.FC = () => {
                             <button
                               type="button"
                               onClick={() => toggleWordLearned(item.id)}
-                              className={`px-2.5 py-1.5 rounded-xl text-xs font-black flex items-center gap-1 transition-all cursor-pointer ${
+                              className={`px-2.5 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1 transition-all cursor-pointer ${
                                 isLearned
-                                  ? 'bg-[#E8F8EE] text-[#27AE60] hover:bg-emerald-200'
-                                  : 'bg-amber-50 text-amber-700 hover:bg-amber-100'
+                                  ? 'bg-[#E0F2F1] text-[#00897B] border border-[#B2DFDB]'
+                                  : 'bg-[#E8EAF6] text-[#3949AB] border border-[#C5CAE9]'
                               }`}
                             >
                               {isLearned ? (
                                 <>
-                                  <Check className="w-3.5 h-3.5 stroke-[3]" />
+                                  <Check className="w-3.5 h-3.5 stroke-[2.5]" />
                                   <span>Yodlandi</span>
                                 </>
                               ) : (
@@ -499,20 +486,20 @@ export const ProfileScreen: React.FC = () => {
           <div className="space-y-3 pt-1">
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="text-base font-extrabold text-[#1D1B20]">Grammatika Qoidalari</h3>
-                <p className="text-xs text-[#757575]">
+                <h3 className="text-base font-bold text-[#212121]">Grammatika Qoidalari</h3>
+                <p className="text-xs text-[#616161]">
                   {masteredRulesCount} ta o‘zlashtirilgan qoida · Firestore bulutida saqlanadi
                 </p>
               </div>
 
-              <div className="flex items-center bg-[#F1EDFA] p-0.5 rounded-xl border border-[#5E4B8B]/20">
+              <div className="flex items-center bg-[#E8EAF6] p-0.5 rounded-lg border border-[#C5CAE9]">
                 <button
                   type="button"
                   onClick={() => setRuleViewMode('topics')}
-                  className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                  className={`px-2.5 py-1 rounded-md text-xs font-semibold transition-all cursor-pointer ${
                     ruleViewMode === 'topics'
-                      ? 'bg-[#5E4B8B] text-white shadow-xs'
-                      : 'text-[#5E4B8B] hover:text-[#1D1B20]'
+                      ? 'bg-[#3949AB] text-white shadow-2xs'
+                      : 'text-[#3949AB] hover:text-[#212121]'
                   }`}
                 >
                   Mavzular
@@ -520,10 +507,10 @@ export const ProfileScreen: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setRuleViewMode('list')}
-                  className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                  className={`px-2.5 py-1 rounded-md text-xs font-semibold transition-all cursor-pointer ${
                     ruleViewMode === 'list'
-                      ? 'bg-[#5E4B8B] text-white shadow-xs'
-                      : 'text-[#5E4B8B] hover:text-[#1D1B20]'
+                      ? 'bg-[#3949AB] text-white shadow-2xs'
+                      : 'text-[#3949AB] hover:text-[#212121]'
                   }`}
                 >
                   Ro‘yxat
@@ -538,25 +525,25 @@ export const ProfileScreen: React.FC = () => {
                   return (
                     <div
                       key={topic.id}
-                      onClick={() => setSelectedTopicForModal(topic)}
-                      className="p-4 rounded-3xl bg-white border border-[#EBE8F3] shadow-xs cursor-pointer hover:border-[#5E4B8B] hover:shadow-sm transition-all group space-y-2.5"
+                      onClick={() => navigate('topic_detail', { topicId: topic.id })}
+                      className="p-4 rounded-xl bg-white border border-[#E0E4EC] shadow-2xs cursor-pointer hover:border-[#3949AB] transition-all group space-y-2.5"
                     >
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
-                          <span className="w-10 h-10 rounded-2xl bg-[#F7F6FB] text-xl flex items-center justify-center shrink-0 border border-[#EBE8F3]">
+                          <span className="w-10 h-10 rounded-lg bg-[#E8EAF6] text-xl flex items-center justify-center shrink-0 border border-[#C5CAE9]">
                             {topic.iconEmoji}
                           </span>
                           <div>
-                            <span className="text-[10px] font-black uppercase text-[#5E4B8B] bg-[#F1EDFA] px-2 py-0.5 rounded-md">
+                            <span className="text-[10px] font-bold uppercase text-[#3949AB] bg-[#E8EAF6] px-2 py-0.5 rounded">
                               {topic.section}
                             </span>
-                            <h4 className="text-sm font-black text-[#1D1B20] mt-0.5 truncate">
+                            <h4 className="text-sm font-bold text-[#212121] mt-0.5 truncate">
                               {topic.title}
                             </h4>
                           </div>
                         </div>
 
-                        <div className="w-8 h-8 rounded-full bg-[#F7F6FB] group-hover:bg-[#5E4B8B] group-hover:text-white flex items-center justify-center text-[#757575] transition-colors shrink-0">
+                        <div className="w-8 h-8 rounded-lg bg-[#F5F6FA] group-hover:bg-[#3949AB] group-hover:text-white flex items-center justify-center text-[#616161] transition-colors shrink-0">
                           <ChevronRight className="w-4 h-4" />
                         </div>
                       </div>
@@ -566,20 +553,20 @@ export const ProfileScreen: React.FC = () => {
                         {topic.rules.map((r) => (
                           <div
                             key={r.id}
-                            className="p-2.5 rounded-xl bg-[#F7F6FB] border border-[#EBE8F3] flex items-center justify-between text-xs"
+                            className="p-2.5 rounded-lg bg-[#F5F6FA] border border-[#E0E4EC] flex items-center justify-between text-xs"
                           >
-                            <span className="font-bold text-[#1D1B20] truncate max-w-[230px]">
+                            <span className="font-semibold text-[#212121] truncate max-w-[230px]">
                               {r.nameUz}
                             </span>
-                            <span className="text-[11px] font-mono text-[#5E4B8B] font-bold">
+                            <span className="text-[11px] font-mono text-[#3949AB] font-bold">
                               {r.formula ? 'Formula' : 'Qoida'}
                             </span>
                           </div>
                         ))}
                       </div>
 
-                      <div className="pt-2 border-t border-[#F0EFF5] flex items-center justify-between text-xs font-bold text-[#5E4B8B]">
-                        <span>Qoidalarni to‘liq o‘rganish</span>
+                      <div className="pt-2 border-t border-[#E0E4EC] flex items-center justify-between text-xs font-semibold text-[#3949AB]">
+                        <span>Qoidalarni alohida sahifada o‘rganish</span>
                         <ChevronRight className="w-3.5 h-3.5" />
                       </div>
                     </div>
@@ -596,14 +583,14 @@ export const ProfileScreen: React.FC = () => {
                   return (
                     <div
                       key={rule.id}
-                      className="p-4 rounded-3xl bg-white border border-[#EBE8F3] shadow-xs space-y-3 hover:border-[#5E4B8B]/40 transition-all"
+                      className="p-4 rounded-xl bg-white border border-[#E0E4EC] shadow-2xs space-y-3 hover:border-[#3949AB] transition-all"
                     >
                       <div className="flex items-start justify-between gap-2">
                         <div>
-                          <span className="text-[10px] font-black uppercase tracking-wider text-[#5E4B8B] bg-[#F1EDFA] px-2 py-0.5 rounded-md">
+                          <span className="text-[10px] font-bold uppercase tracking-wider text-[#3949AB] bg-[#E8EAF6] px-2 py-0.5 rounded">
                             {rule.category}
                           </span>
-                          <h4 className="text-sm font-black text-[#1D1B20] mt-1.5 leading-snug">
+                          <h4 className="text-sm font-bold text-[#212121] mt-1.5 leading-snug">
                             {rule.nameUz}
                           </h4>
                         </div>
@@ -611,15 +598,15 @@ export const ProfileScreen: React.FC = () => {
                         <button
                           type="button"
                           onClick={() => toggleRuleMastered(rule.id)}
-                          className={`px-2.5 py-1 rounded-xl text-xs font-black flex items-center gap-1 cursor-pointer shrink-0 ${
+                          className={`px-2.5 py-1 rounded-lg text-xs font-semibold flex items-center gap-1 cursor-pointer shrink-0 ${
                             isLearned
-                              ? 'bg-[#E8F8EE] text-[#27AE60]'
-                              : 'bg-amber-50 text-amber-700'
+                              ? 'bg-[#E0F2F1] text-[#00897B] border border-[#B2DFDB]'
+                              : 'bg-[#E8EAF6] text-[#3949AB] border border-[#C5CAE9]'
                           }`}
                         >
                           {isLearned ? (
                             <>
-                              <Check className="w-3.5 h-3.5 stroke-[3]" />
+                              <Check className="w-3.5 h-3.5 stroke-[2.5]" />
                               <span>O‘zlashtirildi</span>
                             </>
                           ) : (
@@ -632,34 +619,34 @@ export const ProfileScreen: React.FC = () => {
                       </div>
 
                       {rule.formula && (
-                        <div className="px-3 py-2 rounded-xl bg-[#F7F6FB] border border-[#EBE8F3] flex items-center justify-between">
-                          <span className="text-xs font-mono font-bold text-[#5E4B8B]">
+                        <div className="px-3 py-2 rounded-lg bg-[#F5F6FA] border border-[#E0E4EC] flex items-center justify-between">
+                          <span className="text-xs font-mono font-bold text-[#3949AB]">
                             {rule.formula}
                           </span>
-                          <span className="text-[10px] font-bold text-[#757575] uppercase">Formula</span>
+                          <span className="text-[10px] font-bold text-[#616161] uppercase">Formula</span>
                         </div>
                       )}
 
-                      <p className="text-xs text-[#555] leading-relaxed">
+                      <p className="text-xs text-[#616161] leading-relaxed">
                         {rule.shortSummaryUz}
                       </p>
 
                       {rule.exampleEn && (
-                        <div className="pt-2 border-t border-[#F0EFF5] flex items-center justify-between">
+                        <div className="pt-2 border-t border-[#E0E4EC] flex items-center justify-between">
                           <div>
-                            <p className="text-xs font-extrabold text-[#1D1B20] flex items-center gap-1.5">
+                            <p className="text-xs font-bold text-[#212121] flex items-center gap-1.5">
                               <span>{rule.exampleEn}</span>
                             </p>
-                            <p className="text-[11px] text-[#757575]">{rule.exampleUz}</p>
+                            <p className="text-[11px] text-[#616161]">{rule.exampleUz}</p>
                           </div>
 
                           <button
                             type="button"
                             onClick={() => playTts(rule.exampleEn || '')}
-                            className="w-7 h-7 rounded-full bg-[#F1EDFA] text-[#5E4B8B] flex items-center justify-center hover:bg-[#5E4B8B] hover:text-white transition-colors cursor-pointer shrink-0"
+                            className="w-8 h-8 rounded-lg bg-[#E8EAF6] text-[#3949AB] flex items-center justify-center hover:bg-[#3949AB] hover:text-white transition-colors cursor-pointer shrink-0"
                             title="Misolni eshitish"
                           >
-                            <Volume2 className="w-3.5 h-3.5" />
+                            <Volume2 className="w-4 h-4" />
                           </button>
                         </div>
                       )}
@@ -677,47 +664,45 @@ export const ProfileScreen: React.FC = () => {
         {activeProfileTab === 2 && (
           <div className="space-y-4 pt-1">
             <div>
-              <h3 className="text-base font-extrabold text-[#1D1B20]">Google OAuth & Bulut Xizmati</h3>
-              <p className="text-xs text-[#757575]">
+              <h3 className="text-base font-bold text-[#212121]">Google OAuth & Bulut Xizmati</h3>
+              <p className="text-xs text-[#616161]">
                 Yodlangan so‘zlar, grammatika qoidalari va yutuqlarni xavfsiz saqlash
               </p>
             </div>
 
             {authError && (
-              <div className="p-3.5 rounded-2xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-bold flex items-center gap-2">
+              <div className="p-3.5 rounded-xl bg-[#FFEBEE] border border-[#FFCDD2] text-[#D32F2F] text-xs font-semibold flex items-center gap-2">
                 <AlertCircle className="w-4 h-4 shrink-0" />
                 <span>{authError}</span>
               </div>
             )}
 
             {!currentUser ? (
-              <div className="p-6 rounded-3xl bg-white border border-[#EBE8F3] shadow-sm text-center space-y-4">
-                <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-[#EA4335] via-[#FBBC05] to-[#4285F4] p-0.5 mx-auto flex items-center justify-center shadow-md">
-                  <div className="w-full h-full bg-white rounded-2xl flex items-center justify-center">
-                    <svg className="w-8 h-8" viewBox="0 0 24 24">
-                      <path
-                        fill="#4285F4"
-                        d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
-                      />
-                      <path
-                        fill="#34A853"
-                        d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-                      />
-                      <path
-                        fill="#FBBC05"
-                        d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"
-                      />
-                      <path
-                        fill="#EA4335"
-                        d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"
-                      />
-                    </svg>
-                  </div>
+              <div className="p-6 rounded-xl bg-white border border-[#E0E4EC] shadow-2xs text-center space-y-4">
+                <div className="w-16 h-16 rounded-xl bg-[#E8EAF6] border border-[#C5CAE9] mx-auto flex items-center justify-center">
+                  <svg className="w-8 h-8" viewBox="0 0 24 24">
+                    <path
+                      fill="#4285F4"
+                      d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+                    />
+                    <path
+                      fill="#34A853"
+                      d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+                    />
+                    <path
+                      fill="#FBBC05"
+                      d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"
+                    />
+                    <path
+                      fill="#EA4335"
+                      d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"
+                    />
+                  </svg>
                 </div>
 
                 <div className="space-y-1">
-                  <h4 className="text-lg font-black text-[#1D1B20]">Google orqali kiring</h4>
-                  <p className="text-xs text-[#757575] leading-relaxed max-w-xs mx-auto">
+                  <h4 className="text-lg font-bold text-[#212121]">Google orqali kiring</h4>
+                  <p className="text-xs text-[#616161] leading-relaxed max-w-xs mx-auto">
                     Barcha yodlagan so‘zlaringiz, grammatika darslaringiz va XP ballaringiz Cloud Firestore bazasiga avtomatik saqlanadi.
                   </p>
                 </div>
@@ -726,9 +711,9 @@ export const ProfileScreen: React.FC = () => {
                   type="button"
                   onClick={signInWithGoogle}
                   disabled={authLoading}
-                  className="w-full py-3.5 px-5 rounded-2xl bg-[#1D1B20] text-white font-black text-sm flex items-center justify-center gap-3 hover:bg-[#333] transition-all cursor-pointer shadow-md active:scale-98 disabled:opacity-50"
+                  className="w-full py-3.5 px-5 rounded-xl bg-[#3949AB] text-white font-semibold text-sm flex items-center justify-center gap-3 hover:bg-[#283593] transition-all cursor-pointer shadow-xs active:scale-98 disabled:opacity-50"
                 >
-                  <svg className="w-5 h-5" viewBox="0 0 24 24">
+                  <svg className="w-5 h-5 bg-white rounded-full p-0.5" viewBox="0 0 24 24">
                     <path
                       fill="#4285F4"
                       d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
@@ -750,44 +735,44 @@ export const ProfileScreen: React.FC = () => {
                 </button>
               </div>
             ) : (
-              <div className="p-5 rounded-3xl bg-white border border-[#EBE8F3] shadow-xs space-y-4">
+              <div className="p-5 rounded-xl bg-white border border-[#E0E4EC] shadow-2xs space-y-4">
                 <div className="flex items-center gap-3.5">
                   {userPhotoURL ? (
                     <img
                       src={userPhotoURL}
                       alt={userName}
-                      className="w-14 h-14 rounded-full object-cover border-2 border-[#5E4B8B]/20"
+                      className="w-14 h-14 rounded-full object-cover border-2 border-[#C5CAE9]"
                     />
                   ) : (
-                    <div className="w-14 h-14 rounded-full bg-[#5E4B8B] text-white font-black text-xl flex items-center justify-center">
+                    <div className="w-14 h-14 rounded-full bg-[#3949AB] text-white font-bold text-xl flex items-center justify-center">
                       {userName.charAt(0)}
                     </div>
                   )}
 
                   <div className="min-w-0">
-                    <h4 className="text-base font-black text-[#1D1B20] leading-snug">{userName}</h4>
-                    <p className="text-xs text-[#757575] truncate">{userEmail}</p>
-                    <span className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-600 mt-1">
+                    <h4 className="text-base font-bold text-[#212121] leading-snug">{userName}</h4>
+                    <p className="text-xs text-[#616161] truncate">{userEmail}</p>
+                    <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-[#00897B] mt-1">
                       <CheckCircle2 className="w-3.5 h-3.5" />
                       Google orqali tasdiqlangan hisob
                     </span>
                   </div>
                 </div>
 
-                <div className="p-3.5 rounded-2xl bg-[#F7F6FB] space-y-2 text-xs">
+                <div className="p-3.5 rounded-lg bg-[#F5F6FA] border border-[#E0E4EC] space-y-2 text-xs">
                   <div className="flex items-center justify-between">
-                    <span className="text-[#757575]">Foydalanuvchi ID:</span>
-                    <span className="font-mono text-[#1D1B20] text-[11px]">
+                    <span className="text-[#616161]">Foydalanuvchi ID:</span>
+                    <span className="font-mono text-[#212121] text-[11px]">
                       {currentUser.uid.slice(0, 14)}...
                     </span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-[#757575]">Bulut holati:</span>
-                    <span className="font-bold text-emerald-700">Faol & Himoyalangan</span>
+                    <span className="text-[#616161]">Bulut holati:</span>
+                    <span className="font-semibold text-[#00897B]">Faol & Himoyalangan</span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-[#757575]">Oxirgi sinxronlash:</span>
-                    <span className="font-bold text-[#1D1B20]">
+                    <span className="text-[#616161]">Oxirgi sinxronlash:</span>
+                    <span className="font-semibold text-[#212121]">
                       {lastCloudSyncTimestamp
                         ? new Date(lastCloudSyncTimestamp).toLocaleTimeString([], {
                             hour: '2-digit',
@@ -802,7 +787,7 @@ export const ProfileScreen: React.FC = () => {
                   <button
                     type="button"
                     onClick={handleManualSync}
-                    className="flex-1 py-2.5 px-4 rounded-xl bg-[#5E4B8B] text-white text-xs font-black flex items-center justify-center gap-2 hover:bg-[#4E3D75] transition-all cursor-pointer shadow-xs"
+                    className="flex-1 py-2.5 px-4 rounded-lg bg-[#3949AB] text-white text-xs font-semibold flex items-center justify-center gap-2 hover:bg-[#283593] transition-all cursor-pointer shadow-2xs"
                   >
                     <RefreshCw className={`w-3.5 h-3.5 ${isSyncingSpin ? 'animate-spin' : ''}`} />
                     <span>Bulutga sinxronlash</span>
@@ -811,7 +796,7 @@ export const ProfileScreen: React.FC = () => {
                   <button
                     type="button"
                     onClick={signOutUser}
-                    className="py-2.5 px-4 rounded-xl bg-white border border-rose-200 text-rose-600 text-xs font-black flex items-center justify-center gap-1.5 hover:bg-rose-50 transition-all cursor-pointer"
+                    className="py-2.5 px-4 rounded-lg bg-white border border-[#E0E4EC] text-[#D32F2F] text-xs font-semibold flex items-center justify-center gap-1.5 hover:bg-[#FFEBEE] transition-all cursor-pointer"
                   >
                     <LogOut className="w-3.5 h-3.5" />
                     <span>Chiqish</span>
@@ -828,44 +813,44 @@ export const ProfileScreen: React.FC = () => {
         {activeProfileTab === 3 && (
           <div className="space-y-3 pt-1">
             <div>
-              <h3 className="text-base font-extrabold text-[#1D1B20]">Reyting</h3>
-              <p className="text-xs text-[#757575]">Birga o‘rganamiz, birga o‘samiz</p>
+              <h3 className="text-base font-bold text-[#212121]">Reyting</h3>
+              <p className="text-xs text-[#616161]">Birga o‘rganamiz, birga o‘samiz</p>
             </div>
 
-            <div className="p-3.5 rounded-2xl bg-[#E8F8EE] border border-[#27AE60]/30 shadow-xs flex items-center gap-2.5">
-              <TrendingUp className="w-5 h-5 text-[#27AE60] shrink-0" />
-              <p className="text-xs text-[#2E7D32] font-semibold leading-relaxed">
+            <div className="p-3.5 rounded-xl bg-[#E0F2F1] border border-[#B2DFDB] shadow-2xs flex items-center gap-2.5">
+              <TrendingUp className="w-5 h-5 text-[#00897B] shrink-0" />
+              <p className="text-xs text-[#00695C] font-medium leading-relaxed">
                 Kuchli uchlikka yana 40 XP! O‘z sur‘atingizda davom eting, {userName}.
               </p>
             </div>
 
             <TalkMeCard className="p-4 space-y-3">
-              <span className="text-[11px] font-black uppercase tracking-wider text-[#5E4B8B]">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-[#3949AB]">
                 A2 BILIMDONLARI · 20 O‘QUVCHI
               </span>
 
-              <div className="space-y-2 pt-1 divide-y divide-[#F0EFF5]">
+              <div className="space-y-2 pt-1 divide-y divide-[#E0E4EC]">
                 {leaderboardUsers.map((u) => (
                   <div
                     key={u.rank}
                     className={`pt-2 flex items-center justify-between ${
-                      u.isUser ? 'bg-[#F1EDFA]/50 -mx-2 px-2 py-1.5 rounded-xl' : ''
+                      u.isUser ? 'bg-[#E8EAF6] -mx-2 px-2 py-1.5 rounded-lg' : ''
                     }`}
                   >
                     <div className="flex items-center gap-3">
                       <span
-                        className={`text-sm font-black w-6 ${
-                          u.isUser ? 'text-[#5E4B8B]' : 'text-[#757575]'
+                        className={`text-sm font-bold w-6 ${
+                          u.isUser ? 'text-[#3949AB]' : 'text-[#616161]'
                         }`}
                       >
                         #{u.rank}
                       </span>
 
                       <div
-                        className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-black ${
+                        className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold ${
                           u.isUser
-                            ? 'bg-[#5E4B8B] text-white'
-                            : 'bg-[#F0EFF5] text-[#1D1B20]'
+                            ? 'bg-[#3949AB] text-white'
+                            : 'bg-[#F5F6FA] text-[#212121] border border-[#E0E4EC]'
                         }`}
                       >
                         {u.name.charAt(0)}
@@ -873,7 +858,7 @@ export const ProfileScreen: React.FC = () => {
 
                       <span
                         className={`text-sm ${
-                          u.isUser ? 'font-black text-[#5E4B8B]' : 'font-bold text-[#1D1B20]'
+                          u.isUser ? 'font-bold text-[#3949AB]' : 'font-semibold text-[#212121]'
                         }`}
                       >
                         {u.name}
@@ -882,8 +867,8 @@ export const ProfileScreen: React.FC = () => {
 
                     <TalkMeBadge
                       text={u.xp}
-                      containerColor={u.isUser ? 'bg-[#5E4B8B]' : 'bg-[#F0EFF5]'}
-                      textColor={u.isUser ? 'text-white' : 'text-[#757575]'}
+                      containerColor={u.isUser ? 'bg-[#3949AB]' : 'bg-[#F5F6FA]'}
+                      textColor={u.isUser ? 'text-white' : 'text-[#616161]'}
                     />
                   </div>
                 ))}
@@ -898,43 +883,43 @@ export const ProfileScreen: React.FC = () => {
         {activeProfileTab === 4 && (
           <div className="space-y-3 pt-1">
             <div>
-              <h3 className="text-base font-extrabold text-[#1D1B20]">
+              <h3 className="text-base font-bold text-[#212121]">
                 Ovozli AI Engine & Model Sozlamalari
               </h3>
-              <p className="text-xs text-[#757575]">
+              <p className="text-xs text-[#616161]">
                 TTS dvigatellari, modellar va ovoz tezligini boshqarish
               </p>
             </div>
 
-            <div className="rounded-3xl p-5 bg-[#F1EDFA] border border-[#5E4B8B]/20 shadow-xs space-y-4">
+            <div className="rounded-xl p-5 bg-white border border-[#E0E4EC] shadow-2xs space-y-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <h4 className="text-sm font-extrabold text-[#5E4B8B]">
+                  <h4 className="text-sm font-bold text-[#3949AB]">
                     Aktiv Dvigatel: Gemini 3.8 Flash TTS
                   </h4>
-                  <p className="text-xs text-[#757575]">
+                  <p className="text-xs text-[#616161]">
                     Tabiiy mobil AI ovoz (24kHz WAV · en-US)
                   </p>
                 </div>
 
                 <TalkMeBadge
                   text="GEMINI 3.8"
-                  containerColor="bg-[#E8F8EE]"
-                  textColor="text-[#27AE60]"
+                  containerColor="bg-[#E0F2F1]"
+                  textColor="text-[#00897B]"
                 />
               </div>
 
               {/* Speed slider */}
               <div className="space-y-2">
                 <div className="flex items-center justify-between text-xs">
-                  <span className="font-bold text-[#1D1B20]">
+                  <span className="font-semibold text-[#212121]">
                     Ovoz tezligi: {voiceSettings.speechSpeed.toFixed(2)}x
                   </span>
 
                   <button
                     onClick={() => playTts('Welcome to TalkMe English learning platform!')}
                     type="button"
-                    className="px-3 py-1 rounded-full bg-[#5E4B8B] text-white font-bold flex items-center gap-1.5 hover:bg-[#4E3D75] transition-colors cursor-pointer text-xs"
+                    className="px-3 py-1.5 rounded-lg bg-[#3949AB] text-white font-semibold flex items-center gap-1.5 hover:bg-[#283593] transition-colors cursor-pointer text-xs"
                   >
                     <Volume2 className="w-3.5 h-3.5" />
                     <span>Eshitish</span>
@@ -948,7 +933,7 @@ export const ProfileScreen: React.FC = () => {
                   step="0.05"
                   value={voiceSettings.speechSpeed}
                   onChange={(e) => updateVoiceSettings({ speechSpeed: parseFloat(e.target.value) })}
-                  className="w-full accent-[#5E4B8B] cursor-pointer"
+                  className="w-full accent-[#3949AB] cursor-pointer"
                 />
               </div>
             </div>
@@ -970,12 +955,6 @@ export const ProfileScreen: React.FC = () => {
           </div>
         )}
       </div>
-
-      {/* TOPIC DETAILS MODAL */}
-      <TopicDetailsModal
-        topic={selectedTopicForModal}
-        onClose={() => setSelectedTopicForModal(null)}
-      />
 
       <TalkMeBottomBar
         selectedTab={3}

@@ -1,3 +1,5 @@
+export type SkillPracticeType = 'listening' | 'speaking' | 'reading' | 'writing';
+
 export type ScreenRoute =
   | 'splash'
   | 'onboarding'
@@ -5,6 +7,9 @@ export type ScreenRoute =
   | 'courses'
   | 'course_levels'
   | 'lesson_detail'
+  | 'topic_detail'
+  | 'skill_practice'
+  | 'practice_center'
   | 'quiz'
   | 'lesson_result'
   | 'level_unlocked'

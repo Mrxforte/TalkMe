@@ -9,6 +9,7 @@ import {
   CloudSyncStatus,
   LearnedWordItem,
   MasteredRuleItem,
+  SkillPracticeType,
 } from '../types';
 import { INITIAL_VOCABULARY } from '../domain/fsrs/defaultVocab';
 import { defaultFsrsScheduler } from '../domain/fsrs/fsrsEngine';
@@ -61,11 +62,19 @@ interface AppContextType {
   screenHistory: ScreenRoute[];
   selectedCourseId: string;
   selectedLevelId: string;
+  selectedTopicId: string;
+  selectedSkillType: SkillPracticeType;
   selectedFrameworkLessonId: string;
   setSelectedFrameworkLessonId: (lessonId: string) => void;
   navigate: (
     screen: ScreenRoute,
-    params?: { courseId?: string; levelId?: string; lessonId?: string }
+    params?: {
+      courseId?: string;
+      levelId?: string;
+      lessonId?: string;
+      topicId?: string;
+      skillType?: SkillPracticeType;
+    }
   ) => void;
   goBack: () => void;
 
@@ -179,6 +188,8 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const [screenHistory, setScreenHistory] = useState<ScreenRoute[]>(['home']);
   const [selectedCourseId, setSelectedCourseId] = useState<string>('grammar_fundamentals');
   const [selectedLevelId, setSelectedLevelId] = useState<string>('lvl_1');
+  const [selectedTopicId, setSelectedTopicId] = useState<string>('topic_hello_a0');
+  const [selectedSkillType, setSelectedSkillType] = useState<SkillPracticeType>('listening');
   const [selectedFrameworkLessonId, setSelectedFrameworkLessonId] = useState<string>(() => {
     const saved = localStorage.getItem('talkme_selected_framework_lesson_id');
     return saved || 'lesson_01_hello_a0';
@@ -627,11 +638,19 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
   const navigate = (
     screen: ScreenRoute,
-    params?: { courseId?: string; levelId?: string; lessonId?: string }
+    params?: {
+      courseId?: string;
+      levelId?: string;
+      lessonId?: string;
+      topicId?: string;
+      skillType?: SkillPracticeType;
+    }
   ) => {
     if (params?.courseId) setSelectedCourseId(params.courseId);
     if (params?.levelId) setSelectedLevelId(params.levelId);
     if (params?.lessonId) setSelectedFrameworkLessonId(params.lessonId);
+    if (params?.topicId) setSelectedTopicId(params.topicId);
+    if (params?.skillType) setSelectedSkillType(params.skillType);
     setScreenHistory((prev) => [...prev, screen]);
     setCurrentScreen(screen);
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -912,6 +931,8 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         screenHistory,
         selectedCourseId,
         selectedLevelId,
+        selectedTopicId,
+        selectedSkillType,
         selectedFrameworkLessonId,
         setSelectedFrameworkLessonId,
         navigate,

@@ -72,6 +72,29 @@ async function startServer() {
     });
   });
 
+  // Server-side Freemium Subscription Entitlement check
+  let activeServerTier: 'FREE' | 'PREMIUM' = 'PREMIUM';
+  app.get('/api/subscription/status', (req, res) => {
+    const headerTier = req.headers['x-talkme-tier'];
+    const tier = headerTier === 'FREE' ? 'FREE' : activeServerTier;
+    res.json({
+      tier,
+      geminiEntitled: tier === 'PREMIUM' && Boolean(process.env.GEMINI_API_KEY),
+      fallbackProvider: 'native-web-speech',
+    });
+  });
+
+  app.post('/api/subscription/status', (req, res) => {
+    const { tier } = req.body || {};
+    if (tier === 'FREE' || tier === 'PREMIUM') {
+      activeServerTier = tier;
+    }
+    res.json({
+      tier: activeServerTier,
+      geminiEntitled: activeServerTier === 'PREMIUM' && Boolean(process.env.GEMINI_API_KEY),
+    });
+  });
+
   // Single-speaker & Multi-speaker Gemini 3.8 TTS endpoint
   app.post('/api/tts', async (req, res) => {
     const startTime = Date.now();
