@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Volume2, CheckCircle2, BookOpen, Sparkles, ArrowRight } from 'lucide-react';
+import { CheckCircle2, BookOpen, Sparkles, ArrowRight } from 'lucide-react';
 import { useApp } from '../../../context/AppContext';
 import { globalKnowledgeTracker } from '../../../knowledge/domain/services/GlobalKnowledgeTracker';
 import { subtopicProgressEngine } from '../../../engines/subtopic-engine/subtopicProgressEngine';
@@ -20,28 +20,6 @@ export const EnglishFundamentalsKirishView: React.FC<EnglishFundamentalsKirishVi
   const [isCompleted, setIsCompleted] = useState(() => {
     return subtopicProgressEngine.getRecord('ef_01_kirish').isCompleted;
   });
-  const [isReadingAudio, setIsReadingAudio] = useState(false);
-
-  const handlePlayUzbekExplanation = () => {
-    if (typeof window === 'undefined' || !('speechSynthesis' in window)) return;
-    window.speechSynthesis.cancel();
-
-    if (isReadingAudio) {
-      setIsReadingAudio(false);
-      return;
-    }
-
-    const fullText = `${KIRISH_EXPLANATION_PARAGRAPH_1} ${KIRISH_EXPLANATION_PARAGRAPH_2}`;
-    const utterance = new SpeechSynthesisUtterance(fullText);
-    utterance.lang = 'uz-UZ';
-    utterance.rate = 0.95;
-
-    utterance.onend = () => setIsReadingAudio(false);
-    utterance.onerror = () => setIsReadingAudio(false);
-
-    setIsReadingAudio(true);
-    window.speechSynthesis.speak(utterance);
-  };
 
   const handleFinishLesson = () => {
     subtopicProgressEngine.completeSubtopicWrapUp('ef_01_kirish', true);
@@ -104,24 +82,10 @@ export const EnglishFundamentalsKirishView: React.FC<EnglishFundamentalsKirishVi
 
       {/* 2. EXACT MAIN LEARNING EXPLANATION CARD */}
       <div className="p-5 sm:p-6 rounded-2xl bg-white border border-[#E0E4EC] shadow-[0_1px_4px_rgba(0,0,0,0.05)] space-y-5">
-        <div className="flex items-center justify-between border-b border-[#E0E4EC] pb-3">
+        <div className="border-b border-[#E0E4EC] pb-3">
           <h2 className="text-base sm:text-lg font-bold text-[#212121]">
             Kirish
           </h2>
-
-          <button
-            type="button"
-            onClick={handlePlayUzbekExplanation}
-            className={`px-3 py-1.5 rounded-xl border text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer ${
-              isReadingAudio
-                ? 'bg-[#00897B] text-white border-[#00897B]'
-                : 'bg-[#F5F6FA] text-[#3949AB] border-[#E0E4EC] hover:bg-[#E8EAF6]'
-            }`}
-            title="Dars matnini ovozli tinglash"
-          >
-            <Volume2 className="w-4 h-4" />
-            <span>{isReadingAudio ? 'To‘xtatish' : 'Ovozli tinglash'}</span>
-          </button>
         </div>
 
         {/* Paragraph 1 */}

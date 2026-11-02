@@ -194,7 +194,13 @@ export class NativeSpeechProvider implements SpeechProvider {
       .replace(/<breath>|<laugh>|<gasp>|\|yeah\||\|mhm\|/gi, '')
       .trim();
 
-    if (!cleanText) {
+    const isUzbek =
+      /[oOgG][‘'`ʼ]/.test(cleanText) ||
+      /\b(va|bilan|uchun|haqida|hamda|kerak|emas|bo‘lib|bo'lib|bo‘ladi|bo'ladi|birlari|tushuncha|o‘rganamiz|o'rganamiz|so‘zlar|so'zlar|gaplar|harflar|dars|daraja|dasturi|muloqot|insonlarning|yordam|beradi|til|o‘quvchi|o'quvchi|kitob|maktab|yozing|tanlang|mashq|qoida|qoidalar|lug‘at|lug'at|tarjima)\b/i.test(
+        cleanText
+      );
+
+    if (!cleanText || isUzbek) {
       options.onEnd?.();
       return { providerUsed: 'native-web-speech', voiceName: 'Default', latencyMs: 0, cached: false };
     }

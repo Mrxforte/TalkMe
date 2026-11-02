@@ -7,6 +7,17 @@ export interface DialogueTurn {
   style?: string;
 }
 
+/**
+ * Strict guard: TalkMe is an English learning platform; speaker TTS must ONLY pronounce English.
+ * Uzbek explanations, definitions, and translations must never be voiced by TTS.
+ */
+export function isUzbekLanguageText(text: string): boolean {
+  if (!text) return false;
+  if (/[oOgG][‘'`ʼ]/.test(text)) return true;
+  const uzbekWords = /\b(va|bilan|uchun|haqida|hamda|kerak|emas|bo‘lib|bo'lib|bo‘ladi|bo'ladi|birlari|tushuncha|o‘rganamiz|o'rganamiz|so‘zlar|so'zlar|gaplar|harflar|dars|daraja|dasturi|muloqot|insonlarning|yordam|beradi|til|o‘quvchi|o'quvchi|kitob|maktab|yozing|tanlang|mashq|qoida|qoidalar|lug‘at|lug'at|tarjima)\b/i;
+  return uzbekWords.test(text);
+}
+
 class TtsEngine {
   private currentUtterance: SpeechSynthesisUtterance | null = null;
   private currentAudio: HTMLAudioElement | null = null;
@@ -309,6 +320,8 @@ class TtsEngine {
     customStylePrompt?: string
   ): Promise<boolean> {
     if (!text || !text.trim()) return false;
+    // Strict guard: Uzbek text must never be voiced by speaker TTS across the application
+    if (isUzbekLanguageText(text)) return false;
 
     this.stop();
 
