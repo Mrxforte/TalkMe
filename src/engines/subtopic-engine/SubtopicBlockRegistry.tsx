@@ -13,6 +13,7 @@ import {
 } from '../../shared/components/speakable/SpeakableComponents';
 import { speechManager } from '../tts-engine/speechArchitecture';
 import { subtopicProgressEngine } from './subtopicProgressEngine';
+import { globalKnowledgeTracker } from '../../knowledge/domain/services/GlobalKnowledgeTracker';
 import {
   Volume2,
   CheckCircle2,
@@ -71,7 +72,25 @@ export const HighlightedSpeakableSentence: React.FC<{
                   <button
                     key={idx}
                     type="button"
-                    onClick={() => speechManager.speakEnglish(clean || tok)}
+                    onClick={() => {
+                      speechManager.speakEnglish(clean || tok);
+                      if (isTarget && clean) {
+                        globalKnowledgeTracker.emitEvent({
+                          eventType: 'VOCABULARY_PRACTICED',
+                          knowledgeId: clean,
+                          source: {
+                            courseId: 'nouns',
+                            activityType: 'vocabulary_card',
+                          },
+                          metadata: {
+                            word: clean,
+                            exampleEn: sentence,
+                            exampleUz: translationUz,
+                          },
+                          dedupeWindowKey: `highlight_tap_${clean}_${Date.now()}`,
+                        });
+                      }
+                    }}
                     title="Talaffuzni eshitish uchun bosing"
                     className={`px-1 py-0.5 rounded transition-colors cursor-pointer ${
                       isTarget
@@ -842,11 +861,11 @@ export const SubtopicBlockRenderer: React.FC<{
             </div>
           )}
 
-          {/* Progressive Disclosure by Learner Level */}
+          {/* Progressive Disclosure ("Bilish foydali") */}
           {block.progressiveDisclosure && (
             <div className="p-3 rounded-xl bg-[#F5F6FA] border border-[#E0E4EC] space-y-1">
               <div className="text-[11px] font-bold uppercase text-[#3949AB]">
-                Darajaga mos maslahat ({learnerLevel}):
+                💡 Bilish foydali:
               </div>
               {learnerLevel === 'A0-A1' && block.progressiveDisclosure.beginnerNoteUz && (
                 <p className="text-xs text-[#212121]">
@@ -1004,6 +1023,41 @@ export const SubtopicBlockRenderer: React.FC<{
       return (
         <div className="p-4 rounded-xl bg-white border border-[#E0E4EC] shadow-2xs space-y-3">
           <h4 className="text-sm font-bold text-[#212121]">⚖️ {block.titleUz}</h4>
+
+          {block.comparisonRows && block.comparisonRows.length > 0 && (
+            <div className="overflow-x-auto rounded-xl border border-[#E0E4EC]">
+              <table className="w-full text-left border-collapse text-xs">
+                <thead>
+                  <tr className="bg-[#E8EAF6] text-[#3949AB] font-bold">
+                    <th className="p-2.5 border-b border-[#C5CAE9]">Turi / Vazifasi</th>
+                    <th className="p-2.5 border-b border-[#C5CAE9]">So‘rog‘i yoki Qoidasi</th>
+                    <th className="p-2.5 border-b border-[#C5CAE9]">Inglizcha Misol (Bosing)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {block.comparisonRows.map((row, rIdx) => (
+                    <tr
+                      key={rIdx}
+                      className="border-b border-[#E0E4EC] last:border-b-0 odd:bg-white even:bg-[#F5F6FA]"
+                    >
+                      <td className="p-2.5 font-bold text-[#212121] align-top">
+                        {row.categoryUz}
+                      </td>
+                      <td className="p-2.5 text-[#616161] align-top">{row.questionOrRuleUz}</td>
+                      <td className="p-2.5 align-top">
+                        <SpeakableWord
+                          word={row.exampleEn}
+                          translationUz={row.exampleUz}
+                          className="text-xs"
+                        />
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div className="p-3 rounded-xl bg-[#E0F2F1] border border-[#00897B] space-y-1.5">
               <div className="text-xs font-bold text-[#00695C] flex items-center gap-1">

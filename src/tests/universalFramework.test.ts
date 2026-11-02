@@ -187,26 +187,41 @@ export function runUniversalFrameworkVerificationSuite(): {
     nounsPathValid.success && numbersPathValid.success
   );
 
-  // 10. Verify Universal Subtopic Framework: Nouns Major Topic has 6 Subtopics & all validate via Zod
+  // 10. Verify Universal Subtopic Framework: Nouns Major Topic has 18 Subtopics & all validate via Zod
   const nounsMajorTopic = MAJOR_TOPICS_CATALOG.find((m) => m.id === 'nouns');
   const allSubtopicsValid = Object.values(SUBTOPICS_REPOSITORY).every(
     (s) => validateSubtopicSafe(s).success
   );
+  const all18NounsPresentAndValid = Boolean(
+    nounsMajorTopic &&
+      nounsMajorTopic.subtopicIds.length === 18 &&
+      nounsMajorTopic.subtopicIds.every((id) => {
+        const sub = SUBTOPICS_REPOSITORY[id];
+        return (
+          sub &&
+          validateSubtopicSafe(sub).success &&
+          sub.sections.length === 7 &&
+          sub.sections.every((sec) => sec.blocks.every((b) => validateBlockSafe(b).known))
+        );
+      })
+  );
   assert(
-    'Major Topic Nouns contains 6 Subtopics and all Subtopic micro-courses pass Zod validation',
-    Boolean(nounsMajorTopic && nounsMajorTopic.subtopicIds.length === 6 && allSubtopicsValid)
+    'Major Topic Nouns contains all 18 Subtopics and all 18 Subtopic micro-courses pass Zod validation',
+    all18NounsPresentAndValid && allSubtopicsValid
   );
 
-  // 11. Verify Reference Subtopic "what_is_a_noun" 7-Stage Flow & Content Completeness
-  const whatIsNoun = SUBTOPICS_REPOSITORY.what_is_a_noun;
-  const allBlocksValidInWhatIsNoun = whatIsNoun.sections.every((sec) =>
-    sec.blocks.every((b) => validateBlockSafe(b).known)
-  );
+  // 11. Verify Subtopic 01 ("noun_01_what_is_a_noun") & Subtopic 18 ("noun_18_complete_review") 7-Stage Flow
+  const whatIsNoun = SUBTOPICS_REPOSITORY.noun_01_what_is_a_noun;
+  const reviewNoun = SUBTOPICS_REPOSITORY.noun_18_complete_review;
+  const allBlocksValidInWhatIsNoun =
+    whatIsNoun.sections.every((sec) => sec.blocks.every((b) => validateBlockSafe(b).known)) &&
+    reviewNoun.sections.every((sec) => sec.blocks.every((b) => validateBlockSafe(b).known));
   assert(
-    'Reference Subtopic "what_is_a_noun" has 7 mandatory stages and all content blocks pass schema validation',
+    'Subtopic 01 ("What is a Noun?") and Subtopic 18 ("Complete Review") have 7 mandatory stages and valid content blocks',
     whatIsNoun.sections.length === 7 &&
+      reviewNoun.sections.length === 7 &&
       whatIsNoun.sections[0].type === 'introduction' &&
-      whatIsNoun.sections[6].type === 'wrap_up' &&
+      reviewNoun.sections[6].type === 'wrap_up' &&
       allBlocksValidInWhatIsNoun
   );
 

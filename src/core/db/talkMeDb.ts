@@ -59,12 +59,41 @@ export interface StoredContentPack {
   installedAt: number;
 }
 
+export interface StoredVocabularyKnowledgeRecord {
+  id: string;
+  normalizedWord: string;
+  language: string;
+  status: 'discovered' | 'learning' | 'learned' | 'mastered';
+  masteryScore: number;
+  updatedAt: number;
+  jsonPayload: string;
+}
+
+export interface StoredGrammarKnowledgeRecord {
+  id: string;
+  ruleKey: string;
+  status: 'discovered' | 'learning' | 'learned' | 'mastered';
+  masteryScore: number;
+  updatedAt: number;
+  jsonPayload: string;
+}
+
+export interface StoredProcessedKnowledgeEvent {
+  eventId: string;
+  eventType: string;
+  knowledgeId: string;
+  timestamp: number;
+}
+
 export class TalkMeLocalDatabase extends Dexie {
   lessonProgress!: Table<StoredLessonProgress, string>;
   practiceProgress!: Table<StoredPracticeNodeProgress, string>;
   knowledgeStates!: Table<StoredKnowledgeState, string>;
   audioCache!: Table<StoredAudioCacheEntry, string>;
   contentPacks!: Table<StoredContentPack, string>;
+  vocabularyKnowledge!: Table<StoredVocabularyKnowledgeRecord, string>;
+  grammarKnowledge!: Table<StoredGrammarKnowledgeRecord, string>;
+  processedKnowledgeEvents!: Table<StoredProcessedKnowledgeEvent, string>;
 
   constructor() {
     super('TalkMeOfflineDB_v1');
@@ -75,24 +104,41 @@ export class TalkMeLocalDatabase extends Dexie {
       audioCache: 'cacheKey, provider, voiceName, createdAt',
       contentPacks: 'packId, schemaVersion, installedAt',
     });
+    this.version(2).stores({
+      lessonProgress: 'lessonId, subtopicId, majorTopicId, completed, updatedAt',
+      practiceProgress: 'id, practicePathId, exerciseId, unlocked, completed',
+      knowledgeStates: 'knowledgeId, domain, topicId, subtopicId, masteryScore, nextReviewAt',
+      audioCache: 'cacheKey, provider, voiceName, createdAt',
+      contentPacks: 'packId, schemaVersion, installedAt',
+      vocabularyKnowledge: 'id, normalizedWord, status, masteryScore, updatedAt',
+      grammarKnowledge: 'id, ruleKey, status, masteryScore, updatedAt',
+      processedKnowledgeEvents: 'eventId, eventType, knowledgeId, timestamp',
+    });
   }
 }
 
 export const talkMeDb = new TalkMeLocalDatabase();
 
 export async function exportLocalLearningSnapshot(): Promise<string> {
-  const [lessons, practices, knowledge] = await Promise.all([
-    talkMeDb.lessonProgress.toArray(),
-    talkMeDb.practiceProgress.toArray(),
-    talkMeDb.knowledgeStates.toArray(),
-  ]);
+  const [lessons, practices, knowledge, vocabKnowledge, grammarKnowledge, events] =
+    await Promise.all([
+      talkMeDb.lessonProgress.toArray(),
+      talkMeDb.practiceProgress.toArray(),
+      talkMeDb.knowledgeStates.toArray(),
+      talkMeDb.vocabularyKnowledge.toArray(),
+      talkMeDb.grammarKnowledge.toArray(),
+      talkMeDb.processedKnowledgeEvents.toArray(),
+    ]);
   return JSON.stringify(
     {
       exportedAt: Date.now(),
-      schemaVersion: '1.0.0',
+      schemaVersion: '2.0.0',
       lessons,
       practices,
       knowledge,
+      vocabKnowledge,
+      grammarKnowledge,
+      events,
     },
     null,
     2
@@ -110,6 +156,15 @@ export async function importLocalLearningSnapshot(jsonString: string): Promise<b
     }
     if (Array.isArray(parsed.knowledge)) {
       await talkMeDb.knowledgeStates.bulkPut(parsed.knowledge);
+    }
+    if (Array.isArray(parsed.vocabKnowledge)) {
+      await talkMeDb.vocabularyKnowledge.bulkPut(parsed.vocabKnowledge);
+    }
+    if (Array.isArray(parsed.grammarKnowledge)) {
+      await talkMeDb.grammarKnowledge.bulkPut(parsed.grammarKnowledge);
+    }
+    if (Array.isArray(parsed.events)) {
+      await talkMeDb.processedKnowledgeEvents.bulkPut(parsed.events);
     }
     return true;
   } catch {

@@ -8,10 +8,11 @@ import {
   BookOpen,
   Edit3,
   ChevronRight,
-  Layers,
-  Check,
+  Play,
 } from 'lucide-react';
 import { TOPIC_LEARNING_GROUPS } from '../domain/learning/topicCatalog';
+import { NOUNS_18_SUBTOPIC_IDS } from '../content/registry/subtopicsCatalog';
+import { subtopicProgressEngine } from '../engines/subtopic-engine/subtopicProgressEngine';
 
 export const HomeScreen: React.FC = () => {
   const {
@@ -20,12 +21,48 @@ export const HomeScreen: React.FC = () => {
     dailyStats,
     uniqueLearnedWordsCount,
     masteredGrammarRulesCount,
+    completedLevelIds,
     navigate,
     currentUser,
     userPhotoURL,
     setActiveProfileTab,
-    userLearnedWords,
   } = useApp();
+
+  // Determine whether the user is entering for the first time or has ongoing progress
+  const subtopicRecords = NOUNS_18_SUBTOPIC_IDS.map((id) =>
+    subtopicProgressEngine.getRecord(id)
+  );
+  const hasAnySubtopicActivity = subtopicRecords.some(
+    (rec) =>
+      rec.isCompleted ||
+      rec.currentStageNumber > 1 ||
+      rec.completedStageNumbers.length > 0 ||
+      rec.explanationViewed ||
+      rec.examplesViewed ||
+      rec.guidedPracticeCompleted ||
+      rec.assessmentAttempts > 0
+  );
+
+  const hasStartedLearning =
+    completedLevelIds.length > 0 ||
+    hasAnySubtopicActivity ||
+    uniqueLearnedWordsCount > 0 ||
+    masteredGrammarRulesCount > 0;
+
+  // Find exact lesson index the user is currently on (0..17)
+  const firstUncompletedIndex = NOUNS_18_SUBTOPIC_IDS.findIndex((_id, idx) => {
+    const levelId = `nouns_level_${idx + 1}`;
+    const rec = subtopicRecords[idx];
+    return !completedLevelIds.includes(levelId) && !rec.isCompleted;
+  });
+
+  const currentLessonIndex =
+    firstUncompletedIndex === -1
+      ? NOUNS_18_SUBTOPIC_IDS.length - 1
+      : firstUncompletedIndex;
+  const currentLessonNumber = currentLessonIndex + 1;
+  const currentLevelId = `nouns_level_${currentLessonNumber}`;
+  const currentSubtopicId = NOUNS_18_SUBTOPIC_IDS[currentLessonIndex];
 
   const listeningCount = TOPIC_LEARNING_GROUPS.reduce(
     (sum, t) => sum + (t.skillItems.listening?.length || 0),
@@ -44,8 +81,18 @@ export const HomeScreen: React.FC = () => {
     0
   );
 
+  const handlePlayCurrentLesson = () => {
+    navigate('lesson_detail', {
+      courseId: 'nouns',
+      levelId: hasStartedLearning ? currentLevelId : 'nouns_level_1',
+      lessonId: hasStartedLearning
+        ? currentSubtopicId
+        : NOUNS_18_SUBTOPIC_IDS[0],
+    });
+  };
+
   return (
-    <div className="min-h-screen bg-[#F5F6FA] pb-24 text-[#212121]">
+    <div className="min-h-screen bg-[#F5F6FA] pb-28 text-[#212121]">
       <div className="max-w-3xl mx-auto px-4 sm:px-6 pt-4 space-y-6">
         {/* 1. MATERIAL 2 TOP APP BAR */}
         <header className="flex items-center justify-between py-2.5 border-b border-[#E0E4EC]">
@@ -89,208 +136,61 @@ export const HomeScreen: React.FC = () => {
               onClick={() => navigate('voice_studio')}
               type="button"
               className="w-11 h-11 rounded-lg bg-white border border-[#E0E4EC] text-[#3949AB] flex items-center justify-center hover:bg-[#E8EAF6] transition-colors cursor-pointer"
-              title="Voice Studio"
+              title="Ovoz studiyasi"
             >
               <Mic className="w-5 h-5" />
             </button>
           </div>
         </header>
 
-        {/* 2. PRIMARY METRICS SUMMARY (Learned Words & Mastered Rules) */}
-        <section className="space-y-3">
-          <div>
-            <h1 className="text-xl font-bold text-[#212121] tracking-tight">
-              O‘quv ko‘rsatkichlari
-            </h1>
-            <p className="text-xs text-[#616161] mt-0.5">
-              O‘zlashtirilgan so‘zlar va grammatika qoidalari hisoboti
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        {/* 2. PRIMARY METRICS SUMMARY (Learned Words & Mastered Rules in a Single Row) */}
+        <section>
+          <div className="grid grid-cols-2 gap-2.5 sm:gap-3">
             <button
               type="button"
-              onClick={() => {
-                setActiveProfileTab(0);
-                navigate('profile');
-              }}
-              className="rounded-xl bg-white border border-[#E0E4EC] p-4 text-left shadow-[0_1px_3px_rgba(0,0,0,0.05)] cursor-pointer hover:border-[#3949AB] transition-all flex items-center justify-between group"
+              onClick={() => navigate('learned_words')}
+              className="rounded-xl bg-white border border-[#E0E4EC] p-3.5 sm:p-4 text-left shadow-[0_1px_3px_rgba(0,0,0,0.05)] cursor-pointer hover:border-[#3949AB] transition-all flex items-center justify-between gap-2 group"
             >
-              <div>
-                <span className="text-xs font-semibold text-[#616161]">
+              <div className="min-w-0">
+                <span className="text-xs font-semibold text-[#616161] block truncate">
                   Yodlangan noyob so‘zlar
                 </span>
-                <p className="text-2xl font-bold text-[#3949AB] mt-1 tabular-nums">
+                <p className="text-xl sm:text-2xl font-bold text-[#3949AB] mt-1 tabular-nums">
                   {uniqueLearnedWordsCount} ta so‘z
                 </p>
-                <span className="text-xs text-[#00897B] font-medium mt-1 inline-block">
-                  Mavzular bo‘yicha ko‘rish
+                <span className="text-[11px] sm:text-xs text-[#00897B] font-medium mt-1 inline-block truncate">
+                  Ochilgan so‘zlarni ko‘rish
                 </span>
               </div>
-              <div className="w-10 h-10 rounded-lg bg-[#E8EAF6] text-[#3949AB] flex items-center justify-center group-hover:bg-[#3949AB] group-hover:text-white transition-colors">
-                <ChevronRight className="w-5 h-5" />
+              <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg bg-[#E8EAF6] text-[#3949AB] flex items-center justify-center shrink-0 group-hover:bg-[#3949AB] group-hover:text-white transition-colors">
+                <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5" />
               </div>
             </button>
 
             <button
               type="button"
-              onClick={() => {
-                setActiveProfileTab(1);
-                navigate('profile');
-              }}
-              className="rounded-xl bg-white border border-[#E0E4EC] p-4 text-left shadow-[0_1px_3px_rgba(0,0,0,0.05)] cursor-pointer hover:border-[#3949AB] transition-all flex items-center justify-between group"
+              onClick={() => navigate('mastered_rules')}
+              className="rounded-xl bg-white border border-[#E0E4EC] p-3.5 sm:p-4 text-left shadow-[0_1px_3px_rgba(0,0,0,0.05)] cursor-pointer hover:border-[#3949AB] transition-all flex items-center justify-between gap-2 group"
             >
-              <div>
-                <span className="text-xs font-semibold text-[#616161]">
+              <div className="min-w-0">
+                <span className="text-xs font-semibold text-[#616161] block truncate">
                   O‘zlashtirilgan qoidalar
                 </span>
-                <p className="text-2xl font-bold text-[#00897B] mt-1 tabular-nums">
+                <p className="text-xl sm:text-2xl font-bold text-[#00897B] mt-1 tabular-nums">
                   {masteredGrammarRulesCount} ta qoida
                 </p>
-                <span className="text-xs text-[#3949AB] font-medium mt-1 inline-block">
-                  Qoidalar ro‘yxatini ko‘rish
+                <span className="text-[11px] sm:text-xs text-[#3949AB] font-medium mt-1 inline-block truncate">
+                  Ochilgan qoidalarni ko‘rish
                 </span>
               </div>
-              <div className="w-10 h-10 rounded-lg bg-[#E0F2F1] text-[#00897B] flex items-center justify-center group-hover:bg-[#00897B] group-hover:text-white transition-colors">
-                <ChevronRight className="w-5 h-5" />
+              <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg bg-[#E0F2F1] text-[#00897B] flex items-center justify-center shrink-0 group-hover:bg-[#00897B] group-hover:text-white transition-colors">
+                <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5" />
               </div>
             </button>
           </div>
         </section>
 
-        {/* 3. PRIMARY CURRICULUM ROADMAP BANNER */}
-        <section className="rounded-xl p-5 bg-[#3949AB] text-white shadow-[0_2px_6px_rgba(57,73,171,0.2)] space-y-4">
-          <div className="flex items-center justify-between text-xs text-white/80 font-medium">
-            <div className="flex items-center gap-2">
-              <span>O‘QUV DASTURI</span>
-              <span aria-hidden="true">·</span>
-              <span>11 BO‘LIM</span>
-            </div>
-            <span className="tabular-nums">86 ta mavzu</span>
-          </div>
-
-          <div>
-            <h2 className="text-lg font-bold text-white">
-              Ingliz Tili O‘quv Yo‘l Xaritasi
-            </h2>
-            <p className="text-xs text-white/85 mt-1 leading-relaxed">
-              Bosqichma-bosqich tuzilgan grammatika va muloqot kurslari. Har bir mavzuni ketma-ket o‘rganib boring.
-            </p>
-          </div>
-
-          <div className="pt-2 flex flex-col sm:flex-row gap-2.5">
-            <button
-              onClick={() =>
-                navigate('lesson_detail', {
-                  lessonId: 'lesson_hello_a0',
-                })
-              }
-              type="button"
-              className="flex-1 min-h-[44px] py-2.5 px-4 rounded-lg bg-white text-[#3949AB] font-bold text-xs flex items-center justify-center gap-2 hover:bg-[#E8EAF6] transition-colors cursor-pointer"
-            >
-              <span>1-Dars: Hello! (A0 Universal Player)</span>
-              <ChevronRight className="w-4 h-4" />
-            </button>
-
-            <button
-              onClick={() => navigate('practice_center')}
-              type="button"
-              className="flex-1 min-h-[44px] py-2.5 px-4 rounded-lg bg-[#00897B] text-white font-semibold text-xs flex items-center justify-center gap-2 hover:bg-[#00695C] transition-colors cursor-pointer"
-            >
-              <span>Practice Center (110 Mashq)</span>
-              <ChevronRight className="w-4 h-4" />
-            </button>
-          </div>
-        </section>
-
-        {/* 4. TOPIC-BASED VOCABULARY & GRAMMAR RULES HUB (Opens Dedicated Full Screen) */}
-        <section className="space-y-3">
-          <div className="flex items-center justify-between">
-            <div>
-              <h2 className="text-base font-bold text-[#212121]">
-                Mavzular bo‘yicha so‘zlar va qoidalar
-              </h2>
-              <p className="text-xs text-[#616161] mt-0.5">
-                Mavzuni tanlang — o‘rganiladigan so‘zlar va qoidalar alohida sahifada ochiladi
-              </p>
-            </div>
-            <button
-              type="button"
-              onClick={() => {
-                setActiveProfileTab(0);
-                navigate('profile');
-              }}
-              className="text-xs text-[#3949AB] font-semibold hover:underline cursor-pointer whitespace-nowrap"
-            >
-              Barchasi
-            </button>
-          </div>
-
-          <div className="space-y-2.5">
-            {TOPIC_LEARNING_GROUPS.map((topic) => {
-              const liveWords = topic.words.map((tw) => {
-                const found = userLearnedWords.find((w) => w.id === tw.id);
-                return found ? { ...tw, status: found.status } : tw;
-              });
-              const learnedInTopic = liveWords.filter((w) => w.status === 'learned').length;
-              const wordsSample = topic.words
-                .slice(0, 4)
-                .map((w) => w.word)
-                .join(', ');
-
-              return (
-                <button
-                  key={topic.id}
-                  type="button"
-                  onClick={() => navigate('topic_detail', { topicId: topic.id })}
-                  className="w-full text-left p-4 rounded-xl bg-white border border-[#E0E4EC] shadow-[0_1px_3px_rgba(0,0,0,0.05)] cursor-pointer hover:border-[#3949AB] transition-all group"
-                >
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="flex items-start gap-3 min-w-0">
-                      <div className="w-11 h-11 rounded-lg bg-[#E8EAF6] text-[#3949AB] flex items-center justify-center shrink-0">
-                        <Layers className="w-5 h-5" />
-                      </div>
-                      <div className="min-w-0">
-                        <div className="flex items-center gap-2 text-xs text-[#616161] font-medium">
-                          <span className="text-[#3949AB] font-semibold">{topic.section}</span>
-                          <span aria-hidden="true">·</span>
-                          <span>Daraja {topic.level}</span>
-                        </div>
-                        <h3 className="text-sm font-bold text-[#212121] mt-0.5 truncate group-hover:text-[#3949AB] transition-colors">
-                          {topic.title}
-                        </h3>
-                        <p className="text-xs text-[#616161] mt-0.5 line-clamp-1">
-                          {topic.subtitle}
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="w-9 h-9 rounded-lg bg-[#F5F6FA] group-hover:bg-[#3949AB] group-hover:text-white flex items-center justify-center text-[#616161] transition-colors shrink-0">
-                      <ChevronRight className="w-4 h-4" />
-                    </div>
-                  </div>
-
-                  <div className="mt-3 pt-2.5 border-t border-[#E0E4EC] flex flex-wrap items-center justify-between gap-2 text-xs text-[#616161]">
-                    <div className="flex items-center gap-2 font-medium tabular-nums">
-                      <span className="text-[#00897B] font-semibold flex items-center gap-1">
-                        <Check className="w-3.5 h-3.5" />
-                        {learnedInTopic}/{topic.words.length} so‘z
-                      </span>
-                      <span aria-hidden="true">·</span>
-                      <span>{topic.rules.length} ta qoida</span>
-                    </div>
-
-                    <span className="text-xs text-[#616161] truncate max-w-[200px]">
-                      So‘zlar: {wordsSample}
-                    </span>
-                  </div>
-                </button>
-              );
-            })}
-          </div>
-        </section>
-
-        {/* 5. ACCUMULATED SKILLS PRACTICE HUB (Opens Dedicated Full Screen) */}
+        {/* 3. ACCUMULATED SKILLS PRACTICE HUB (Opens Dedicated Full Screen) */}
         <section className="space-y-3">
           <div>
             <h2 className="text-base font-bold text-[#212121]">
@@ -301,98 +201,66 @@ export const HomeScreen: React.FC = () => {
             </p>
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
-            {/* Listening */}
-            <button
-              type="button"
-              onClick={() => navigate('skill_practice', { skillType: 'listening' })}
-              className="p-4 rounded-xl bg-white border border-[#E0E4EC] hover:border-[#3949AB] transition-all cursor-pointer shadow-[0_1px_3px_rgba(0,0,0,0.05)] text-left group"
-            >
-              <div className="flex items-center justify-between mb-2.5">
-                <div className="w-10 h-10 rounded-lg bg-[#E8EAF6] text-[#3949AB] flex items-center justify-center">
-                  <Headphones className="w-5 h-5" />
+          <div className="grid grid-cols-2 gap-3 items-stretch">
+            {[
+              {
+                skillType: 'listening' as const,
+                title: 'Tinglash (Listening)',
+                subtitle: 'Mavzular audiosi va talaffuz',
+                badge: `${listeningCount} ta mashq`,
+                Icon: Headphones,
+              },
+              {
+                skillType: 'speaking' as const,
+                title: 'Gapirish (Speaking)',
+                subtitle: 'Ovozli takrorlash mashqlari',
+                badge: `${speakingCount} ta ibora`,
+                Icon: Mic,
+              },
+              {
+                skillType: 'reading' as const,
+                title: 'O‘qish (Reading)',
+                subtitle: 'Dialoglar va qisqa hikoyalar',
+                badge: `${readingCount} ta matn`,
+                Icon: BookOpen,
+              },
+              {
+                skillType: 'writing' as const,
+                title: 'Yozish (Writing)',
+                subtitle: 'S+V+O tartibida gap yig‘ish',
+                badge: `${writingCount} ta gap`,
+                Icon: Edit3,
+              },
+            ].map(({ skillType, title, subtitle, badge, Icon }) => (
+              <button
+                key={skillType}
+                type="button"
+                onClick={() => navigate('skill_practice', { skillType })}
+                className="flex flex-col justify-between h-full min-h-[132px] p-4 rounded-xl bg-white border border-[#E0E4EC] hover:border-[#3949AB] transition-all cursor-pointer shadow-[0_1px_3px_rgba(0,0,0,0.05)] text-left group"
+              >
+                <div className="flex items-center justify-between gap-2 w-full">
+                  <div className="w-10 h-10 rounded-lg bg-[#E8EAF6] text-[#3949AB] group-hover:bg-[#3949AB] group-hover:text-white transition-colors flex items-center justify-center shrink-0">
+                    <Icon className="w-5 h-5" />
+                  </div>
+                  <span className="px-2.5 py-1 rounded-md bg-[#F5F6FA] border border-[#E0E4EC] text-xs font-semibold text-[#3949AB] tabular-nums shrink-0">
+                    {badge}
+                  </span>
                 </div>
-                <span className="text-xs font-semibold text-[#3949AB] tabular-nums">
-                  {listeningCount} ta mashq
-                </span>
-              </div>
-              <p className="text-sm font-bold text-[#212121] group-hover:text-[#3949AB] transition-colors">
-                Tinglash (Listening)
-              </p>
-              <p className="text-xs text-[#616161] mt-0.5">
-                Mavzular audiosi va talaffuz
-              </p>
-            </button>
 
-            {/* Speaking */}
-            <button
-              type="button"
-              onClick={() => navigate('skill_practice', { skillType: 'speaking' })}
-              className="p-4 rounded-xl bg-white border border-[#E0E4EC] hover:border-[#3949AB] transition-all cursor-pointer shadow-[0_1px_3px_rgba(0,0,0,0.05)] text-left group"
-            >
-              <div className="flex items-center justify-between mb-2.5">
-                <div className="w-10 h-10 rounded-lg bg-[#E0F2F1] text-[#00897B] flex items-center justify-center">
-                  <Mic className="w-5 h-5" />
+                <div className="mt-3 space-y-1 w-full min-w-0">
+                  <p className="text-sm font-bold text-[#212121] group-hover:text-[#3949AB] transition-colors truncate">
+                    {title}
+                  </p>
+                  <p className="text-xs text-[#616161] leading-snug line-clamp-2">
+                    {subtitle}
+                  </p>
                 </div>
-                <span className="text-xs font-semibold text-[#00897B] tabular-nums">
-                  {speakingCount} ta ibora
-                </span>
-              </div>
-              <p className="text-sm font-bold text-[#212121] group-hover:text-[#00897B] transition-colors">
-                Gapirish (Speaking)
-              </p>
-              <p className="text-xs text-[#616161] mt-0.5">
-                Ovozli takrorlash mashqlari
-              </p>
-            </button>
-
-            {/* Reading */}
-            <button
-              type="button"
-              onClick={() => navigate('skill_practice', { skillType: 'reading' })}
-              className="p-4 rounded-xl bg-white border border-[#E0E4EC] hover:border-[#3949AB] transition-all cursor-pointer shadow-[0_1px_3px_rgba(0,0,0,0.05)] text-left group"
-            >
-              <div className="flex items-center justify-between mb-2.5">
-                <div className="w-10 h-10 rounded-lg bg-[#E8EAF6] text-[#3949AB] flex items-center justify-center">
-                  <BookOpen className="w-5 h-5" />
-                </div>
-                <span className="text-xs font-semibold text-[#3949AB] tabular-nums">
-                  {readingCount} ta matn
-                </span>
-              </div>
-              <p className="text-sm font-bold text-[#212121] group-hover:text-[#3949AB] transition-colors">
-                O‘qish (Reading)
-              </p>
-              <p className="text-xs text-[#616161] mt-0.5">
-                Dialoglar va qisqa hikoyalar
-              </p>
-            </button>
-
-            {/* Writing */}
-            <button
-              type="button"
-              onClick={() => navigate('skill_practice', { skillType: 'writing' })}
-              className="p-4 rounded-xl bg-white border border-[#E0E4EC] hover:border-[#3949AB] transition-all cursor-pointer shadow-[0_1px_3px_rgba(0,0,0,0.05)] text-left group"
-            >
-              <div className="flex items-center justify-between mb-2.5">
-                <div className="w-10 h-10 rounded-lg bg-[#E0F2F1] text-[#00897B] flex items-center justify-center">
-                  <Edit3 className="w-5 h-5" />
-                </div>
-                <span className="text-xs font-semibold text-[#00897B] tabular-nums">
-                  {writingCount} ta gap
-                </span>
-              </div>
-              <p className="text-sm font-bold text-[#212121] group-hover:text-[#00897B] transition-colors">
-                Yozish (Writing)
-              </p>
-              <p className="text-xs text-[#616161] mt-0.5">
-                S+V+O tartibida gap yig‘ish
-              </p>
-            </button>
+              </button>
+            ))}
           </div>
         </section>
 
-        {/* 6. SPACED REPETITION CARD */}
+        {/* 4. SPACED REPETITION CARD */}
         <button
           type="button"
           onClick={() => navigate('repeat')}
@@ -417,6 +285,16 @@ export const HomeScreen: React.FC = () => {
           </div>
         </button>
       </div>
+
+      {/* MX Player Style Floating Play FAB Button */}
+      <button
+        type="button"
+        onClick={handlePlayCurrentLesson}
+        aria-label="Darsni boshlash yoki davom ettirish"
+        className="fixed bottom-20 right-5 z-40 w-14 h-14 rounded-full bg-[#3949AB] hover:bg-[#283593] text-white shadow-[0_4px_14px_rgba(57,73,171,0.45)] flex items-center justify-center cursor-pointer active:scale-95 transition-all"
+      >
+        <Play className="w-6 h-6 fill-current ml-0.5" />
+      </button>
 
       <TalkMeBottomBar
         selectedTab={0}

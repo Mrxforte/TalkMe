@@ -56,6 +56,12 @@ import {
   INITIAL_LEARNED_WORDS,
   INITIAL_MASTERED_RULES,
 } from '../domain/learning/initialCatalog';
+import {
+  findCatalogWordById,
+  findCatalogRuleById,
+} from '../domain/learning/unlockedCurriculumAggregator';
+import { globalKnowledgeTracker } from '../knowledge/domain/services/GlobalKnowledgeTracker';
+import { localKnowledgeRepository } from '../knowledge/data/local/LocalKnowledgeRepository';
 
 interface AppContextType {
   currentScreen: ScreenRoute;
@@ -178,8 +184,6 @@ const DEFAULT_VOICE_SETTINGS: VoiceSettings = {
 };
 
 const GLOBAL_TRACKER_STORAGE_KEY = 'talkme_global_learning_tracker_v1';
-const LEARNED_WORDS_STORAGE_KEY = 'talkme_user_learned_words_v1';
-const MASTERED_RULES_STORAGE_KEY = 'talkme_user_mastered_rules_v1';
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
@@ -226,8 +230,8 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const weeklyGoalLessons = 5;
 
   const [completedLevelIds, setCompletedLevelIds] = useState<string[]>(() => {
-    const saved = localStorage.getItem('talkme_completed_levels');
-    return saved ? JSON.parse(saved) : ['lvl_1', 'lvl_2', 'lvl_3', 'lvl_chest_1'];
+    const saved = localStorage.getItem('talkme_completed_levels_v2');
+    return saved ? JSON.parse(saved) : [];
   });
   const [recentlyCompletedLevelId, setRecentlyCompletedLevelId] = useState<string | null>(null);
 
@@ -236,17 +240,36 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     'lesson_present_continuous',
   ]);
 
-  // Real Persistent Learned Words
-  const [userLearnedWords, setUserLearnedWords] = useState<LearnedWordItem[]>(() => {
-    const saved = localStorage.getItem(LEARNED_WORDS_STORAGE_KEY);
-    return saved ? JSON.parse(saved) : INITIAL_LEARNED_WORDS;
-  });
+  // Global Knowledge Tracker Reactive State (Single Source of Truth)
+  const [knowledgeStats, setKnowledgeStats] = useState(() =>
+    globalKnowledgeTracker.getGlobalStatistics()
+  );
+  const [userLearnedWords, setUserLearnedWords] = useState<LearnedWordItem[]>(() =>
+    globalKnowledgeTracker.toLegacyLearnedWordItems()
+  );
+  const [userMasteredRules, setUserMasteredRules] = useState<MasteredRuleItem[]>(() =>
+    globalKnowledgeTracker.toLegacyMasteredRuleItems()
+  );
 
-  // Real Persistent Mastered Grammar Rules
-  const [userMasteredRules, setUserMasteredRules] = useState<MasteredRuleItem[]>(() => {
-    const saved = localStorage.getItem(MASTERED_RULES_STORAGE_KEY);
-    return saved ? JSON.parse(saved) : INITIAL_MASTERED_RULES;
-  });
+  useEffect(() => {
+    // Hydrate from IndexedDB if localStorage was cleared
+    localKnowledgeRepository.hydrateFromIndexedDbIfNeeded().then((hydrated) => {
+      if (hydrated) {
+        globalKnowledgeTracker.loadFromStorage();
+        setKnowledgeStats(globalKnowledgeTracker.getGlobalStatistics());
+        setUserLearnedWords(globalKnowledgeTracker.toLegacyLearnedWordItems());
+        setUserMasteredRules(globalKnowledgeTracker.toLegacyMasteredRuleItems());
+      }
+    });
+
+    const unsubscribe = globalKnowledgeTracker.subscribe(() => {
+      setKnowledgeStats(globalKnowledgeTracker.getGlobalStatistics());
+      setUserLearnedWords(globalKnowledgeTracker.toLegacyLearnedWordItems());
+      setUserMasteredRules(globalKnowledgeTracker.toLegacyMasteredRuleItems());
+    });
+
+    return () => unsubscribe();
+  }, []);
 
   // Global Learning Framework Tracker State
   const [globalTrackerState, setGlobalTrackerState] = useState<GlobalLearningTrackerState>(() => {
@@ -318,7 +341,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   }, [streakDays]);
 
   useEffect(() => {
-    localStorage.setItem('talkme_completed_levels', JSON.stringify(completedLevelIds));
+    localStorage.setItem('talkme_completed_levels_v2', JSON.stringify(completedLevelIds));
   }, [completedLevelIds]);
 
   useEffect(() => {
@@ -334,14 +357,6 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   }, [globalTrackerState]);
 
   useEffect(() => {
-    localStorage.setItem(LEARNED_WORDS_STORAGE_KEY, JSON.stringify(userLearnedWords));
-  }, [userLearnedWords]);
-
-  useEffect(() => {
-    localStorage.setItem(MASTERED_RULES_STORAGE_KEY, JSON.stringify(userMasteredRules));
-  }, [userMasteredRules]);
-
-  useEffect(() => {
     localStorage.setItem('talkme_selected_framework_lesson_id', selectedFrameworkLessonId);
   }, [selectedFrameworkLessonId]);
 
@@ -350,8 +365,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     async (userId: string, currentXp: number, currentDiamonds: number, currentStreak: number) => {
       try {
         setCloudSyncStatus('syncing');
-        const learnedWordsCount = userLearnedWords.filter((w) => w.status === 'learned').length;
-        const masteredRulesCount = userMasteredRules.filter((r) => r.status === 'learned').length;
+        const stats = globalKnowledgeTracker.getGlobalStatistics();
 
         await syncUserProfileToFirestore(userId, {
           displayName: currentUser?.displayName || userName,
@@ -360,8 +374,8 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
           xp: currentXp,
           diamonds: currentDiamonds,
           streakDays: currentStreak,
-          uniqueLearnedWordsCount: learnedWordsCount,
-          masteredGrammarRulesCount: masteredRulesCount,
+          uniqueLearnedWordsCount: stats.uniqueLearnedWordsCount,
+          masteredGrammarRulesCount: stats.masteredGrammarRulesCount,
         });
         setCloudSyncStatus('synced');
         setLastCloudSyncTimestamp(Date.now());
@@ -370,14 +384,15 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         setCloudSyncStatus('error');
       }
     },
-    [currentUser, userName, userLearnedWords, userMasteredRules]
+    [currentUser, userName]
   );
 
-  // Load user data from Firestore upon login & merge
+  // Load user data from Firestore upon login & merge into GlobalKnowledgeTracker
   const loadCloudUserData = useCallback(
     async (fbUser: User) => {
       setCloudSyncStatus('syncing');
       try {
+        const stats = globalKnowledgeTracker.getGlobalStatistics();
         const cloudProfile = await fetchUserProfileFromFirestore(fbUser.uid);
         if (cloudProfile) {
           if (cloudProfile.xp && cloudProfile.xp > xp) setXp(cloudProfile.xp);
@@ -385,7 +400,6 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
             setDiamonds(cloudProfile.diamonds);
           if (cloudProfile.streakDays) setStreakDays(cloudProfile.streakDays);
         } else {
-          // Initialize first-time cloud document
           await syncUserProfileToFirestore(fbUser.uid, {
             displayName: fbUser.displayName,
             email: fbUser.email,
@@ -393,82 +407,75 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
             xp,
             diamonds,
             streakDays,
-            uniqueLearnedWordsCount: userLearnedWords.filter((w) => w.status === 'learned').length,
-            masteredGrammarRulesCount: userMasteredRules.filter((r) => r.status === 'learned').length,
+            uniqueLearnedWordsCount: stats.uniqueLearnedWordsCount,
+            masteredGrammarRulesCount: stats.masteredGrammarRulesCount,
           });
         }
 
-        // Fetch cloud words
+        // Fetch cloud words and merge into globalKnowledgeTracker
         const cloudWords = await fetchUserLearnedWordsFromFirestore(fbUser.uid);
         if (cloudWords.length > 0) {
-          setUserLearnedWords((prev) => {
-            const map = new Map<string, LearnedWordItem>();
-            prev.forEach((item) => map.set(item.id, item));
-            cloudWords.forEach((cw) => {
-              map.set(cw.wordId, {
-                id: cw.wordId,
+          const events: Array<Parameters<typeof globalKnowledgeTracker.emitEvent>[0]> = [];
+          for (const cw of cloudWords) {
+            events.push({
+              eventType:
+                cw.status === 'learned' ? 'VOCABULARY_ANSWER_CORRECT' : 'VOCABULARY_PRACTICED',
+              knowledgeId: cw.wordId,
+              metadata: {
                 word: cw.word,
                 translation: cw.translation,
-                phonetic: cw.phonetic,
-                category: cw.category || 'A0 • Dars',
-                status: cw.status,
-                emoji: '📚',
-                meaningfulInteractionsCount: cw.meaningfulInteractionsCount || 1,
-                correctExercisesCount: cw.correctExercisesCount || 1,
-                reps: cw.reps || 1,
-                nextReview: cw.nextReview || Date.now(),
-                isCloudSynced: true,
-                updatedAt: cw.updatedAt || Date.now(),
-              });
+                pronunciation: cw.phonetic,
+                partOfSpeech: cw.category,
+                forceStatus: cw.status === 'learned' ? 'learned' : 'learning',
+              },
+              dedupeWindowKey: `cloud_word_${cw.wordId}_${cw.updatedAt || 1}`,
             });
-            return Array.from(map.values());
-          });
+          }
+          globalKnowledgeTracker.emitBatchEvents(events);
         } else {
-          // Push initial local words to Firestore
-          const wordsToUpload: FirestoreLearnedWord[] = userLearnedWords.map((w) => ({
-            wordId: w.id,
-            word: w.word,
-            translation: w.translation,
-            phonetic: w.phonetic,
-            category: w.category,
-            status: w.status,
-            meaningfulInteractionsCount: w.meaningfulInteractionsCount,
-            correctExercisesCount: w.correctExercisesCount,
-            reps: w.reps,
-            nextReview: w.nextReview,
-            updatedAt: w.updatedAt,
-          }));
-          await batchSyncLearnedWordsToFirestore(fbUser.uid, wordsToUpload);
+          const trackedWords = globalKnowledgeTracker.toLegacyLearnedWordItems().filter(
+            (w) => w.status === 'learned'
+          );
+          if (trackedWords.length > 0) {
+            const wordsToUpload: FirestoreLearnedWord[] = trackedWords.map((w) => ({
+              wordId: w.id,
+              word: w.word,
+              translation: w.translation,
+              phonetic: w.phonetic,
+              category: w.category,
+              status: w.status,
+              meaningfulInteractionsCount: w.meaningfulInteractionsCount,
+              correctExercisesCount: w.correctExercisesCount,
+              reps: w.reps,
+              nextReview: w.nextReview,
+              updatedAt: w.updatedAt,
+            }));
+            await batchSyncLearnedWordsToFirestore(fbUser.uid, wordsToUpload);
+          }
         }
 
-        // Fetch cloud grammar rules
+        // Fetch cloud grammar rules and merge into globalKnowledgeTracker
         const cloudRules = await fetchUserMasteredRulesFromFirestore(fbUser.uid);
         if (cloudRules.length > 0) {
-          setUserMasteredRules((prev) => {
-            const map = new Map<string, MasteredRuleItem>();
-            prev.forEach((r) => map.set(r.id, r));
-            cloudRules.forEach((cr) => {
-              const existing = map.get(cr.ruleId);
-              map.set(cr.ruleId, {
-                id: cr.ruleId,
-                nameUz: cr.titleUz,
-                nameEn: existing?.nameEn || cr.titleUz,
-                category: cr.category || 'Grammatika',
-                shortSummaryUz: existing?.shortSummaryUz || cr.titleUz,
-                formula: existing?.formula,
-                status: cr.status,
-                masteryScore: cr.masteryScore,
-                exampleEn: existing?.exampleEn,
-                exampleUz: existing?.exampleUz,
-                isCloudSynced: true,
-                updatedAt: cr.updatedAt,
-              });
+          const events: Array<Parameters<typeof globalKnowledgeTracker.emitEvent>[0]> = [];
+          for (const cr of cloudRules) {
+            events.push({
+              eventType:
+                cr.status === 'learned' ? 'GRAMMAR_RULE_LEARNED' : 'GRAMMAR_RULE_PRACTICED',
+              knowledgeId: cr.ruleId,
+              metadata: {
+                titleUz: cr.titleUz,
+                forceStatus: cr.status === 'learned' ? 'learned' : 'learning',
+              },
+              dedupeWindowKey: `cloud_rule_${cr.ruleId}_${cr.updatedAt || 1}`,
             });
-            return Array.from(map.values());
-          });
+          }
+          globalKnowledgeTracker.emitBatchEvents(events);
         } else {
-          // Upload local rules
-          for (const rule of userMasteredRules) {
+          const trackedRules = globalKnowledgeTracker.toLegacyMasteredRuleItems().filter(
+            (r) => r.status === 'learned'
+          );
+          for (const rule of trackedRules) {
             await syncMasteredRuleToFirestore(fbUser.uid, {
               ruleId: rule.id,
               titleUz: rule.nameUz,
@@ -488,7 +495,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         setCloudSyncStatus('error');
       }
     },
-    [xp, diamonds, streakDays, userLearnedWords, userMasteredRules]
+    [xp, diamonds, streakDays]
   );
 
   // Monitor Firebase Auth State
@@ -551,41 +558,42 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     await syncProfileToCloud(currentUser.uid, xp, diamonds, streakDays);
   };
 
-  // Toggle Learned Status of a Word
+  // Toggle Learned Status of a Word via GlobalKnowledgeTracker
   const toggleWordLearned = async (wordId: string) => {
-    let updatedWord: LearnedWordItem | null = null;
-    setUserLearnedWords((prev) => {
-      return prev.map((item) => {
-        if (item.id === wordId) {
-          const nextStatus = item.status === 'learned' ? 'learning' : 'learned';
-          updatedWord = {
-            ...item,
-            status: nextStatus,
-            reps: nextStatus === 'learned' ? item.reps + 1 : item.reps,
-            updatedAt: Date.now(),
-            isCloudSynced: !!currentUser,
-          };
-          return updatedWord;
-        }
-        return item;
-      });
+    const existing = globalKnowledgeTracker.getVocabularyRecord(wordId);
+    const isCurrentlyLearned =
+      existing?.status === 'learned' || existing?.status === 'mastered';
+    const nextForceStatus = isCurrentlyLearned ? 'learning' : 'learned';
+
+    const result = globalKnowledgeTracker.emitEvent({
+      eventType: isCurrentlyLearned ? 'VOCABULARY_PRACTICED' : 'VOCABULARY_ANSWER_CORRECT',
+      knowledgeId: wordId,
+      metadata: {
+        forceStatus: nextForceStatus,
+        passedAssessment: !isCurrentlyLearned,
+      },
+      dedupeWindowKey: `toggle_word_${wordId}_${Date.now()}`,
     });
 
-    if (currentUser && updatedWord) {
-      const target = updatedWord as LearnedWordItem;
+    const updatedRecord = globalKnowledgeTracker.getVocabularyRecord(result.canonicalKnowledgeId);
+    if (currentUser && updatedRecord) {
       try {
         await syncLearnedWordToFirestore(currentUser.uid, {
-          wordId: target.id,
-          word: target.word,
-          translation: target.translation,
-          phonetic: target.phonetic,
-          category: target.category,
-          status: target.status,
-          meaningfulInteractionsCount: target.meaningfulInteractionsCount,
-          correctExercisesCount: target.correctExercisesCount,
-          reps: target.reps,
-          nextReview: target.nextReview,
-          updatedAt: target.updatedAt,
+          wordId: updatedRecord.id,
+          word: updatedRecord.displayWord,
+          translation: updatedRecord.translation,
+          phonetic: updatedRecord.pronunciation,
+          category: updatedRecord.partOfSpeech || 'Ot (Noun)',
+          status:
+            updatedRecord.status === 'learned' || updatedRecord.status === 'mastered'
+              ? 'learned'
+              : 'learning',
+          meaningfulInteractionsCount:
+            updatedRecord.exposureCount + updatedRecord.practiceCount,
+          correctExercisesCount: updatedRecord.correctCount,
+          reps: updatedRecord.srsReview?.reps || updatedRecord.correctCount,
+          nextReview: updatedRecord.srsReview?.nextReviewAt || Date.now() + 86400000,
+          updatedAt: updatedRecord.updatedAt,
         });
         setCloudSyncStatus('synced');
         setLastCloudSyncTimestamp(Date.now());
@@ -595,38 +603,37 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     }
   };
 
-  // Toggle Mastered Status of a Grammar Rule
+  // Toggle Mastered Status of a Grammar Rule via GlobalKnowledgeTracker
   const toggleRuleMastered = async (ruleId: string) => {
-    let updatedRule: MasteredRuleItem | null = null;
-    setUserMasteredRules((prev) => {
-      return prev.map((item) => {
-        if (item.id === ruleId) {
-          const nextStatus = item.status === 'learned' ? 'learning' : 'learned';
-          const nextScore = nextStatus === 'learned' ? 100 : 50;
-          updatedRule = {
-            ...item,
-            status: nextStatus,
-            masteryScore: nextScore,
-            updatedAt: Date.now(),
-            isCloudSynced: !!currentUser,
-          };
-          return updatedRule;
-        }
-        return item;
-      });
+    const existing = globalKnowledgeTracker.getGrammarRecord(ruleId);
+    const isCurrentlyLearned =
+      existing?.status === 'learned' || existing?.status === 'mastered';
+    const nextForceStatus = isCurrentlyLearned ? 'learning' : 'learned';
+
+    const result = globalKnowledgeTracker.emitEvent({
+      eventType: isCurrentlyLearned ? 'GRAMMAR_RULE_PRACTICED' : 'GRAMMAR_RULE_LEARNED',
+      knowledgeId: ruleId,
+      metadata: {
+        forceStatus: nextForceStatus,
+        passedAssessment: !isCurrentlyLearned,
+      },
+      dedupeWindowKey: `toggle_rule_${ruleId}_${Date.now()}`,
     });
 
-    if (currentUser && updatedRule) {
-      const target = updatedRule as MasteredRuleItem;
+    const updatedRecord = globalKnowledgeTracker.getGrammarRecord(result.canonicalKnowledgeId);
+    if (currentUser && updatedRecord) {
       try {
         await syncMasteredRuleToFirestore(currentUser.uid, {
-          ruleId: target.id,
-          titleUz: target.nameUz,
-          category: target.category,
-          status: target.status,
-          masteryScore: target.masteryScore,
-          successfulExercisesCount: target.status === 'learned' ? 5 : 2,
-          updatedAt: target.updatedAt,
+          ruleId: updatedRecord.id,
+          titleUz: updatedRecord.title.uz,
+          category: updatedRecord.categoryUz || 'Grammatika',
+          status:
+            updatedRecord.status === 'learned' || updatedRecord.status === 'mastered'
+              ? 'learned'
+              : 'learning',
+          masteryScore: updatedRecord.masteryScore,
+          successfulExercisesCount: updatedRecord.correctCount,
+          updatedAt: updatedRecord.updatedAt,
         });
         setCloudSyncStatus('synced');
         setLastCloudSyncTimestamp(Date.now());
@@ -700,6 +707,22 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     setGlobalTrackerState((prev) =>
       recordGrammarRulePerformance(prev, rule, { type: 'explanation_opened' })
     );
+    globalKnowledgeTracker.emitEvent({
+      eventType: 'GRAMMAR_RULE_INTRODUCED',
+      knowledgeId: rule.id,
+      source: {
+        courseId: 'grammar_fundamentals',
+        lessonId: rule.relatedLessonIds?.[0] || 'lesson_01_grammar_fundamentals',
+        activityType: 'grammar_block',
+      },
+      metadata: {
+        titleEn: rule.nameEn,
+        titleUz: rule.nameUz,
+        description: rule.shortSummaryUz,
+        formula: rule.formula,
+      },
+      dedupeWindowKey: `fw_rule_open_${rule.id}`,
+    });
   };
 
   const recordFrameworkVocabExposure = (
@@ -714,57 +737,33 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       recordVocabularyExposure(prev, vocabItem, interactionType)
     );
 
-    // Sync to userLearnedWords
-    setUserLearnedWords((prev) => {
-      const existing = prev.find((w) => w.id === vocabItem.id);
-      const isLearnedNow = interactionType === 'exercise_correct';
-      if (existing) {
-        return prev.map((w) =>
-          w.id === vocabItem.id
-            ? {
-                ...w,
-                status: isLearnedNow ? 'learned' : w.status,
-                meaningfulInteractionsCount: w.meaningfulInteractionsCount + 1,
-                correctExercisesCount: isLearnedNow ? w.correctExercisesCount + 1 : w.correctExercisesCount,
-                updatedAt: Date.now(),
-              }
-            : w
-        );
-      } else {
-        const newItem: LearnedWordItem = {
-          id: vocabItem.id,
-          word: vocabItem.wordEn,
-          translation: vocabItem.translationUz,
-          phonetic: vocabItem.ipa,
-          category: `A0 • ${vocabItem.partOfSpeech}`,
-          status: isLearnedNow ? 'learned' : 'learning',
-          emoji: vocabItem.visualEmoji || '📖',
-          meaningfulInteractionsCount: 1,
-          correctExercisesCount: isLearnedNow ? 1 : 0,
-          reps: 1,
-          nextReview: Date.now() + 24 * 60 * 60 * 1000,
-          isCloudSynced: !!currentUser,
-          updatedAt: Date.now(),
-        };
-        return [newItem, ...prev];
-      }
-    });
+    const eventType =
+      interactionType === 'exercise_correct'
+        ? 'VOCABULARY_ANSWER_CORRECT'
+        : interactionType === 'exercise_incorrect'
+        ? 'VOCABULARY_ANSWER_INCORRECT'
+        : interactionType === 'audio_practice'
+        ? 'VOCABULARY_PRACTICED'
+        : 'VOCABULARY_DISCOVERED';
 
-    if (currentUser) {
-      syncLearnedWordToFirestore(currentUser.uid, {
-        wordId: vocabItem.id,
+    globalKnowledgeTracker.emitEvent({
+      eventType,
+      knowledgeId: vocabItem.id,
+      source: {
+        courseId: 'grammar_fundamentals',
+        activityType: 'vocabulary_card',
+      },
+      metadata: {
         word: vocabItem.wordEn,
         translation: vocabItem.translationUz,
-        phonetic: vocabItem.ipa,
-        category: vocabItem.partOfSpeech,
-        status: interactionType === 'exercise_correct' ? 'learned' : 'learning',
-        meaningfulInteractionsCount: 1,
-        correctExercisesCount: interactionType === 'exercise_correct' ? 1 : 0,
-        reps: 1,
-        nextReview: Date.now() + 24 * 60 * 60 * 1000,
-        updatedAt: Date.now(),
-      }).catch((e) => console.error(e));
-    }
+        pronunciation: vocabItem.ipa,
+        partOfSpeech: vocabItem.partOfSpeech,
+        emoji: vocabItem.visualEmoji,
+        exampleEn: vocabItem.exampleEn,
+        exampleUz: vocabItem.exampleUz,
+      },
+      dedupeWindowKey: `fw_vocab_${vocabItem.id}_${interactionType}_${Date.now()}`,
+    });
   };
 
   const recordFrameworkExerciseEvaluated = (
@@ -779,6 +778,45 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       }
       return outcome.nextState;
     });
+
+    const events: Array<Parameters<typeof globalKnowledgeTracker.emitEvent>[0]> = [];
+    for (const ruleId of exercise.relatedGrammarRuleIds || []) {
+      events.push({
+        eventType: result.isCorrect
+          ? 'GRAMMAR_RULE_ANSWER_CORRECT'
+          : 'GRAMMAR_RULE_ANSWER_INCORRECT',
+        knowledgeId: ruleId,
+        source: {
+          courseId: 'grammar_fundamentals',
+          levelId: lesson.level,
+          lessonId: lesson.id,
+          exerciseId: exercise.id,
+          activityType: 'guided_practice',
+        },
+        dedupeWindowKey: `fw_ex_rule_${exercise.id}_${ruleId}_${Date.now()}`,
+      });
+    }
+
+    for (const vocabId of exercise.relatedVocabularyIds || []) {
+      events.push({
+        eventType: result.isCorrect
+          ? 'VOCABULARY_ANSWER_CORRECT'
+          : 'VOCABULARY_ANSWER_INCORRECT',
+        knowledgeId: vocabId,
+        source: {
+          courseId: 'grammar_fundamentals',
+          levelId: lesson.level,
+          lessonId: lesson.id,
+          exerciseId: exercise.id,
+          activityType: 'guided_practice',
+        },
+        dedupeWindowKey: `fw_ex_vocab_${exercise.id}_${vocabId}_${Date.now()}`,
+      });
+    }
+
+    if (events.length > 0) {
+      globalKnowledgeTracker.emitBatchEvents(events);
+    }
   };
 
   const recordFrameworkAssessmentSubmitted = (
@@ -792,6 +830,45 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       }
       return outcome.nextState;
     });
+
+    const events: Array<Parameters<typeof globalKnowledgeTracker.emitEvent>[0]> = [];
+    for (const rule of lesson.grammarRules || []) {
+      events.push({
+        eventType: 'GRAMMAR_RULE_LEARNED',
+        knowledgeId: rule.id,
+        source: {
+          courseId: 'grammar_fundamentals',
+          levelId: lesson.level,
+          lessonId: lesson.id,
+          activityType: 'assessment',
+        },
+        metadata: {
+          passedAssessment: true,
+        },
+        dedupeWindowKey: `fw_assess_rule_${lesson.id}_${rule.id}_${Date.now()}`,
+      });
+    }
+
+    for (const voc of lesson.vocabulary || []) {
+      events.push({
+        eventType: 'VOCABULARY_ANSWER_CORRECT',
+        knowledgeId: voc.id,
+        source: {
+          courseId: 'grammar_fundamentals',
+          levelId: lesson.level,
+          lessonId: lesson.id,
+          activityType: 'assessment',
+        },
+        metadata: {
+          passedAssessment: true,
+        },
+        dedupeWindowKey: `fw_assess_voc_${lesson.id}_${voc.id}_${Date.now()}`,
+      });
+    }
+
+    if (events.length > 0) {
+      globalKnowledgeTracker.emitBatchEvents(events);
+    }
   };
 
   const recordFrameworkSectionProgress = (
@@ -851,9 +928,9 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     });
   };
 
-  // Compute unique counts
-  const uniqueLearnedWordsCount = userLearnedWords.filter((w) => w.status === 'learned').length;
-  const masteredGrammarRulesCount = userMasteredRules.filter((r) => r.status === 'learned').length;
+  // Global Knowledge Counts directly from GlobalKnowledgeTracker
+  const uniqueLearnedWordsCount = knowledgeStats.uniqueLearnedWordsCount;
+  const masteredGrammarRulesCount = knowledgeStats.masteredGrammarRulesCount;
 
   const submitFsrsReview = (cardId: string, rating: Rating) => {
     setVocabList((prev) =>
@@ -862,9 +939,35 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         const now = Date.now();
         const schedMap = defaultFsrsScheduler.repeat(item.card, now);
         const schedInfo = schedMap[rating];
+        const updatedCard = schedInfo.card;
+
+        // Emit real FSRS review event to GlobalKnowledgeTracker
+        globalKnowledgeTracker.emitEvent({
+          eventType: 'VOCABULARY_REVIEW_COMPLETED',
+          knowledgeId: item.card.wordId || item.word,
+          source: {
+            activityType: 'fsrs_review',
+            exerciseId: cardId,
+          },
+          metadata: {
+            word: item.word,
+            translation: item.translation,
+            pronunciation: item.phonetic,
+            partOfSpeech: item.category,
+            exampleEn: item.exampleEn,
+            exampleUz: item.exampleUz,
+            fsrsRating: rating,
+            fsrsReps: updatedCard.reps,
+            fsrsStabilityDays: updatedCard.stability,
+            fsrsNextReviewAt: updatedCard.nextReview,
+            cardId: updatedCard.cardId,
+          },
+          dedupeWindowKey: `fsrs_${cardId}_${now}`,
+        });
+
         return {
           ...item,
-          card: schedInfo.card,
+          card: updatedCard,
         };
       })
     );
@@ -911,14 +1014,13 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const completedToday = vocabList.filter(
     (item) => item.card.lastReview >= now - 24 * 60 * 60 * 1000 && item.card.reps > 0
   );
-  const learnedItems = vocabList.filter((item) => item.card.reps > 0);
 
   const dailyStats: FsrsDailyStats = {
     newWordsCount: vocabList.filter((item) => item.card.reps === 0).length,
     dueWordsCount: dueItems.length,
     learningWordsCount: vocabList.filter((item) => item.card.state === 1).length,
     completedTodayCount: completedToday.length,
-    totalLearnedCount: learnedItems.length + uniqueLearnedWordsCount,
+    totalLearnedCount: uniqueLearnedWordsCount,
     retentionPercentage: 94,
     dailyStreakDays: streakDays,
     estimatedMinutesRemaining: Math.max(1, Math.ceil(dueItems.length * 0.6)),

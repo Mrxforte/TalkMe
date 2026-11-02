@@ -289,9 +289,6 @@ export const PracticeCenterScreen: React.FC = () => {
                 <span className="text-[11px] font-bold uppercase tracking-wider text-[#3949AB]">
                   Mashq Tanlash Rejimi (3 Modes)
                 </span>
-                <span className="text-[11px] font-semibold text-[#00897B]">
-                  {currentPath.cefrLevel} daraja
-                </span>
               </div>
 
               <div className="grid grid-cols-3 gap-2">

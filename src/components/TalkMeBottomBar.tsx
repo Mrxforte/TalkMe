@@ -1,34 +1,70 @@
 import React from 'react';
-import { Home, BookOpen, RotateCcw, User } from 'lucide-react';
+import { Home, BookOpen, Target, RotateCcw, User } from 'lucide-react';
+import { useApp } from '../context/AppContext';
+import { ScreenRoute } from '../types';
 
 interface TalkMeBottomBarProps {
-  selectedTab: number;
-  onTabSelected: (index: number) => void;
+  selectedTab?: number;
+  onTabSelected?: (index: number) => void;
 }
 
-export const TalkMeBottomBar: React.FC<TalkMeBottomBarProps> = ({
-  selectedTab,
-  onTabSelected,
-}) => {
-  const tabs = [
-    { label: 'Bosh sahifa', icon: Home, index: 0 },
-    { label: 'Kurslar', icon: BookOpen, index: 1 },
-    { label: 'Takrorlash', icon: RotateCcw, index: 2 },
-    { label: 'Profil', icon: User, index: 3 },
+export const TalkMeBottomBar: React.FC<TalkMeBottomBarProps> = () => {
+  const { currentScreen, navigate } = useApp();
+
+  const tabs: Array<{
+    label: string;
+    route: ScreenRoute;
+    icon: React.ComponentType<{ className?: string }>;
+    isCenter?: boolean;
+  }> = [
+    { label: 'Bosh sahifa', route: 'home', icon: Home },
+    { label: 'Kurslar', route: 'courses', icon: BookOpen },
+    { label: 'Amaliyot', route: 'practice_center', icon: Target, isCenter: true },
+    { label: 'Takrorlash', route: 'repeat', icon: RotateCcw },
+    { label: 'Profil', route: 'profile', icon: User },
   ];
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-[#E0E4EC] shadow-[0_-2px_6px_rgba(0,0,0,0.04)]">
-      <div className="max-w-3xl mx-auto grid grid-cols-4 items-center h-14 px-2">
+    <nav className="fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-[#E0E4EC] shadow-[0_-2px_8px_rgba(0,0,0,0.05)]">
+      <div className="max-w-3xl mx-auto grid grid-cols-5 items-center h-16 px-2">
         {tabs.map((tab) => {
           const Icon = tab.icon;
-          const isActive = selectedTab === tab.index;
+          const isActive = currentScreen === tab.route;
+
+          if (tab.isCenter) {
+            return (
+              <button
+                key={tab.route}
+                type="button"
+                onClick={() => navigate(tab.route)}
+                className="h-full flex flex-col items-center justify-center cursor-pointer group relative"
+                aria-label="Practice Center"
+              >
+                <div
+                  className={`w-11 h-11 -mt-3 rounded-2xl flex items-center justify-center transition-all shadow-sm border ${
+                    isActive
+                      ? 'bg-[#00897B] text-white border-[#00695C] scale-105'
+                      : 'bg-[#3949AB] text-white border-[#283593] group-hover:bg-[#283593]'
+                  }`}
+                >
+                  <Icon className="w-5 h-5 stroke-[2.2]" />
+                </div>
+                <span
+                  className={`text-[10px] mt-0.5 tracking-tight whitespace-nowrap ${
+                    isActive ? 'font-bold text-[#00897B]' : 'font-semibold text-[#3949AB]'
+                  }`}
+                >
+                  {tab.label}
+                </span>
+              </button>
+            );
+          }
 
           return (
             <button
-              key={tab.label}
+              key={tab.route}
               type="button"
-              onClick={() => onTabSelected(tab.index)}
+              onClick={() => navigate(tab.route)}
               className={`h-full flex flex-col items-center justify-center transition-colors cursor-pointer relative ${
                 isActive ? 'text-[#3949AB]' : 'text-[#616161] hover:text-[#3949AB]'
               }`}

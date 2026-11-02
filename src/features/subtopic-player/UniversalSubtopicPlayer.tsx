@@ -26,9 +26,7 @@ import {
   Target,
   Award,
   AlertCircle,
-  BookOpen,
-  Layers,
-  Sparkles,
+  Map,
 } from 'lucide-react';
 
 interface UniversalSubtopicPlayerProps {
@@ -47,14 +45,14 @@ const STAGE_SHORT_LABELS_UZ: Record<number, string> = {
 };
 
 export const UniversalSubtopicPlayer: React.FC<UniversalSubtopicPlayerProps> = ({
-  initialSubtopicId = 'what_is_a_noun',
+  initialSubtopicId = 'noun_01_what_is_a_noun',
   onSubtopicCompleted,
 }) => {
   const { navigate, awardXpAndDiamonds } = useApp();
 
   const resolvedInitialId = SUBTOPICS_REPOSITORY[initialSubtopicId]
     ? initialSubtopicId
-    : 'what_is_a_noun';
+    : 'noun_01_what_is_a_noun';
 
   const [activeSubtopicId, setActiveSubtopicId] = useState<string>(resolvedInitialId);
   const [activeStageNumber, setActiveStageNumber] = useState<number>(1);
@@ -80,7 +78,8 @@ export const UniversalSubtopicPlayer: React.FC<UniversalSubtopicPlayerProps> = (
     setProgressRecord({ ...subtopicProgressEngine.getRecord(activeSubtopicId) });
   };
 
-  const rawSubtopic = SUBTOPICS_REPOSITORY[activeSubtopicId] || SUBTOPICS_REPOSITORY.what_is_a_noun;
+  const rawSubtopic =
+    SUBTOPICS_REPOSITORY[activeSubtopicId] || SUBTOPICS_REPOSITORY.noun_01_what_is_a_noun;
   const validation = validateSubtopicSafe(rawSubtopic);
 
   if (!validation.success || !validation.data) {
@@ -94,19 +93,18 @@ export const UniversalSubtopicPlayer: React.FC<UniversalSubtopicPlayerProps> = (
   const subtopic = validation.data;
   const currentMajorTopic =
     MAJOR_TOPICS_CATALOG.find((m) => m.id === subtopic.majorTopicId) || MAJOR_TOPICS_CATALOG[0];
-  const siblingSubtopics = currentMajorTopic.subtopicIds
-    .map((id) => SUBTOPICS_REPOSITORY[id])
-    .filter(Boolean);
 
   const activeSection =
     subtopic.sections.find((s) => s.stageNumber === activeStageNumber) || subtopic.sections[0];
+
+  const roadmapLevelId = `nouns_lvl_${subtopic.orderIndex}`;
 
   const handleCompleteWrapUp = () => {
     const updated = subtopicProgressEngine.completeSubtopicWrapUp(subtopic.id);
     setProgressRecord({ ...updated });
     if (updated.isCompleted) {
       confetti({ particleCount: 75, spread: 80, origin: { y: 0.6 } });
-      awardXpAndDiamonds(50, 15, subtopic.id);
+      awardXpAndDiamonds(50, 15, roadmapLevelId);
       if (onSubtopicCompleted) {
         onSubtopicCompleted(subtopic.id);
       }
@@ -118,84 +116,14 @@ export const UniversalSubtopicPlayer: React.FC<UniversalSubtopicPlayerProps> = (
     ...progressRecord.assessmentMistakes,
   ];
 
+  const cleanDifficultyLabelUz = subtopic.difficultyLabelUz.replace(
+    /^[ABC][0-2](\s*[–-]\s*[ABC][0-2])?\s*·\s*/i,
+    ''
+  );
+
   return (
     <div className="space-y-4">
       <GlobalTtsControlStrip />
-
-      {/* Major Topic & Variable Subtopics Strip */}
-      <div className="p-3.5 rounded-xl bg-white border border-[#E0E4EC] shadow-2xs space-y-2.5">
-        <div className="flex flex-wrap items-center justify-between gap-2">
-          <div className="flex items-center gap-2">
-            <span className="text-lg">{currentMajorTopic.iconEmoji}</span>
-            <div>
-              <span className="text-[10px] font-bold uppercase tracking-wider text-[#3949AB]">
-                YIRIK MAVZU ({siblingSubtopics.length} TA OST-MAVZU)
-              </span>
-              <h3 className="text-xs font-bold text-[#212121]">
-                {currentMajorTopic.titleEn} — {currentMajorTopic.titleUz}
-              </h3>
-            </div>
-          </div>
-
-          {/* Learner Level & Presentation Mode Switchers */}
-          <div className="flex flex-wrap items-center gap-1.5">
-            {(['A0-A1', 'A2', 'B1-B2', 'C1-C2'] as LearnerLevelTier[]).map((lvl) => (
-              <button
-                key={lvl}
-                type="button"
-                onClick={() => setLearnerLevel(lvl)}
-                className={`px-2 py-1 rounded-md text-[10px] font-bold cursor-pointer transition-colors ${
-                  learnerLevel === lvl
-                    ? 'bg-[#3949AB] text-white'
-                    : 'bg-[#F5F6FA] text-[#616161] hover:text-[#212121]'
-                }`}
-              >
-                {lvl}
-              </button>
-            ))}
-
-            <button
-              type="button"
-              onClick={() =>
-                setPresentationMode((m) => (m === 'ADULT' ? 'KIDS' : 'ADULT'))
-              }
-              className="px-2 py-1 rounded-md text-[10px] font-bold bg-[#E0F2F1] text-[#00897B] cursor-pointer"
-            >
-              {presentationMode === 'KIDS' ? '🧒 Bolalar rejimi' : '🎓 Kattalar rejimi'}
-            </button>
-          </div>
-        </div>
-
-        {/* Horizontal Subtopic Pills */}
-        <div className="flex items-center gap-1.5 overflow-x-auto pb-1">
-          {siblingSubtopics.map((sib, idx) => {
-            const sibRec = subtopicProgressEngine.getRecord(sib.id);
-            const isSelected = sib.id === subtopic.id;
-            return (
-              <button
-                key={sib.id}
-                type="button"
-                onClick={() => {
-                  setActiveSubtopicId(sib.id);
-                  setActiveStageNumber(1);
-                }}
-                className={`px-3 py-1.5 rounded-lg text-xs font-semibold shrink-0 flex items-center gap-1.5 border cursor-pointer transition-all ${
-                  isSelected
-                    ? 'bg-[#3949AB] text-white border-[#3949AB]'
-                    : sibRec.isCompleted
-                    ? 'bg-[#E0F2F1] text-[#00695C] border-[#80CBC4]'
-                    : 'bg-[#F5F6FA] text-[#212121] border-[#E0E4EC] hover:border-[#3949AB]'
-                }`}
-              >
-                <span>
-                  {idx + 1}. {sib.title.en}
-                </span>
-                {sibRec.isCompleted && <CheckCircle2 className="w-3.5 h-3.5" />}
-              </button>
-            );
-          })}
-        </div>
-      </div>
 
       {/* 7-Stage Stepper Navigation */}
       <div className="p-2.5 rounded-xl bg-white border border-[#E0E4EC] shadow-2xs">
@@ -227,13 +155,7 @@ export const UniversalSubtopicPlayer: React.FC<UniversalSubtopicPlayerProps> = (
 
       {/* Stage 1 Special Header Card: Subtopic Title, Uzbek Intro, Why Useful, Time & Difficulty */}
       {activeStageNumber === 1 && (
-        <div
-          className={`p-5 rounded-xl border space-y-3.5 ${
-            presentationMode === 'KIDS'
-              ? 'bg-[#E8EAF6] border-[#3949AB]'
-              : 'bg-white border-[#E0E4EC] shadow-2xs'
-          }`}
-        >
+        <div className="p-5 rounded-xl border bg-white border-[#E0E4EC] shadow-2xs space-y-3.5">
           <div className="flex items-start justify-between gap-3">
             <div className="flex items-center gap-3">
               <div className="w-12 h-12 rounded-xl bg-[#3949AB] text-white flex items-center justify-center text-2xl shrink-0">
@@ -242,7 +164,7 @@ export const UniversalSubtopicPlayer: React.FC<UniversalSubtopicPlayerProps> = (
               <div>
                 <div className="flex flex-wrap items-center gap-2">
                   <span className="text-[11px] font-bold uppercase px-2 py-0.5 rounded bg-[#E8EAF6] text-[#3949AB]">
-                    Daraja: {subtopic.level} · {subtopic.difficultyLabelUz}
+                    {subtopic.orderIndex}-Daraja · {cleanDifficultyLabelUz}
                   </span>
                   <span className="text-[11px] font-semibold text-[#616161] flex items-center gap-1">
                     <Clock className="w-3.5 h-3.5 text-[#00897B]" />
@@ -301,7 +223,7 @@ export const UniversalSubtopicPlayer: React.FC<UniversalSubtopicPlayerProps> = (
             <h3 className="text-sm font-bold mt-0.5">{activeSection.titleUz}</h3>
           </div>
           <span className="text-xs font-bold px-2.5 py-1 rounded-lg bg-white/15">
-            {subtopic.title.en}
+            {subtopic.orderIndex}-Daraja
           </span>
         </div>
       )}
@@ -325,10 +247,10 @@ export const UniversalSubtopicPlayer: React.FC<UniversalSubtopicPlayerProps> = (
           <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#E0E4EC] pb-3">
             <div>
               <span className="text-[11px] font-bold uppercase text-[#00897B]">
-                📊 BILIMLAR HISOBOTI VA KEYINGI QADAM
+                📊 BILIMLAR HISOBOTI VA KEYINGI DARAJA
               </span>
               <h4 className="text-base font-bold text-[#212121] mt-0.5">
-                {subtopic.title.en} ({subtopic.title.uz}) — Natijalar
+                {subtopic.orderIndex}-Daraja: {subtopic.title.en} ({subtopic.title.uz})
               </h4>
             </div>
             <span
@@ -341,7 +263,7 @@ export const UniversalSubtopicPlayer: React.FC<UniversalSubtopicPlayerProps> = (
               }`}
             >
               {progressRecord.isCompleted
-                ? '✓ Ost-mavzu Tugallangan'
+                ? '✓ Daraja Tugallangan'
                 : progressRecord.assessmentPassed
                 ? 'Sinovdan O‘tgan (Yakunlashga tayyor)'
                 : 'Sinovdan o‘tish talab etiladi (6-bosqich)'}
@@ -408,25 +330,19 @@ export const UniversalSubtopicPlayer: React.FC<UniversalSubtopicPlayerProps> = (
                 className="flex-1 py-3 px-4 rounded-xl bg-[#00897B] hover:bg-[#00695C] text-white font-bold text-xs flex items-center justify-center gap-2 cursor-pointer"
               >
                 <CheckCircle2 className="w-4 h-4" />
-                <span>Ost-Mavzuni Rasman Tugallash (+50 XP)</span>
+                <span>Darajani Rasman Tugallash (+50 XP)</span>
               </button>
             ) : null}
 
-            {subtopic.nextSubtopicId && SUBTOPICS_REPOSITORY[subtopic.nextSubtopicId] && (
-              <button
-                type="button"
-                onClick={() => {
-                  setActiveSubtopicId(subtopic.nextSubtopicId!);
-                  setActiveStageNumber(1);
-                }}
-                className="flex-1 py-3 px-4 rounded-xl bg-[#3949AB] hover:bg-[#283593] text-white font-bold text-xs flex items-center justify-center gap-2 cursor-pointer"
-              >
-                <span>
-                  Keyingi Ost-Mavzu: {SUBTOPICS_REPOSITORY[subtopic.nextSubtopicId].title.en}
-                </span>
-                <ArrowRight className="w-4 h-4" />
-              </button>
-            )}
+            <button
+              type="button"
+              onClick={() => navigate('course_levels', { courseId: 'nouns' })}
+              className="flex-1 py-3 px-4 rounded-xl bg-[#3949AB] hover:bg-[#283593] text-white font-bold text-xs flex items-center justify-center gap-2 cursor-pointer"
+            >
+              <Map className="w-4 h-4" />
+              <span>Yo‘l Xaritasida Keyingi Darajaga O‘tish</span>
+              <ArrowRight className="w-4 h-4" />
+            </button>
 
             <button
               type="button"
@@ -434,7 +350,7 @@ export const UniversalSubtopicPlayer: React.FC<UniversalSubtopicPlayerProps> = (
               className="py-3 px-4 rounded-xl bg-[#E0F2F1] hover:bg-[#00897B] text-[#00897B] hover:text-white font-bold text-xs flex items-center justify-center gap-2 cursor-pointer transition-colors"
             >
               <Target className="w-4 h-4" />
-              <span>Practice Center'da Mashq Qilish</span>
+              <span>Practice Center</span>
             </button>
           </div>
         </div>

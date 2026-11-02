@@ -7,6 +7,7 @@ import { TalkMeCard } from '../components/TalkMeCard';
 import { TalkMeButton } from '../components/TalkMeButton';
 import { CheckCircle2, XCircle, ChevronRight } from 'lucide-react';
 import confetti from 'canvas-confetti';
+import { globalKnowledgeTracker } from '../knowledge/domain/services/GlobalKnowledgeTracker';
 
 export const QuizScreen: React.FC = () => {
   const { navigate, goBack, playTts, awardXpAndDiamonds, selectedLevelId } = useApp();
@@ -21,6 +22,23 @@ export const QuizScreen: React.FC = () => {
   ];
 
   const handleNext = () => {
+    globalKnowledgeTracker.emitEvent({
+      eventType: 'GRAMMAR_RULE_LEARNED',
+      knowledgeId: 'rule_present_continuous_affirmative',
+      source: {
+        courseId: 'grammar_fundamentals',
+        levelId: selectedLevelId || 'A2',
+        lessonId: 'lesson_present_continuous',
+        exerciseId: 'quiz_present_continuous_q4',
+        activityType: 'assessment',
+      },
+      metadata: {
+        passedAssessment: true,
+        scorePercent: 100,
+      },
+      dedupeWindowKey: `quiz_pc_finish_${Date.now()}`,
+    });
+
     // Trigger confetti celebration!
     confetti({
       particleCount: 60,
@@ -90,6 +108,20 @@ export const QuizScreen: React.FC = () => {
                 onClick={() => {
                   setSelectedOptionIndex(idx);
                   setHasSubmitted(true);
+                  globalKnowledgeTracker.emitEvent({
+                    eventType: option.isCorrect
+                      ? 'GRAMMAR_RULE_ANSWER_CORRECT'
+                      : 'GRAMMAR_RULE_ANSWER_INCORRECT',
+                    knowledgeId: 'rule_present_continuous_affirmative',
+                    source: {
+                      courseId: 'grammar_fundamentals',
+                      levelId: selectedLevelId || 'A2',
+                      lessonId: 'lesson_present_continuous',
+                      exerciseId: `quiz_pc_opt_${option.id}`,
+                      activityType: 'assessment',
+                    },
+                    dedupeWindowKey: `quiz_pc_opt_${option.id}_${Date.now()}`,
+                  });
                   if (option.isCorrect) {
                     playTts(option.text);
                   }

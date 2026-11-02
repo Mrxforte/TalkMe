@@ -109,6 +109,16 @@ export const ComparisonBlockSchema = z.object({
     reasonUz: z.string(),
   }),
   takeawayUz: z.string(),
+  comparisonRows: z
+    .array(
+      z.object({
+        categoryUz: z.string(),
+        questionOrRuleUz: z.string(),
+        exampleEn: z.string(),
+        exampleUz: z.string(),
+      })
+    )
+    .optional(),
 });
 
 export const ImageExampleBlockSchema = z.object({

@@ -14,6 +14,8 @@ import {
   StoredLessonProgress,
   StoredPracticeNodeProgress,
 } from '../../core/db/talkMeDb';
+import { globalKnowledgeTracker } from '../../knowledge/domain/services/GlobalKnowledgeTracker';
+import { globalKnowledgeCatalog } from '../../knowledge/domain/services/GlobalKnowledgeCatalog';
 
 export type PracticeSelectionMode = 'FIXED_PATH' | 'ADAPTIVE_PRACTICE' | 'RANDOM_PRACTICE';
 
@@ -84,6 +86,19 @@ export class KnowledgeTrackerEngine {
         existing.masteryScore = Math.min(100, Math.max(existing.masteryScore, 45));
         existing.lastPracticedAt = now;
       }
+
+      const isGrammar =
+        globalKnowledgeCatalog.isKnownGrammarId(id) &&
+        !globalKnowledgeCatalog.isKnownVocabularyId(id);
+      globalKnowledgeTracker.emitEvent({
+        eventType: isGrammar ? 'GRAMMAR_RULE_INTRODUCED' : 'VOCABULARY_DISCOVERED',
+        knowledgeId: id,
+        source: {
+          topicId: existing?.topicId,
+          subtopicId: existing?.subtopicId,
+          activityType: 'lesson',
+        },
+      });
     }
     this.persist();
   }
@@ -92,22 +107,46 @@ export class KnowledgeTrackerEngine {
     const now = Date.now();
     for (const id of knowledgeIds) {
       const existing = this.states[id];
-      if (!existing) continue;
-      existing.exposuresCount += 1;
-      existing.lastPracticedAt = now;
+      if (existing) {
+        existing.exposuresCount += 1;
+        existing.lastPracticedAt = now;
 
-      if (isCorrect) {
-        existing.correctCount += 1;
-        const delta = Math.max(15, Math.round(score * 0.3));
-        existing.masteryScore = Math.min(100, existing.masteryScore + delta);
-        existing.stabilityDays = Math.max(1, existing.stabilityDays * 2 + 1);
-        existing.nextReviewAt = now + existing.stabilityDays * 86400000;
-      } else {
-        existing.incorrectCount += 1;
-        existing.masteryScore = Math.max(10, existing.masteryScore - 15);
-        existing.stabilityDays = 0.5;
-        existing.nextReviewAt = now + 3600000;
+        if (isCorrect) {
+          existing.correctCount += 1;
+          const delta = Math.max(15, Math.round(score * 0.3));
+          existing.masteryScore = Math.min(100, existing.masteryScore + delta);
+          existing.stabilityDays = Math.max(1, existing.stabilityDays * 2 + 1);
+          existing.nextReviewAt = now + existing.stabilityDays * 86400000;
+        } else {
+          existing.incorrectCount += 1;
+          existing.masteryScore = Math.max(10, existing.masteryScore - 15);
+          existing.stabilityDays = 0.5;
+          existing.nextReviewAt = now + 3600000;
+        }
       }
+
+      const isGrammar =
+        globalKnowledgeCatalog.isKnownGrammarId(id) &&
+        !globalKnowledgeCatalog.isKnownVocabularyId(id);
+      globalKnowledgeTracker.emitEvent({
+        eventType: isGrammar
+          ? isCorrect
+            ? 'GRAMMAR_RULE_ANSWER_CORRECT'
+            : 'GRAMMAR_RULE_ANSWER_INCORRECT'
+          : isCorrect
+          ? 'VOCABULARY_ANSWER_CORRECT'
+          : 'VOCABULARY_ANSWER_INCORRECT',
+        knowledgeId: id,
+        source: {
+          topicId: existing?.topicId,
+          subtopicId: existing?.subtopicId,
+          activityType: 'practice_center',
+        },
+        metadata: {
+          scorePercent: score,
+          passedAssessment: isCorrect && score >= 75,
+        },
+      });
     }
     this.persist();
   }

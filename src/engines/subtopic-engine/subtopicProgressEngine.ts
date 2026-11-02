@@ -3,6 +3,7 @@ import {
   knowledgeTracker,
   learningEngine,
 } from '../knowledge-engine/knowledgeAndPracticeEngine';
+import { globalKnowledgeTracker } from '../../knowledge/domain/services/GlobalKnowledgeTracker';
 
 export interface SubtopicMistakeRecord {
   itemId: string;
@@ -116,6 +117,9 @@ class SubtopicProgressEngine {
       knowledgeTracker.recordLessonExposure(subtopic.knowledgeIds);
     }
 
+    // Report stage exposure to centralized GlobalKnowledgeTracker (discovered/introduced only)
+    globalKnowledgeTracker.recordSubtopicStageExposure(subtopicId, stageNumber);
+
     this.records.set(subtopicId, { ...rec });
     this.persist();
     return this.getRecord(subtopicId);
@@ -139,6 +143,19 @@ class SubtopicProgressEngine {
       activity.isCorrect,
       activity.isCorrect ? 100 : 0
     );
+
+    globalKnowledgeTracker.recordPracticeActivityOutcome({
+      knowledgeIds: [activity.knowledgeId],
+      isCorrect: activity.isCorrect,
+      source: {
+        courseId: 'nouns',
+        subtopicId,
+        lessonId: subtopicId,
+        exerciseId: activity.itemId,
+        activityType: 'guided_practice',
+      },
+      attemptKey: `guided_${subtopicId}_${activity.itemId}_${rec.guidedPracticeTotalCount}`,
+    });
 
     if (activity.isCorrect) {
       rec.guidedPracticeCorrectCount += 1;
@@ -213,6 +230,19 @@ class SubtopicProgressEngine {
       }
     });
 
+    // Report assessment evaluation to centralized GlobalKnowledgeTracker
+    globalKnowledgeTracker.recordSubtopicAssessmentEvaluated({
+      subtopicId,
+      passed,
+      scorePercent,
+      questionResults: results.map((r) => ({
+        questionId: r.questionId,
+        knowledgeId: r.knowledgeId,
+        isCorrect: r.isCorrect,
+      })),
+      attemptNumber: rec.assessmentAttempts,
+    });
+
     rec.assessmentMistakes = newMistakes;
 
     if (passed) {
@@ -279,3 +309,4 @@ class SubtopicProgressEngine {
 }
 
 export const subtopicProgressEngine = new SubtopicProgressEngine();
+

@@ -8,6 +8,10 @@ export type ScreenRoute =
   | 'course_levels'
   | 'lesson_detail'
   | 'topic_detail'
+  | 'topic_words_detail'
+  | 'topic_rules_detail'
+  | 'learned_words'
+  | 'mastered_rules'
   | 'skill_practice'
   | 'practice_center'
   | 'quiz'
@@ -15,6 +19,9 @@ export type ScreenRoute =
   | 'level_unlocked'
   | 'repeat'
   | 'profile'
+  | 'google_account'
+  | 'voice_ai_settings'
+  | 'leaderboard'
   | 'voice_studio'
   | 'voice_settings';
 

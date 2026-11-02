@@ -4,6 +4,7 @@ import { TOPIC_LEARNING_GROUPS, SkillExerciseItem } from '../domain/learning/top
 import { TalkMeHeader } from '../components/TalkMeHeader';
 import { TalkMeBottomBar } from '../components/TalkMeBottomBar';
 import { SkillPracticeType } from '../types';
+import { globalKnowledgeTracker } from '../knowledge/domain/services/GlobalKnowledgeTracker';
 import {
   Volume2,
   Mic,
@@ -85,13 +86,76 @@ export const SkillPracticeScreen: React.FC = () => {
 
   const currentMeta = skillMeta[activeSkillTab];
 
-  const handleToggleReveal = (id: string) => {
-    setRevealedTranslations((prev) => ({ ...prev, [id]: !prev[id] }));
+  const emitTopicSkillEvents = (
+    topicId: string,
+    exerciseId: string,
+    activityType: 'listening' | 'speaking' | 'reading' | 'writing',
+    mode: 'practiced' | 'correct' | 'incorrect'
+  ) => {
+    const topicGroup = TOPIC_LEARNING_GROUPS.find((t) => t.id === topicId);
+    if (!topicGroup) return;
+
+    const events: Array<Parameters<typeof globalKnowledgeTracker.emitEvent>[0]> = [];
+
+    for (const w of topicGroup.words) {
+      events.push({
+        eventType:
+          mode === 'correct'
+            ? 'VOCABULARY_ANSWER_CORRECT'
+            : mode === 'incorrect'
+            ? 'VOCABULARY_ANSWER_INCORRECT'
+            : 'VOCABULARY_PRACTICED',
+        knowledgeId: w.id,
+        source: {
+          courseId: 'grammar_fundamentals',
+          levelId: topicGroup.level,
+          topicId: topicGroup.id,
+          exerciseId,
+          activityType,
+        },
+        dedupeWindowKey: `${exerciseId}_${mode}_${Date.now()}`,
+      });
+    }
+
+    for (const r of topicGroup.rules) {
+      events.push({
+        eventType:
+          mode === 'correct'
+            ? 'GRAMMAR_RULE_ANSWER_CORRECT'
+            : mode === 'incorrect'
+            ? 'GRAMMAR_RULE_ANSWER_INCORRECT'
+            : 'GRAMMAR_RULE_PRACTICED',
+        knowledgeId: r.id,
+        source: {
+          courseId: 'grammar_fundamentals',
+          levelId: topicGroup.level,
+          topicId: topicGroup.id,
+          exerciseId,
+          activityType,
+        },
+        dedupeWindowKey: `${exerciseId}_${mode}_${Date.now()}`,
+      });
+    }
+
+    if (events.length > 0) {
+      globalKnowledgeTracker.emitBatchEvents(events);
+    }
   };
 
-  const handleSimulateSpeaking = (id: string, textEn: string) => {
+  const handleToggleReveal = (id: string, topicId?: string) => {
+    const willReveal = !revealedTranslations[id];
+    setRevealedTranslations((prev) => ({ ...prev, [id]: willReveal }));
+    if (willReveal && topicId) {
+      emitTopicSkillEvents(topicId, id, 'listening', 'practiced');
+    }
+  };
+
+  const handleSimulateSpeaking = (id: string, textEn: string, topicId?: string) => {
     setSpeakingActiveId(id);
     playTts(textEn);
+    if (topicId) {
+      emitTopicSkillEvents(topicId, id, 'speaking', 'correct');
+    }
     setTimeout(() => {
       setSpeakingActiveId(null);
       awardXpAndDiamonds(5, 1);
@@ -102,7 +166,8 @@ export const SkillPracticeScreen: React.FC = () => {
   const handleWordClick = (
     exerciseId: string,
     word: string,
-    correctOrder: string[] | undefined
+    correctOrder: string[] | undefined,
+    topicId?: string
   ) => {
     const currentList = assembledWords[exerciseId] || [];
     if (currentList.includes(word)) {
@@ -119,8 +184,14 @@ export const SkillPracticeScreen: React.FC = () => {
           setWritingValidationState((prev) => ({ ...prev, [exerciseId]: 'correct' }));
           awardXpAndDiamonds(10, 1);
           confetti({ particleCount: 45, spread: 60 });
+          if (topicId) {
+            emitTopicSkillEvents(topicId, exerciseId, 'writing', 'correct');
+          }
         } else {
           setWritingValidationState((prev) => ({ ...prev, [exerciseId]: 'incorrect' }));
+          if (topicId) {
+            emitTopicSkillEvents(topicId, exerciseId, 'writing', 'incorrect');
+          }
         }
       }
     }
@@ -252,7 +323,10 @@ export const SkillPracticeScreen: React.FC = () => {
 
                       <button
                         type="button"
-                        onClick={() => playTts(item.audioPrompt || item.textEn)}
+                        onClick={() => {
+                          playTts(item.audioPrompt || item.textEn);
+                          emitTopicSkillEvents(item.topicId, item.id, 'listening', 'practiced');
+                        }}
                         className="w-11 h-11 rounded-lg bg-[#3949AB] text-white flex items-center justify-center hover:bg-[#283593] transition-colors cursor-pointer shrink-0"
                         title="Tinglash"
                       >
@@ -263,7 +337,7 @@ export const SkillPracticeScreen: React.FC = () => {
                     <div className="flex items-center justify-between">
                       <button
                         type="button"
-                        onClick={() => handleToggleReveal(item.id)}
+                        onClick={() => handleToggleReveal(item.id, item.topicId)}
                         className="text-xs text-[#3949AB] font-semibold hover:underline cursor-pointer"
                       >
                         {isRevealed ? 'Matnni yashirish' : 'Matn va tarjimani ko‘rish'}
@@ -304,7 +378,7 @@ export const SkillPracticeScreen: React.FC = () => {
 
                     <button
                       type="button"
-                      onClick={() => handleSimulateSpeaking(item.id, item.textEn)}
+                      onClick={() => handleSimulateSpeaking(item.id, item.textEn, item.topicId)}
                       disabled={isSpeakingActive}
                       className={`w-full min-h-[44px] py-2.5 px-4 rounded-lg font-semibold text-xs flex items-center justify-center gap-2 transition-colors cursor-pointer ${
                         isSpeakingActive
@@ -336,7 +410,15 @@ export const SkillPracticeScreen: React.FC = () => {
                           </span>
                           <button
                             type="button"
-                            onClick={() => playTts(paragraph)}
+                            onClick={() => {
+                              playTts(paragraph);
+                              emitTopicSkillEvents(
+                                item.topicId,
+                                `${item.id}_p_${pIdx}`,
+                                'reading',
+                                'practiced'
+                              );
+                            }}
                             className="w-9 h-9 rounded-lg bg-white text-[#3949AB] border border-[#E0E4EC] flex items-center justify-center hover:bg-[#E8EAF6] cursor-pointer shrink-0"
                             title="Qatorni eshitish"
                           >
@@ -388,7 +470,7 @@ export const SkillPracticeScreen: React.FC = () => {
                           <button
                             key={wIdx}
                             type="button"
-                            onClick={() => handleWordClick(item.id, word, item.correctOrder)}
+                            onClick={() => handleWordClick(item.id, word, item.correctOrder, item.topicId)}
                             className="px-3 py-1.5 rounded-md bg-[#3949AB] text-white font-semibold text-xs cursor-pointer hover:bg-[#283593] transition-colors flex items-center gap-1.5"
                           >
                             <span>{word}</span>
@@ -407,7 +489,7 @@ export const SkillPracticeScreen: React.FC = () => {
                             key={wIdx}
                             type="button"
                             disabled={isUsed}
-                            onClick={() => handleWordClick(item.id, word, item.correctOrder)}
+                            onClick={() => handleWordClick(item.id, word, item.correctOrder, item.topicId)}
                             className={`min-h-[38px] px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-colors cursor-pointer ${
                               isUsed
                                 ? 'opacity-35 bg-slate-200 text-slate-500 cursor-not-allowed'

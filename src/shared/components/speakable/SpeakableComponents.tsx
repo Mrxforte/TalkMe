@@ -336,10 +336,12 @@ export const SpeakableRichText: React.FC<{
 };
 
 // ============================================================================
-// 6. GLOBAL AUDIO CONTROLS BAR (Speed, Provider Tier Badge, Stop)
+// 6. GLOBAL AUDIO CONTROLS BAR (Rendered ONLY inside Profile / Settings)
 // ============================================================================
 
-export const GlobalTtsControlStrip: React.FC = () => {
+export const GlobalTtsControlStrip: React.FC<{ showInSettingsOnly?: boolean }> = ({
+  showInSettingsOnly = false,
+}) => {
   const { voiceSettings, updateVoiceSettings } = useApp();
   const [tier, setTier] = useState(subscriptionService.getTier());
   const [speakingState, setSpeakingState] = useState<{
@@ -358,13 +360,17 @@ export const GlobalTtsControlStrip: React.FC = () => {
     };
   }, []);
 
+  if (!showInSettingsOnly) {
+    return null;
+  }
+
   const toggleTier = () => {
     const next = tier === 'PREMIUM' ? 'FREE' : 'PREMIUM';
     subscriptionService.setTier(next);
   };
 
   return (
-    <div className="p-2.5 rounded-xl bg-white border border-[#E0E4EC] shadow-2xs flex flex-wrap items-center justify-between gap-2 text-xs">
+    <div className="p-3 rounded-xl bg-white border border-[#E0E4EC] shadow-2xs flex flex-wrap items-center justify-between gap-2 text-xs">
       <div className="flex items-center gap-2">
         <button
           type="button"
@@ -399,7 +405,7 @@ export const GlobalTtsControlStrip: React.FC = () => {
             key={spd}
             type="button"
             onClick={() => updateVoiceSettings({ speechSpeed: spd })}
-            className={`px-2 py-0.5 rounded font-semibold cursor-pointer ${
+            className={`px-2.5 py-1 rounded-md font-semibold cursor-pointer ${
               Math.abs(voiceSettings.speechSpeed - spd) < 0.04
                 ? 'bg-[#00897B] text-white'
                 : 'bg-[#F5F6FA] text-[#616161] hover:text-[#212121]'

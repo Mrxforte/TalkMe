@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   ArrowLeft,
   ChevronRight,
@@ -28,6 +28,7 @@ import {
 } from '../../shared/components/speakable/SpeakableComponents';
 import { speechManager } from '../../engines/tts-engine/speechArchitecture';
 import { learningEngine } from '../../engines/knowledge-engine/knowledgeAndPracticeEngine';
+import { globalKnowledgeTracker } from '../../knowledge/domain/services/GlobalKnowledgeTracker';
 import { useApp } from '../../context/AppContext';
 
 export interface UniversalLessonPlayerProps {
@@ -55,6 +56,57 @@ export const UniversalLessonPlayer: React.FC<UniversalLessonPlayerProps> = ({
   const currentSection = lesson.sections[sectionIdx] || lesson.sections[0];
   const totalSections = lesson.sections.length;
   const progressRatio = (sectionIdx + 1) / Math.max(1, totalSections);
+
+  useEffect(() => {
+    if (!currentSection) return;
+    for (const block of currentSection.blocks) {
+      if (block.blockType === 'vocabulary_grid') {
+        for (const item of block.items) {
+          globalKnowledgeTracker.emitEvent({
+            eventType: 'VOCABULARY_DISCOVERED',
+            knowledgeId: item.knowledgeId || item.id,
+            source: {
+              courseId: lesson.courseId,
+              levelId: lesson.cefrLevel,
+              topicId: lesson.majorTopicId,
+              subtopicId: lesson.subtopicId,
+              lessonId: lesson.id,
+              activityType: 'vocabulary_card',
+            },
+            metadata: {
+              word: item.english,
+              translation: item.uzbek,
+              pronunciation: item.phonetic,
+              emoji: item.emoji,
+              exampleEn: item.exampleEn,
+              exampleUz: item.exampleUz,
+            },
+            dedupeWindowKey: `lesson_${lesson.id}_sec_${currentSection.id}_${item.id}`,
+          });
+        }
+      } else if (block.blockType === 'grammar_rule') {
+        globalKnowledgeTracker.emitEvent({
+          eventType: 'GRAMMAR_RULE_INTRODUCED',
+          knowledgeId: block.knowledgeId || block.id,
+          source: {
+            courseId: lesson.courseId,
+            levelId: lesson.cefrLevel,
+            topicId: lesson.majorTopicId,
+            subtopicId: lesson.subtopicId,
+            lessonId: lesson.id,
+            activityType: 'grammar_block',
+          },
+          metadata: {
+            titleEn: block.ruleNameEn || block.ruleNameUz,
+            titleUz: block.ruleNameUz,
+            description: block.explanationUz,
+            formula: block.formula,
+          },
+          dedupeWindowKey: `lesson_${lesson.id}_sec_${currentSection.id}_${block.id}`,
+        });
+      }
+    }
+  }, [currentSection, lesson]);
 
   const speak = (text: string) => {
     speechManager.speak({
@@ -170,6 +222,24 @@ export const UniversalLessonPlayer: React.FC<UniversalLessonPlayerProps> = ({
                           onClick={() => {
                             speak(ph.english);
                             setRepeatedPhrases((prev) => ({ ...prev, [ph.english]: true }));
+                            globalKnowledgeTracker.emitEvent({
+                              eventType: 'VOCABULARY_PRACTICED',
+                              knowledgeId: ph.english.replace(/[!?.]/g, '').trim(),
+                              source: {
+                                courseId: lesson.courseId,
+                                levelId: lesson.cefrLevel,
+                                topicId: lesson.majorTopicId,
+                                subtopicId: lesson.subtopicId,
+                                lessonId: lesson.id,
+                                exerciseId: block.id,
+                                activityType: 'speaking',
+                              },
+                              metadata: {
+                                word: ph.english.replace(/[!?.]/g, '').trim(),
+                                translation: ph.uzbek.replace(/[!?.]/g, '').trim(),
+                                pronunciation: ph.phonetic,
+                              },
+                            });
                           }}
                           className={`py-2 px-3 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer ${
                             isRepeated
@@ -384,6 +454,22 @@ export const UniversalLessonPlayer: React.FC<UniversalLessonPlayerProps> = ({
                     onClick={() => {
                       setInlineAnswers((prev) => ({ ...prev, [block.id]: opt.id }));
                       if (opt.textEn) speak(opt.textEn);
+                      if (block.knowledgeIds && block.knowledgeIds.length > 0) {
+                        globalKnowledgeTracker.recordPracticeActivityOutcome({
+                          knowledgeIds: block.knowledgeIds,
+                          isCorrect: opt.isCorrect,
+                          source: {
+                            courseId: lesson.courseId,
+                            levelId: lesson.cefrLevel,
+                            topicId: lesson.majorTopicId,
+                            subtopicId: lesson.subtopicId,
+                            lessonId: lesson.id,
+                            exerciseId: block.id,
+                            activityType: 'guided_practice',
+                          },
+                          attemptKey: `inline_${lesson.id}_${block.id}_${opt.id}`,
+                        });
+                      }
                     }}
                     className={`p-3 rounded-xl border cursor-pointer flex items-center justify-between transition-colors ${
                       isSelected
