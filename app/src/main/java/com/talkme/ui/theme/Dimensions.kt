@@ -79,7 +79,9 @@ data class Dimensions(
     val strokeThin: Dp = 1.dp,
     val strokeMedium: Dp = 2.dp,
     val iconSizeMd: Dp = 20.dp,
-    val iconSizeLg: Dp = 24.dp
+    val iconSizeLg: Dp = 24.dp,
+    val spaceTiny: Dp = 4.dp,
+    val spaceSection: Dp = 24.dp
 )
 
 /**

@@ -131,7 +131,6 @@ object AppTypography {
     // Semantic aliases used across screens
     val sectionHeader: TextStyle = TitleLarge
     val bodyBold: TextStyle = TitleSmall
-    val bodyMedium: TextStyle = BodyMedium
     val captionBold: TextStyle = LabelMedium
     val caption: TextStyle = BodySmall
 }

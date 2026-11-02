@@ -335,7 +335,7 @@ fun VoiceSettingsScreen(
             Spacer(modifier = Modifier.height(dimens.spacingSm))
             Text(
                 text = SampleStory.TEXT,
-                style = AppTypography.bodyMedium,
+                style = AppTypography.BodyMedium,
                 color = MaterialTheme.colorScheme.onSurface
             )
             Spacer(modifier = Modifier.height(dimens.spacingMd))

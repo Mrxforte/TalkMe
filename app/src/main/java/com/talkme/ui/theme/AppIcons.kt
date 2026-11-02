@@ -1,6 +1,7 @@
 package com.talkme.ui.theme
 
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Add
@@ -45,6 +46,7 @@ import androidx.compose.ui.unit.dp
 object AppIcons {
     val ChevronLeft: ImageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft
     val ChevronRight: ImageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight
+    val ArrowForward: ImageVector = Icons.AutoMirrored.Filled.ArrowForward
     val Home: ImageVector = Icons.Default.Home
     val Search: ImageVector = Icons.Default.Search
     val Check: ImageVector = Icons.Default.Check

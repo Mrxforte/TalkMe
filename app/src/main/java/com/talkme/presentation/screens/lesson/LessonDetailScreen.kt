@@ -235,8 +235,13 @@ fun LessonDetailScreen(
             }
         }
 
-        // 3. Coming Soon Notice Card
-        item {
+        // 3. Real lesson content (English Fundamentals Kirish) or Coming Soon Notice Card
+        if (activeNode.linkedLessonId == "ef_01_kirish") {
+            item {
+                EnglishFundamentalsKirishView(onComplete = {})
+            }
+        } else {
+            item {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -302,6 +307,7 @@ fun LessonDetailScreen(
                         color = Color(0xFF020617)
                     )
                 }
+            }
             }
         }
 

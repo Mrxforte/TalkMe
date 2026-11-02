@@ -130,6 +130,32 @@ object TalkMeColors {
     val NodeGreenBottom = Color(0xFF46A302)
     val NodePurpleTop = Color(0xFF7C4DFF)
     val NodePurpleBottom = Color(0xFF5E4B8B)
+
+    // --- Compatibility aliases used across screens (added to fix pre-existing unresolved
+    // references so the Compose app actually compiles) ---
+    val PrimaryPurple = BrandPurple
+    val PrimaryPurpleDark = BrandPurpleDark
+    val PrimaryPurpleDeep = BrandPurpleDeep
+    val SecondaryTeal = Color(0xFF00897B)
+    val SecondaryTealDark = Color(0xFF00695C)
+    val ContainerTealLight = Color(0xFFE0F2F1)
+    val SurfaceWhite = SurfaceCard
+    val OutlineWarm = BorderAccent
+    val ErrorCoral = Rose500
+    val TextDisabled = TextMuted
+    val ContainerCoralLight = ContainerRoseLight
+    val ContainerGreenBorder = Emerald200
+    val ContainerPurpleBorder = Color(0xFFD8D0EE)
+    val BackgroundWarmIvory = Color(0xFFFFFBF5)
+    val GoldBookmark = Amber400
+    val NatureGrassDeep = LandscapeForestDark
+    val NatureGrassLight = LandscapeMeadowLight
+    val NatureGrassMid = LandscapeMeadowMid
+    val NaturePathStone = LandscapePathStone
+    val NatureRiverBlue = LandscapeRiverBlue
+    val NatureSkyBottom = LandscapeSkyBottom
+    val NatureSkyTop = LandscapeSkyTop
+    val SurfaceBeige2 = Color(0xFFF7F3EC)
 }
 
 // Top-level semantic aliases for full compatibility across all screens

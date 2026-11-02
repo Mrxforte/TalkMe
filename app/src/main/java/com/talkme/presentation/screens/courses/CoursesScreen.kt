@@ -252,7 +252,11 @@ private fun OzonStyleCategoryCard(
             .fillMaxWidth()
             .clip(cardShape)
             .background(Color.White)
-            .border(1.dp, Color(0xFFEBE8F3), cardShape)
+            .border(
+                1.dp,
+                if (category.hasSubtopics) TalkMeColors.PrimaryPurple else Color(0xFFEBE8F3),
+                cardShape
+            )
             .clickable(onClick = onClick)
     ) {
         // 4:5 Illustration Container
@@ -267,6 +271,22 @@ private fun OzonStyleCategoryCard(
                 categoryId = category.illustrationId,
                 accentColor = category.accentColor
             )
+            if (category.hasSubtopics) {
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .padding(8.dp)
+                        .clip(RoundedCornerShape(6.dp))
+                        .background(TalkMeColors.SecondaryTeal)
+                        .padding(horizontal = 8.dp, vertical = 3.dp)
+                ) {
+                    Text(
+                        text = "FAOL XARITA",
+                        style = AppTypography.BadgeMicro.copy(fontSize = 9.sp),
+                        color = Color.White
+                    )
+                }
+            }
         }
 
         // Bottom Product Info Section (Ozon-Style)
