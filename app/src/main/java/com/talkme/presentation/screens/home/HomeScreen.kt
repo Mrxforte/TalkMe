@@ -1,5 +1,7 @@
 package com.talkme.presentation.screens.home
 
+import androidx.annotation.DrawableRes
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -28,9 +30,12 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.talkme.R
 import com.talkme.presentation.components.TalkMeBadge
 import com.talkme.presentation.components.TalkMeBottomBar
 import com.talkme.presentation.components.TalkMeBottomTab
@@ -43,16 +48,9 @@ import com.talkme.ui.theme.LocalDimensions
 import com.talkme.ui.theme.TalkMeColors
 
 /**
- * Pixel-perfect migration of `src/screens/HomeScreen.tsx`:
- * - Top Avatar (`#D2F5DC` / `#2E7D32`), `"XUSH KELIBSIZ"` + `"Aziz ✨"`, Streak chip (`Flame` + `"7 kun"`), and Voice Studio (`Mic`) button
- * - `"Salom, Aziz!"` + 2 Global Counter cards (`Yodlangan Noyob So‘zlar` & `O‘zlashtirilgan Qoidalar`)
- * - Featured Card 1: **Lesson 1 — Hello! 👋 (A0 • ABSOLUTE BEGINNER)**
- * - Featured Card 2: **Grammar Fundamentals (A1 • 1-MODUL • 10-BOSQICHLI TIZIM)**
- * - Featured Card 3: **Present continuous (A2 • GRAMMATIKA)**
- * - FSRS Spaced Repetition Vocabulary Banner Card
- * - 2x2 Skills Grid (`Tinglash`, `Gapirish`, `O‘qish`, `Yozish`)
- * - Weekly Plan Card (`Haftalik reja` + `"Could I have some tea?"` audio row)
- * - `TalkMeBottomBar` pinned at bottom
+ * Enhanced Home Dashboard Screen displaying streak counters, active lesson cards,
+ * vocabulary practice banners, 4 skills modules, and weekly goals with PNG/JPEG
+ * background illustration image support and protective contrast overlays (matching Grammar card style).
  */
 @Composable
 fun HomeScreen(
@@ -63,7 +61,8 @@ fun HomeScreen(
     onOpenVoiceSettingsClick: () -> Unit = {},
     onOpenProfileClick: () -> Unit = {},
     onOpenQuizClick: () -> Unit = {},
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    @DrawableRes defaultBgImageRes: Int = R.drawable.img,
 ) {
     val dims = LocalDimensions.current
     val appState = LocalTalkMeAppState.current
@@ -202,7 +201,7 @@ fun HomeScreen(
                 }
             }
 
-            // 2. GREETING & 2 GLOBAL COUNTERS
+            // 2. GREETING & 2 GLOBAL COUNTER CARDS WITH BG ILLUSTRATION SUPPORT
             item {
                 Column(verticalArrangement = Arrangement.spacedBy(dims.spaceMedium)) {
                     Column {
@@ -222,8 +221,8 @@ fun HomeScreen(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.spacedBy(10.dp)
                     ) {
-                        // Global Vocabulary Counter
-                        Column(
+                        // Global Vocabulary Counter Card with Background Illustration
+                        Box(
                             modifier = Modifier
                                 .weight(1f)
                                 .clip(RoundedCornerShape(dims.radiusMedium))
@@ -233,28 +232,48 @@ fun HomeScreen(
                                     TalkMeColors.ContainerGreenLight,
                                     RoundedCornerShape(dims.radiusMedium)
                                 )
-                                .padding(12.dp)
                         ) {
-                            Text(
-                                text = "YODLANGAN NOYOB SO‘ZLAR",
-                                style = AppTypography.BadgeMicro.copy(fontSize = 10.sp),
-                                color = TalkMeColors.SuccessGreen
+                            Image(
+                                painter = painterResource(id = defaultBgImageRes),
+                                contentDescription = null,
+                                contentScale = ContentScale.Crop,
+                                modifier = Modifier.matchParentSize(),
+                                alpha = 0.28f
                             )
-                            Spacer(modifier = Modifier.height(2.dp))
-                            Text(
-                                text = "${appState.uniqueLearnedWordsCount} ta so‘z",
-                                style = AppTypography.TitleLarge.copy(fontWeight = FontWeight.Black),
-                                color = TalkMeColors.TextPrimary
+                            Box(
+                                modifier = Modifier
+                                    .matchParentSize()
+                                    .background(
+                                        Brush.verticalGradient(
+                                            colors = listOf(
+                                                Color.White.copy(alpha = 0.75f),
+                                                Color.White.copy(alpha = 0.95f)
+                                            )
+                                        )
+                                    )
                             )
-                            Text(
-                                text = "Global Vocabulary Counter",
-                                style = AppTypography.LabelSmall,
-                                color = TalkMeColors.TextSecondary
-                            )
+                            Column(modifier = Modifier.padding(12.dp)) {
+                                Text(
+                                    text = "YODLANGAN NOYOB SO‘ZLAR",
+                                    style = AppTypography.BadgeMicro.copy(fontSize = 10.sp),
+                                    color = TalkMeColors.SuccessGreen
+                                )
+                                Spacer(modifier = Modifier.height(2.dp))
+                                Text(
+                                    text = "${appState.uniqueLearnedWordsCount} ta so‘z",
+                                    style = AppTypography.TitleLarge.copy(fontWeight = FontWeight.Black),
+                                    color = TalkMeColors.TextPrimary
+                                )
+                                Text(
+                                    text = "Global Vocabulary Counter",
+                                    style = AppTypography.LabelSmall,
+                                    color = TalkMeColors.TextSecondary
+                                )
+                            }
                         }
 
-                        // Global Grammar Counter
-                        Column(
+                        // Global Grammar Counter Card with Background Illustration
+                        Box(
                             modifier = Modifier
                                 .weight(1f)
                                 .clip(RoundedCornerShape(dims.radiusMedium))
@@ -264,33 +283,53 @@ fun HomeScreen(
                                     TalkMeColors.ContainerPurpleLight,
                                     RoundedCornerShape(dims.radiusMedium)
                                 )
-                                .padding(12.dp)
                         ) {
-                            Text(
-                                text = "O‘ZLASHTIRILGAN QOIDALAR",
-                                style = AppTypography.BadgeMicro.copy(fontSize = 10.sp),
-                                color = TalkMeColors.PrimaryPurple
+                            Image(
+                                painter = painterResource(id = defaultBgImageRes),
+                                contentDescription = null,
+                                contentScale = ContentScale.Crop,
+                                modifier = Modifier.matchParentSize(),
+                                alpha = 0.28f
                             )
-                            Spacer(modifier = Modifier.height(2.dp))
-                            Text(
-                                text = "${appState.masteredGrammarRulesCount} ta qoida",
-                                style = AppTypography.TitleLarge.copy(fontWeight = FontWeight.Black),
-                                color = TalkMeColors.TextPrimary
+                            Box(
+                                modifier = Modifier
+                                    .matchParentSize()
+                                    .background(
+                                        Brush.verticalGradient(
+                                            colors = listOf(
+                                                Color.White.copy(alpha = 0.75f),
+                                                Color.White.copy(alpha = 0.95f)
+                                            )
+                                        )
+                                    )
                             )
-                            Text(
-                                text = "Global Grammar Counter",
-                                style = AppTypography.LabelSmall,
-                                color = TalkMeColors.TextSecondary
-                            )
+                            Column(modifier = Modifier.padding(12.dp)) {
+                                Text(
+                                    text = "O‘ZLASHTIRILGAN QOIDALAR",
+                                    style = AppTypography.BadgeMicro.copy(fontSize = 10.sp),
+                                    color = TalkMeColors.PrimaryPurple
+                                )
+                                Spacer(modifier = Modifier.height(2.dp))
+                                Text(
+                                    text = "${appState.masteredGrammarRulesCount} ta qoida",
+                                    style = AppTypography.TitleLarge.copy(fontWeight = FontWeight.Black),
+                                    color = TalkMeColors.TextPrimary
+                                )
+                                Text(
+                                    text = "Global Grammar Counter",
+                                    style = AppTypography.LabelSmall,
+                                    color = TalkMeColors.TextSecondary
+                                )
+                            }
                         }
                     }
                 }
             }
 
-            // 3. ROADMAP OVERVIEW CARD (MENING KURSLARIM & ROADMAP)
+            // 3. ROADMAP OVERVIEW CARD WITH BG ILLUSTRATION SUPPORT
             item {
                 val cardShape = RoundedCornerShape(dims.radiusExtraLarge)
-                Column(
+                Box(
                     modifier = Modifier
                         .fillMaxWidth()
                         .clip(cardShape)
@@ -304,208 +343,259 @@ fun HomeScreen(
                             )
                         )
                         .border(1.dp, Color(0xFF818CF8).copy(alpha = 0.35f), cardShape)
-                        .padding(dims.cardPadding)
                 ) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(8.dp)
-                        ) {
-                            Box(
-                                modifier = Modifier
-                                    .clip(RoundedCornerShape(8.dp))
-                                    .background(Color(0xFF34D399).copy(alpha = 0.2f))
-                                    .border(
-                                        1.dp,
-                                        Color(0xFF6EE7B7).copy(alpha = 0.4f),
-                                        RoundedCornerShape(8.dp)
+                    // Background PNG/JPEG Image Illustration
+                    Image(
+                        painter = painterResource(id = defaultBgImageRes),
+                        contentDescription = null,
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier.matchParentSize(),
+                        alpha = 0.35f
+                    )
+
+                    // Protective contrast gradient overlay
+                    Box(
+                        modifier = Modifier
+                            .matchParentSize()
+                            .background(
+                                Brush.verticalGradient(
+                                    colors = listOf(
+                                        Color(0xFF1E1B4B).copy(alpha = 0.72f),
+                                        Color(0xFF312E81).copy(alpha = 0.88f)
                                     )
-                                    .padding(horizontal = 8.dp, vertical = 3.dp)
+                                )
+                            )
+                    )
+
+                    Column(modifier = Modifier.padding(dims.cardPadding)) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(8.dp)
                             ) {
+                                Box(
+                                    modifier = Modifier
+                                        .clip(RoundedCornerShape(8.dp))
+                                        .background(Color(0xFF34D399).copy(alpha = 0.25f))
+                                        .border(
+                                            1.dp,
+                                            Color(0xFF6EE7B7).copy(alpha = 0.4f),
+                                            RoundedCornerShape(8.dp)
+                                        )
+                                        .padding(horizontal = 8.dp, vertical = 3.dp)
+                                ) {
+                                    Text(
+                                        text = "ROADMAP • O‘QUV DASTURI",
+                                        style = AppTypography.BadgeMicro.copy(fontWeight = FontWeight.Black),
+                                        color = Color(0xFFA7F3D0)
+                                    )
+                                }
                                 Text(
-                                    text = "ROADMAP • O‘QUV DASTURI",
-                                    style = AppTypography.BadgeMicro.copy(fontWeight = FontWeight.Black),
-                                    color = Color(0xFFA7F3D0)
+                                    text = "11 BO‘LIM",
+                                    style = AppTypography.BadgeMicro.copy(fontWeight = FontWeight.ExtraBold),
+                                    color = Color(0xFFC7D2FE)
                                 )
                             }
-                            Text(
-                                text = "11 BO‘LIM",
-                                style = AppTypography.BadgeMicro.copy(fontWeight = FontWeight.ExtraBold),
-                                color = Color(0xFFC7D2FE)
-                            )
+
+                            Box(
+                                modifier = Modifier
+                                    .clip(RoundedCornerShape(dims.radiusFull))
+                                    .background(Color.Black.copy(alpha = 0.4f))
+                                    .padding(horizontal = 10.dp, vertical = 4.dp)
+                            ) {
+                                Text(
+                                    text = "86 ta mavzu",
+                                    style = AppTypography.BadgeMicro,
+                                    color = Color(0xFFFCD34D)
+                                )
+                            }
                         }
+
+                        Spacer(modifier = Modifier.height(10.dp))
+
+                        Text(
+                            text = "Ingliz Tili Yo‘l Xaritasi",
+                            style = AppTypography.HeadlineMedium.copy(fontWeight = FontWeight.Black),
+                            color = Color.White
+                        )
+                        Text(
+                            text = "Mening kurslarim sahifasida barcha mavzular ro‘yxati",
+                            style = AppTypography.LabelMedium.copy(fontWeight = FontWeight.Bold),
+                            color = Color(0xFFA7F3D0)
+                        )
+                        Spacer(modifier = Modifier.height(6.dp))
+                        Text(
+                            text = "Duolingo uslubidagi interaktiv xarita, 3D qulflar va bosqichma-bosqich o‘quv rejasi. Darslarni birma-bir o‘rganib boramiz!",
+                            style = AppTypography.LabelMedium,
+                            color = Color(0xFFE0E7FF).copy(alpha = 0.95f)
+                        )
+
+                        Spacer(modifier = Modifier.height(14.dp))
 
                         Box(
                             modifier = Modifier
-                                .clip(RoundedCornerShape(dims.radiusFull))
-                                .background(Color.Black.copy(alpha = 0.3f))
-                                .padding(horizontal = 10.dp, vertical = 4.dp)
-                        ) {
-                            Text(
-                                text = "86 ta mavzu",
-                                style = AppTypography.BadgeMicro,
-                                color = Color(0xFFFCD34D)
-                            )
-                        }
-                    }
-
-                    Spacer(modifier = Modifier.height(10.dp))
-
-                    Text(
-                        text = "Ingliz Tili Yo‘l Xaritasi",
-                        style = AppTypography.HeadlineMedium.copy(fontWeight = FontWeight.Black),
-                        color = Color.White
-                    )
-                    Text(
-                        text = "Mening kurslarim sahifasida barcha mavzular ro‘yxati",
-                        style = AppTypography.LabelMedium.copy(fontWeight = FontWeight.Bold),
-                        color = Color(0xFFA7F3D0)
-                    )
-                    Spacer(modifier = Modifier.height(6.dp))
-                    Text(
-                        text = "Duolingo uslubidagi interaktiv xarita, 3D qulflar va bosqichma-bosqich o‘quv rejasi. Darslarni birma-bir o‘rganib boramiz!",
-                        style = AppTypography.LabelMedium,
-                        color = Color(0xFFE0E7FF).copy(alpha = 0.9f)
-                    )
-
-                    Spacer(modifier = Modifier.height(14.dp))
-
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(46.dp)
-                            .clip(RoundedCornerShape(12.dp))
-                            .background(
-                                Brush.horizontalGradient(
-                                    listOf(Color(0xFF34D399), Color(0xFF2DD4BF))
+                                .fillMaxWidth()
+                                .height(46.dp)
+                                .clip(RoundedCornerShape(12.dp))
+                                .background(
+                                    Brush.horizontalGradient(
+                                        listOf(Color(0xFF34D399), Color(0xFF2DD4BF))
+                                    )
                                 )
-                            )
-                            .clickable(onClick = onOpenCoursesClick),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                .clickable(onClick = onOpenCoursesClick),
+                            contentAlignment = Alignment.Center
                         ) {
-                            Text(
-                                text = "Mening kurslarim (Yo‘l xaritasi)",
-                                style = AppTypography.TitleMedium.copy(
-                                    fontSize = 14.sp,
-                                    fontWeight = FontWeight.Black
-                                ),
-                                color = Color(0xFF020617)
-                            )
-                            Icon(
-                                imageVector = AppIcons.ArrowForward,
-                                contentDescription = null,
-                                tint = Color(0xFF020617),
-                                modifier = Modifier.size(16.dp)
-                            )
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                Text(
+                                    text = "Mening kurslarim (Yo‘l xaritasi)",
+                                    style = AppTypography.TitleMedium.copy(
+                                        fontSize = 14.sp,
+                                        fontWeight = FontWeight.Black
+                                    ),
+                                    color = Color(0xFF020617)
+                                )
+                                Icon(
+                                    imageVector = AppIcons.ArrowForward,
+                                    contentDescription = null,
+                                    tint = Color(0xFF020617),
+                                    modifier = Modifier.size(16.dp)
+                                )
+                            }
                         }
-                    }
 
-                    Spacer(modifier = Modifier.height(8.dp))
+                        Spacer(modifier = Modifier.height(8.dp))
 
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(42.dp)
-                            .clip(RoundedCornerShape(12.dp))
-                            .background(Color.White.copy(alpha = 0.1f))
-                            .border(1.dp, Color.White.copy(alpha = 0.2f), RoundedCornerShape(12.dp))
-                            .clickable {
-                                onOpenLessonClick("grammar_fundamentals", "lvl_1")
-                            },
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(6.dp)
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(42.dp)
+                                .clip(RoundedCornerShape(12.dp))
+                                .background(Color.White.copy(alpha = 0.15f))
+                                .border(1.dp, Color.White.copy(alpha = 0.25f), RoundedCornerShape(12.dp))
+                                .clickable {
+                                    onOpenLessonClick("grammar_fundamentals", "lvl_1")
+                                },
+                            contentAlignment = Alignment.Center
                         ) {
-                            Text(
-                                text = "1-Bo‘lim: Grammar Fundamentals xaritasiga o‘tish",
-                                style = AppTypography.LabelMedium.copy(fontWeight = FontWeight.ExtraBold),
-                                color = Color.White
-                            )
-                            Icon(
-                                imageVector = AppIcons.ArrowForward,
-                                contentDescription = null,
-                                tint = Color.White,
-                                modifier = Modifier.size(14.dp)
-                            )
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(6.dp)
+                            ) {
+                                Text(
+                                    text = "1-Bo‘lim: Grammar Fundamentals xaritasiga o‘tish",
+                                    style = AppTypography.LabelMedium.copy(fontWeight = FontWeight.ExtraBold),
+                                    color = Color.White
+                                )
+                                Icon(
+                                    imageVector = AppIcons.ArrowForward,
+                                    contentDescription = null,
+                                    tint = Color.White,
+                                    modifier = Modifier.size(14.dp)
+                                )
+                            }
                         }
                     }
                 }
             }
 
-            // 4. VOCABULARY BANNER CARD (FSRS Spaced Repetition)
+            // 4. VOCABULARY BANNER CARD WITH BG ILLUSTRATION SUPPORT
             item {
                 val shape = RoundedCornerShape(dims.radiusLarge)
-                Row(
+                Box(
                     modifier = Modifier
                         .fillMaxWidth()
                         .clip(shape)
                         .background(TalkMeColors.ContainerGreenLight)
                         .border(1.dp, TalkMeColors.SuccessGreen.copy(alpha = 0.3f), shape)
                         .clickable(onClick = onOpenRepeatClick)
-                        .padding(18.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
                 ) {
+                    // Background Illustration
+                    Image(
+                        painter = painterResource(id = defaultBgImageRes),
+                        contentDescription = null,
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier.matchParentSize(),
+                        alpha = 0.22f
+                    )
+                    // Soft gradient overlay
+                    Box(
+                        modifier = Modifier
+                            .matchParentSize()
+                            .background(
+                                Brush.horizontalGradient(
+                                    colors = listOf(
+                                        TalkMeColors.ContainerGreenLight.copy(alpha = 0.82f),
+                                        Color.White.copy(alpha = 0.92f)
+                                    )
+                                )
+                            )
+                    )
+
                     Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(14.dp)
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(18.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(14.dp)
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .size(48.dp)
+                                    .clip(RoundedCornerShape(16.dp))
+                                    .background(TalkMeColors.SuccessGreen),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(
+                                    imageVector = AppIcons.BookOpen,
+                                    contentDescription = null,
+                                    tint = Color.White,
+                                    modifier = Modifier.size(24.dp)
+                                )
+                            }
+                            Column {
+                                Text(
+                                    text = "Bugun ${appState.fsrsCards.size} ta so‘zni eslang",
+                                    style = AppTypography.TitleMedium.copy(fontWeight = FontWeight.ExtraBold),
+                                    color = TalkMeColors.TextPrimary
+                                )
+                                Text(
+                                    text = "FSRS oraliqli takrorlash · ~3 daqiqa",
+                                    style = AppTypography.LabelMedium,
+                                    color = Color(0xFF2E7D32)
+                                )
+                            }
+                        }
+
                         Box(
                             modifier = Modifier
-                                .size(48.dp)
-                                .clip(RoundedCornerShape(16.dp))
-                                .background(TalkMeColors.SuccessGreen),
+                                .size(32.dp)
+                                .clip(CircleShape)
+                                .background(Color.White),
                             contentAlignment = Alignment.Center
                         ) {
                             Icon(
-                                imageVector = AppIcons.BookOpen,
+                                imageVector = AppIcons.ArrowForward,
                                 contentDescription = null,
-                                tint = Color.White,
-                                modifier = Modifier.size(24.dp)
+                                tint = TalkMeColors.SuccessGreen,
+                                modifier = Modifier.size(16.dp)
                             )
                         }
-                        Column {
-                            Text(
-                                text = "Bugun ${appState.fsrsCards.size} ta so‘zni eslang",
-                                style = AppTypography.TitleMedium.copy(fontWeight = FontWeight.ExtraBold),
-                                color = TalkMeColors.TextPrimary
-                            )
-                            Text(
-                                text = "FSRS oraliqli takrorlash · ~3 daqiqa",
-                                style = AppTypography.LabelMedium,
-                                color = Color(0xFF2E7D32)
-                            )
-                        }
-                    }
-
-                    Box(
-                        modifier = Modifier
-                            .size(32.dp)
-                            .clip(CircleShape)
-                            .background(Color.White),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Icon(
-                            imageVector = AppIcons.ArrowForward,
-                            contentDescription = null,
-                            tint = TalkMeColors.SuccessGreen,
-                            modifier = Modifier.size(16.dp)
-                        )
                     }
                 }
             }
 
-            // 5. SKILLS SECTION (Tinglash, Gapirish, O'qish, Yozish)
+            // 5. SKILLS SECTION (Tinglash, Gapirish, O'qish, Yozish) WITH BG ILLUSTRATIONS
             item {
                 Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                     Row(
@@ -536,6 +626,7 @@ fun HomeScreen(
                             iconTint = TalkMeColors.PrimaryPurple,
                             title = "Tinglash",
                             subtitle = "Listening · 8 daq",
+                            bgImageRes = defaultBgImageRes,
                             onClick = {
                                 appState.speak("Hello! Listening practice builds your understanding.")
                             },
@@ -547,6 +638,7 @@ fun HomeScreen(
                             iconTint = Color(0xFFD97706),
                             title = "Gapirish",
                             subtitle = "Speaking · 5 daq",
+                            bgImageRes = defaultBgImageRes,
                             onClick = onOpenVoiceStudioClick,
                             modifier = Modifier.weight(1f)
                         )
@@ -562,6 +654,7 @@ fun HomeScreen(
                             iconTint = TalkMeColors.SuccessGreen,
                             title = "O‘qish",
                             subtitle = "Reading · 6 daq",
+                            bgImageRes = defaultBgImageRes,
                             onClick = onOpenCoursesClick,
                             modifier = Modifier.weight(1f)
                         )
@@ -571,6 +664,7 @@ fun HomeScreen(
                             iconTint = Color(0xFF0284C7),
                             title = "Yozish",
                             subtitle = "Writing · 7 daq",
+                            bgImageRes = defaultBgImageRes,
                             onClick = onOpenQuizClick,
                             modifier = Modifier.weight(1f)
                         )
@@ -578,7 +672,7 @@ fun HomeScreen(
                 }
             }
 
-            // 6. WEEKLY PLAN SECTION
+            // 6. WEEKLY PLAN SECTION WITH BG ILLUSTRATION SUPPORT
             item {
                 val pct = ((appState.weeklyCompletedLessons.toFloat() / appState.weeklyGoalLessons.toFloat()) * 100f).toInt()
                 Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -599,90 +693,106 @@ fun HomeScreen(
                         )
                     }
 
-                    TalkMeCard {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            TalkMeBadge(
-                                text = appState.userLevel,
-                                containerColor = TalkMeColors.ContainerPurpleLight,
-                                textColor = TalkMeColors.PrimaryPurple
-                            )
-                            Text(
-                                text = "$pct% bajarildi",
-                                style = AppTypography.LabelMedium,
-                                color = TalkMeColors.TextSecondary
-                            )
-                        }
-
-                        Spacer(modifier = Modifier.height(12.dp))
-
-                        TalkMeProgressBar(
-                            progress = appState.weeklyCompletedLessons.toFloat() / appState.weeklyGoalLessons.toFloat(),
-                            fillColor = TalkMeColors.SuccessGreen
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(dims.radiusExtraLarge))
+                            .background(Color.White)
+                            .border(1.dp, Color(0xFFF0EFF5), RoundedCornerShape(dims.radiusExtraLarge))
+                    ) {
+                        Image(
+                            painter = painterResource(id = defaultBgImageRes),
+                            contentDescription = null,
+                            contentScale = ContentScale.Crop,
+                            modifier = Modifier.matchParentSize(),
+                            alpha = 0.12f
                         )
 
-                        Spacer(modifier = Modifier.height(12.dp))
-
-                        // Real Situation Task Row
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clip(RoundedCornerShape(12.dp))
-                                .background(Color(0xFFFAFAFC))
-                                .border(1.dp, Color(0xFFF0EFF5), RoundedCornerShape(12.dp))
-                                .clickable {
-                                    appState.speak("Could I have some tea, please?")
-                                }
-                                .padding(12.dp),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
+                        Column(modifier = Modifier.padding(dims.cardPadding)) {
                             Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(12.dp)
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
                             ) {
-                                Box(
-                                    modifier = Modifier
-                                        .size(34.dp)
-                                        .clip(RoundedCornerShape(10.dp))
-                                        .background(Color(0xFFFEF3C7)),
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    Text(
-                                        text = "☕",
-                                        fontSize = 16.sp
-                                    )
-                                }
-                                Column {
-                                    Text(
-                                        text = "Real vaziyatlar",
-                                        style = AppTypography.LabelMedium.copy(fontWeight = FontWeight.Bold),
-                                        color = TalkMeColors.TextPrimary
-                                    )
-                                    Text(
-                                        text = "Kafeda buyurtma · “Could I have some tea?”",
-                                        style = AppTypography.LabelSmall,
-                                        color = TalkMeColors.TextSecondary
-                                    )
-                                }
+                                TalkMeBadge(
+                                    text = appState.userLevel,
+                                    containerColor = TalkMeColors.ContainerPurpleLight,
+                                    textColor = TalkMeColors.PrimaryPurple
+                                )
+                                Text(
+                                    text = "$pct% bajarildi",
+                                    style = AppTypography.LabelMedium,
+                                    color = TalkMeColors.TextSecondary
+                                )
                             }
 
-                            Box(
+                            Spacer(modifier = Modifier.height(12.dp))
+
+                            TalkMeProgressBar(
+                                progress = appState.weeklyCompletedLessons.toFloat() / appState.weeklyGoalLessons.toFloat(),
+                                fillColor = TalkMeColors.SuccessGreen
+                            )
+
+                            Spacer(modifier = Modifier.height(12.dp))
+
+                            // Real Situation Task Row
+                            Row(
                                 modifier = Modifier
-                                    .size(28.dp)
-                                    .clip(CircleShape)
-                                    .background(Color.White),
-                                contentAlignment = Alignment.Center
+                                    .fillMaxWidth()
+                                    .clip(RoundedCornerShape(12.dp))
+                                    .background(Color(0xFFFAFAFC))
+                                    .border(1.dp, Color(0xFFF0EFF5), RoundedCornerShape(12.dp))
+                                    .clickable {
+                                        appState.speak("Could I have some tea, please?")
+                                    }
+                                    .padding(12.dp),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
                             ) {
-                                Icon(
-                                    imageVector = AppIcons.VolumeUp,
-                                    contentDescription = "Play Audio",
-                                    tint = TalkMeColors.PrimaryPurple,
-                                    modifier = Modifier.size(15.dp)
-                                )
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                                ) {
+                                    Box(
+                                        modifier = Modifier
+                                            .size(34.dp)
+                                            .clip(RoundedCornerShape(10.dp))
+                                            .background(Color(0xFFFEF3C7)),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        Text(
+                                            text = "☕",
+                                            fontSize = 16.sp
+                                        )
+                                    }
+                                    Column {
+                                        Text(
+                                            text = "Real vaziyatlar",
+                                            style = AppTypography.LabelMedium.copy(fontWeight = FontWeight.Bold),
+                                            color = TalkMeColors.TextPrimary
+                                        )
+                                        Text(
+                                            text = "Kafeda buyurtma · “Could I have some tea?”",
+                                            style = AppTypography.LabelSmall,
+                                            color = TalkMeColors.TextSecondary
+                                        )
+                                    }
+                                }
+
+                                Box(
+                                    modifier = Modifier
+                                        .size(28.dp)
+                                        .clip(CircleShape)
+                                        .background(Color.White),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Icon(
+                                        imageVector = AppIcons.VolumeUp,
+                                        contentDescription = "Play Audio",
+                                        tint = TalkMeColors.PrimaryPurple,
+                                        modifier = Modifier.size(15.dp)
+                                    )
+                                }
                             }
                         }
                     }
@@ -700,40 +810,64 @@ private fun HomeSkillCard(
     title: String,
     subtitle: String,
     onClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    @DrawableRes bgImageRes: Int? = null,
 ) {
-    Column(
+    Box(
         modifier = modifier
             .clip(RoundedCornerShape(16.dp))
             .background(Color.White)
             .border(1.dp, Color(0xFFF0EFF5), RoundedCornerShape(16.dp))
             .clickable(onClick = onClick)
-            .padding(14.dp)
     ) {
-        Box(
-            modifier = Modifier
-                .size(36.dp)
-                .clip(RoundedCornerShape(12.dp))
-                .background(iconBg),
-            contentAlignment = Alignment.Center
-        ) {
-            Icon(
-                imageVector = icon,
+        if (bgImageRes != null) {
+            Image(
+                painter = painterResource(id = bgImageRes),
                 contentDescription = null,
-                tint = iconTint,
-                modifier = Modifier.size(20.dp)
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.matchParentSize(),
+                alpha = 0.18f
+            )
+            Box(
+                modifier = Modifier
+                    .matchParentSize()
+                    .background(
+                        Brush.verticalGradient(
+                            colors = listOf(
+                                Color.White.copy(alpha = 0.75f),
+                                Color.White.copy(alpha = 0.95f)
+                            )
+                        )
+                    )
             )
         }
-        Spacer(modifier = Modifier.height(8.dp))
-        Text(
-            text = title,
-            style = AppTypography.TitleMedium.copy(fontSize = 14.sp),
-            color = TalkMeColors.TextPrimary
-        )
-        Text(
-            text = subtitle,
-            style = AppTypography.LabelSmall,
-            color = TalkMeColors.TextSecondary
-        )
+
+        Column(modifier = Modifier.padding(14.dp)) {
+            Box(
+                modifier = Modifier
+                    .size(36.dp)
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(iconBg),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = icon,
+                    contentDescription = null,
+                    tint = iconTint,
+                    modifier = Modifier.size(20.dp)
+                )
+            }
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = title,
+                style = AppTypography.TitleMedium.copy(fontSize = 14.sp),
+                color = TalkMeColors.TextPrimary
+            )
+            Text(
+                text = subtitle,
+                style = AppTypography.LabelSmall,
+                color = TalkMeColors.TextSecondary
+            )
+        }
     }
 }

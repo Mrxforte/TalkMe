@@ -3,6 +3,7 @@ import {
 } from '../schemas/subtopicSchemas';
 import { NOUNS_CURRICULUM_PART_1 } from './nounsCurriculumPart1';
 import { NOUNS_CURRICULUM_PART_2 } from './nounsCurriculumPart2';
+import { NUMBERS_CURRICULUM } from './numbersCurriculum';
 
 export interface MajorTopicWithSubtopics {
   id: string;
@@ -36,6 +37,17 @@ export const NOUNS_18_SUBTOPIC_IDS: string[] = [
   'noun_18_complete_review',
 ];
 
+export const NUMBERS_8_SUBTOPIC_IDS: string[] = [
+  'numbers_01_what_is_a_number',
+  'numbers_02_questions_answered_by_numbers',
+  'numbers_03_types_of_numbers',
+  'numbers_04_cardinal_numbers',
+  'numbers_05_ordinal_numbers',
+  'numbers_06_fractions',
+  'numbers_07_telling_the_time',
+  'numbers_08_phone_numbers',
+];
+
 export const MAJOR_TOPICS_CATALOG: MajorTopicWithSubtopics[] = [
   {
     id: 'nouns',
@@ -48,10 +60,21 @@ export const MAJOR_TOPICS_CATALOG: MajorTopicWithSubtopics[] = [
     cefrLevel: 'A0–B1',
     subtopicIds: NOUNS_18_SUBTOPIC_IDS,
   },
+  {
+    id: 'numbers',
+    courseId: 'course_general_english',
+    titleEn: 'Numbers — Complete Curriculum (8 Topics)',
+    titleUz: 'Numbers — Sonlar so‘z turkumi (8 ta Mavzu)',
+    descriptionUz:
+      'Son nima ekanligidan boshlab, Sanoq sonlar, Tartib sonlar, Kasrlar, Soat va vaqtni aytish hamda Telefon raqamlarini to‘g‘ri o‘qishgacha 8 bo‘limli to‘liq o‘quv dasturi.',
+    iconEmoji: '🔢',
+    cefrLevel: 'A0–A1',
+    subtopicIds: NUMBERS_8_SUBTOPIC_IDS,
+  },
 ];
 
 // ============================================================================
-// SUBTOPICS REPOSITORY (ONLY NOUNS 18 SUBTOPICS)
+// SUBTOPICS REPOSITORY
 // ============================================================================
 
 import { EF_01_KIRISH_SUBTOPIC } from '../../features/grammar/content/lessons/lesson01EnglishFundamentalsKirish';
@@ -59,10 +82,11 @@ import { EF_01_KIRISH_SUBTOPIC } from '../../features/grammar/content/lessons/le
 export const SUBTOPICS_REPOSITORY: Record<string, SubtopicMicroCourse> = {
   ...NOUNS_CURRICULUM_PART_1,
   ...NOUNS_CURRICULUM_PART_2,
+  ...NUMBERS_CURRICULUM,
   ef_01_kirish: EF_01_KIRISH_SUBTOPIC,
   lesson_01_kirish: EF_01_KIRISH_SUBTOPIC,
 
-  // Backward-compatible aliases pointing to the 18-Subtopic Nouns Curriculum
+  // Backward-compatible aliases
   what_is_a_noun: NOUNS_CURRICULUM_PART_1.noun_01_what_is_a_noun,
   common_and_proper_nouns: NOUNS_CURRICULUM_PART_1.noun_04_proper_and_common_intro,
   singular_and_plural_nouns: NOUNS_CURRICULUM_PART_2.noun_11_number_singular_plural,

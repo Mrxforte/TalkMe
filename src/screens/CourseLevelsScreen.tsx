@@ -29,7 +29,10 @@ import {
   triggerLockRattleFeedback,
   triggerUnlockCeremonyFeedback,
 } from './courses/LockedNode3DPadlock';
-import { NOUNS_18_SUBTOPIC_IDS } from '../content/registry/subtopicsCatalog';
+import {
+  NOUNS_18_SUBTOPIC_IDS,
+  NUMBERS_8_SUBTOPIC_IDS,
+} from '../content/registry/subtopicsCatalog';
 import { subtopicProgressEngine } from '../engines/subtopic-engine/subtopicProgressEngine';
 import confetti from 'canvas-confetti';
 
@@ -185,6 +188,132 @@ export const COURSE_CURRICULA: Record<
       },
     ],
   },
+  numbers: {
+    title: 'Numbers — Sonlar (8-Topic Module)',
+    subtitle: 'Sonlar so‘z turkumi bo‘yicha 8 bo‘limli to‘liq o‘quv dasturi',
+    section: 'BO‘LIM 2 · NUMBERS (SONLAR)',
+    topics: [
+      {
+        title: '1-Daraja: Son nima? (What Is a Number?)',
+        subtitle: 'Miqdor, tartib va raqamli qiymatlar',
+        nodeType: 'MASCOT_INTRO',
+        xpReward: 15,
+        subtopicId: NUMBERS_8_SUBTOPIC_IDS[0],
+      },
+      {
+        title: '2-Daraja: Sonlar beradigan savollar',
+        subtitle: 'How many? / How much? / Which one?',
+        nodeType: 'STAR',
+        xpReward: 15,
+        subtopicId: NUMBERS_8_SUBTOPIC_IDS[1],
+      },
+      {
+        title: '3-Daraja: Sonlarning turlari',
+        subtitle: 'Cardinal, Ordinal va Fractions turlari',
+        nodeType: 'READING',
+        xpReward: 15,
+        subtopicId: NUMBERS_8_SUBTOPIC_IDS[2],
+      },
+      {
+        title: '4-Daraja: Sanoq sonlar (Cardinal Numbers)',
+        subtitle: '0–10, 11–19, o‘nliklar va yuzliklar',
+        nodeType: 'PRACTICE',
+        xpReward: 20,
+        subtopicId: NUMBERS_8_SUBTOPIC_IDS[3],
+      },
+      {
+        title: '5-Daraja: Tartib sonlar (Ordinal Numbers)',
+        subtitle: '1st, 2nd, 3rd, 4th, qavatlar va sanalar',
+        nodeType: 'MIC',
+        xpReward: 20,
+        subtopicId: NUMBERS_8_SUBTOPIC_IDS[4],
+      },
+      {
+        title: '6-Daraja: Kasr sonlar (Fractions)',
+        subtitle: 'Half, one third, one quarter va 0.5',
+        nodeType: 'CAMERA',
+        xpReward: 15,
+        subtopicId: NUMBERS_8_SUBTOPIC_IDS[5],
+      },
+      {
+        title: '7-Daraja: Vaqtni aytish (Telling Time)',
+        subtitle: 'O’clock, past, to, half past, quarter past',
+        nodeType: 'HEADPHONES',
+        xpReward: 20,
+        subtopicId: NUMBERS_8_SUBTOPIC_IDS[6],
+      },
+      {
+        title: '8-Daraja: Telefon raqamlari (Phone Numbers)',
+        subtitle: 'Digit by digit, zero/oh va double digits',
+        nodeType: 'STAR',
+        xpReward: 25,
+        subtopicId: NUMBERS_8_SUBTOPIC_IDS[7],
+      },
+    ],
+  },
+  numerals: {
+    title: 'Son (Numerals & Numbers)',
+    subtitle: 'Sonlar so‘z turkumi bo‘yicha 8 bo‘limli to‘liq o‘quv dasturi',
+    section: 'BO‘LIM 2 · NUMBERS (SONLAR)',
+    topics: [
+      {
+        title: '1-Daraja: Son nima? (What Is a Number?)',
+        subtitle: 'Miqdor, tartib va raqamli qiymatlar',
+        nodeType: 'MASCOT_INTRO',
+        xpReward: 15,
+        subtopicId: NUMBERS_8_SUBTOPIC_IDS[0],
+      },
+      {
+        title: '2-Daraja: Sonlar beradigan savollar',
+        subtitle: 'How many? / How much? / Which one?',
+        nodeType: 'STAR',
+        xpReward: 15,
+        subtopicId: NUMBERS_8_SUBTOPIC_IDS[1],
+      },
+      {
+        title: '3-Daraja: Sonlarning turlari',
+        subtitle: 'Cardinal, Ordinal va Fractions turlari',
+        nodeType: 'READING',
+        xpReward: 15,
+        subtopicId: NUMBERS_8_SUBTOPIC_IDS[2],
+      },
+      {
+        title: '4-Daraja: Sanoq sonlar (Cardinal Numbers)',
+        subtitle: '0–10, 11–19, o‘nliklar va yuzliklar',
+        nodeType: 'PRACTICE',
+        xpReward: 20,
+        subtopicId: NUMBERS_8_SUBTOPIC_IDS[3],
+      },
+      {
+        title: '5-Daraja: Tartib sonlar (Ordinal Numbers)',
+        subtitle: '1st, 2nd, 3rd, 4th, qavatlar va sanalar',
+        nodeType: 'MIC',
+        xpReward: 20,
+        subtopicId: NUMBERS_8_SUBTOPIC_IDS[4],
+      },
+      {
+        title: '6-Daraja: Kasr sonlar (Fractions)',
+        subtitle: 'Half, one third, one quarter va 0.5',
+        nodeType: 'CAMERA',
+        xpReward: 15,
+        subtopicId: NUMBERS_8_SUBTOPIC_IDS[5],
+      },
+      {
+        title: '7-Daraja: Vaqtni aytish (Telling Time)',
+        subtitle: 'O’clock, past, to, half past, quarter past',
+        nodeType: 'HEADPHONES',
+        xpReward: 20,
+        subtopicId: NUMBERS_8_SUBTOPIC_IDS[6],
+      },
+      {
+        title: '8-Daraja: Telefon raqamlari (Phone Numbers)',
+        subtitle: 'Digit by digit, zero/oh va double digits',
+        nodeType: 'STAR',
+        xpReward: 25,
+        subtopicId: NUMBERS_8_SUBTOPIC_IDS[7],
+      },
+    ],
+  },
   english_fundamentals: {
     title: 'English Fundamentals',
     subtitle: 'Ingliz tili asoslari va ilk tushunchalar',
@@ -223,12 +352,6 @@ export const COURSE_CURRICULA: Record<
     title: 'Sifat (Adjectives)',
     subtitle: 'Belgi, xususiyat va darajalar',
     section: 'BO‘LIM 3',
-    topics: [],
-  },
-  numerals: {
-    title: 'Son (Numerals)',
-    subtitle: 'Sanoq va tartib sonlar',
-    section: 'BO‘LIM 4',
     topics: [],
   },
   pronouns: {
