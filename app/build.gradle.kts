@@ -1,9 +1,12 @@
+import org.gradle.testing.jacoco.plugins.JacocoPluginExtension
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.plugin.compose")
     id("com.google.dagger.hilt.android")
     id("com.google.devtools.ksp")
     id("com.google.android.libraries.mapsplatform.secrets-gradle-plugin")
+    id("jacoco")
 }
 
 android {
@@ -32,6 +35,7 @@ android {
     buildTypes {
         debug {
             signingConfig = signingConfigs.getByName("debugConfig")
+            enableUnitTestCoverage = true
         }
         release {
             isMinifyEnabled = false
@@ -47,6 +51,10 @@ android {
         compose = true
         buildConfig = true
     }
+}
+
+configure<JacocoPluginExtension> {
+    toolVersion = "0.8.12"
 }
 
 secrets {
@@ -93,6 +101,9 @@ dependencies {
 
     // ONNX Runtime Android (Offline Sherpa-ONNX TTS)
     implementation("com.microsoft.onnxruntime:onnxruntime-android:1.19.2")
+
+    // LeakCanary Memory Leak Detection (Debug)
+    debugImplementation("com.squareup.leakcanary:leakcanary-android:2.14")
 
     // Unit Testing
     testImplementation("junit:junit:4.13.2")
