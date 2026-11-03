@@ -8,14 +8,25 @@ import android.webkit.WebResourceRequest
 import android.webkit.WebSettings
 import android.webkit.WebView
 import android.webkit.WebViewClient
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.IconButton
@@ -30,27 +41,29 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import com.talkme.ui.theme.TalkMeColors
 
 /**
- * Clean 100% Full-Screen Android Native WebView Container for TalkMe.
+ * Clean 100% Full-Screen Android Native WebView Container with Full-Screen Animated Splash Screen.
  *
- * Runs the TalkMe web application with:
- * - Full JavaScript, DOM Storage, LocalStorage & WebGL/HTML5 Audio support
- * - Automatic host loopback resolution (`http://10.0.2.2:3000` for Android Emulator)
- * - Automatic fallback to embedded assets (`file:///android_asset/dist/index.html`)
- * - No top URL control bar or header (pure full-screen experience)
+ * Highlights:
+ * - Defaults to `file:///android_asset/dist/index.html` for **INSTANT** zero-latency app launch.
+ * - Displays a sleek, animated Native Splash Screen while WebView initializes, then smoothly fades out.
+ * - Supports JavaScript, LocalStorage, WebGL, and HTML5 Audio.
  */
 @Suppress("DEPRECATION")
 @SuppressLint("SetJavaScriptEnabled")
 @Composable
 fun TalkMeWebViewScreen(
-    initialUrl: String = "http://10.0.2.2:3000",
+    initialUrl: String = "file:///android_asset/dist/index.html",
     modifier: Modifier = Modifier
 ) {
     var currentUrl by remember { mutableStateOf(initialUrl) }
@@ -62,7 +75,7 @@ fun TalkMeWebViewScreen(
 
     Scaffold(
         modifier = modifier.fillMaxSize(),
-        containerColor = Color.Black
+        containerColor = Color(0xFF1E1B4B)
     ) { innerPadding ->
         Box(
             modifier = Modifier
@@ -109,7 +122,6 @@ fun TalkMeWebViewScreen(
                                 super.onReceivedError(view, request, error)
                                 if (request?.isForMainFrame == true) {
                                     if (currentUrl != fallbackAssetUrl) {
-                                        // Auto-fallback to embedded offline assets!
                                         currentUrl = fallbackAssetUrl
                                         view?.loadUrl(fallbackAssetUrl)
                                     } else {
@@ -130,59 +142,38 @@ fun TalkMeWebViewScreen(
                 modifier = Modifier.fillMaxSize()
             )
 
-            if (isLoading) {
-                Box(
-                    modifier = Modifier
-                        .align(Alignment.TopCenter)
-                        .padding(top = 16.dp)
-                        .clip(RoundedCornerShape(20.dp))
-                        .background(Color.White.copy(alpha = 0.9f))
-                        .padding(horizontal = 16.dp, vertical = 8.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        CircularProgressIndicator(
-                            modifier = Modifier.size(18.dp),
-                            color = TalkMeColors.PrimaryPurple,
-                            strokeWidth = 2.dp
-                        )
-                        Text(
-                            text = "TalkMe yuklanmoqda...",
-                            style = MaterialTheme.typography.labelMedium.copy(
-                                fontWeight = FontWeight.Bold,
-                                color = TalkMeColors.PrimaryPurple
-                            )
-                        )
-                    }
-                }
+            // Full-Screen Native Splash Overlay
+            AnimatedVisibility(
+                visible = isLoading,
+                exit = fadeOut(animationSpec = tween(durationMillis = 400))
+            ) {
+                TalkMeSplashOverlay()
             }
 
+            // Error Screen
             if (hasError) {
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
-                        .background(Color.White)
+                        .background(Color(0xFF1E1B4B))
                         .padding(24.dp),
                     contentAlignment = Alignment.Center
                 ) {
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                        verticalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
                         Text(
                             text = "⚠️ TalkMe Yuklanmadi",
                             style = MaterialTheme.typography.titleMedium.copy(
                                 fontWeight = FontWeight.Bold,
-                                color = Color.Red
+                                color = Color.White
                             )
                         )
                         Text(
-                            text = "Server holatini tekshiring yoki qayta urinib ko'ring.",
+                            text = "Dasturni qayta yuklash uchun tugmani bosing.",
                             style = MaterialTheme.typography.bodyMedium,
-                            color = TalkMeColors.TextSecondary,
+                            color = Color(0xFFA5B4FC),
                             textAlign = TextAlign.Center
                         )
                         IconButton(
@@ -193,19 +184,139 @@ fun TalkMeWebViewScreen(
                                 webViewRef?.loadUrl(fallbackAssetUrl)
                             },
                             modifier = Modifier
-                                .clip(RoundedCornerShape(12.dp))
-                                .background(TalkMeColors.PrimaryPurple)
-                                .padding(horizontal = 16.dp, vertical = 8.dp)
+                                .clip(RoundedCornerShape(14.dp))
+                                .background(TalkMeColors.SuccessGreen)
+                                .padding(horizontal = 24.dp, vertical = 10.dp)
                         ) {
                             Text(
                                 text = "Qayta urinish 🔄",
                                 color = Color.White,
-                                style = MaterialTheme.typography.labelLarge
+                                style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold)
                             )
                         }
                     }
                 }
             }
+        }
+    }
+}
+
+/**
+ * Premium Full-Screen Splash Screen Overlay
+ * Displays while the web application bundle is initializing.
+ */
+@Composable
+private fun TalkMeSplashOverlay() {
+    val infiniteTransition = rememberInfiniteTransition(label = "SplashPulse")
+    val pulseScale by infiniteTransition.animateFloat(
+        initialValue = 0.95f,
+        targetValue = 1.05f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(1200, easing = FastOutSlowInEasing),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "LogoPulseScale"
+    )
+
+    val backgroundGradient = Brush.verticalGradient(
+        colors = listOf(
+            Color(0xFF1E1B4B), // Indigo950
+            Color(0xFF4F46E5), // Indigo600
+            Color(0xFF5E4B8B)  // Brand Purple
+        )
+    )
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(backgroundGradient),
+        contentAlignment = Alignment.Center
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center,
+            modifier = Modifier.padding(32.dp)
+        ) {
+            // Animated Glowing Brand Icon Container
+            Box(
+                modifier = Modifier
+                    .scale(pulseScale)
+                    .size(100.dp)
+                    .clip(CircleShape)
+                    .background(Color.White)
+                    .padding(16.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                // Speech Bubble & Soundwave Icon Graphic
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(4.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(width = 6.dp, height = 24.dp)
+                            .clip(RoundedCornerShape(3.dp))
+                            .background(TalkMeColors.SuccessGreen)
+                    )
+                    Box(
+                        modifier = Modifier
+                            .size(width = 6.dp, height = 40.dp)
+                            .clip(RoundedCornerShape(3.dp))
+                            .background(TalkMeColors.BrandPurple)
+                    )
+                    Box(
+                        modifier = Modifier
+                            .size(width = 6.dp, height = 50.dp)
+                            .clip(RoundedCornerShape(3.dp))
+                            .background(TalkMeColors.SuccessGreen)
+                    )
+                    Box(
+                        modifier = Modifier
+                            .size(width = 6.dp, height = 40.dp)
+                            .clip(RoundedCornerShape(3.dp))
+                            .background(TalkMeColors.BrandPurple)
+                    )
+                    Box(
+                        modifier = Modifier
+                            .size(width = 6.dp, height = 24.dp)
+                            .clip(RoundedCornerShape(3.dp))
+                            .background(TalkMeColors.SuccessGreen)
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(28.dp))
+
+            // App Brand Name
+            Text(
+                text = "TalkMe",
+                style = MaterialTheme.typography.headlineLarge.copy(
+                    fontWeight = FontWeight.ExtraBold,
+                    fontSize = 36.sp,
+                    color = Color.White
+                )
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            // Subtitle Tagline
+            Text(
+                text = "AI Powered Language Companion",
+                style = MaterialTheme.typography.bodyMedium.copy(
+                    fontWeight = FontWeight.Medium,
+                    color = Color(0xFFC7D2FE),
+                    letterSpacing = 0.5.sp
+                )
+            )
+
+            Spacer(modifier = Modifier.height(48.dp))
+
+            // Loading Indicator
+            CircularProgressIndicator(
+                modifier = Modifier.size(36.dp),
+                color = TalkMeColors.SuccessGreen,
+                strokeWidth = 3.dp
+            )
         }
     }
 }
