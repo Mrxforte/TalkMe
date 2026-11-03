@@ -12,6 +12,18 @@ export default defineConfig({
   build: {
     outDir: '../assets/dist',
     emptyOutDir: true,
+    minify: 'esbuild',
+    cssCodeSplit: true,
+    target: 'es2020',
+    chunkSizeWarningLimit: 1200,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor: ['react', 'react-dom'],
+          icons: ['lucide-react'],
+        },
+      },
+    },
   },
   server: {
     host: '0.0.0.0',
@@ -21,4 +33,3 @@ export default defineConfig({
     hmr: false,
   },
 });
-

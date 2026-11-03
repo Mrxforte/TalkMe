@@ -112,7 +112,7 @@ export const HomeScreen: React.FC = () => {
     });
   };
 
-  const bgImgUrl = '/images/grammar_fundamentals.png';
+  const bgImgUrl = 'images/grammar_fundamentals.png';
 
   return (
     <div className="min-h-screen bg-[#F5F6FA] pb-28 text-[#212121]">

@@ -38,7 +38,7 @@ export const CoursesScreen: React.FC = () => {
       topicsCount: '18 ta ost-mavzu',
       hasSubtopics: true,
       icon: BookOpen,
-      bgImage: '/images/nouns.svg',
+      bgImage: 'images/nouns.svg',
     },
     {
       id: 'english_fundamentals',
@@ -47,7 +47,7 @@ export const CoursesScreen: React.FC = () => {
       topicsCount: '1 ta dars',
       hasSubtopics: true,
       icon: BookOpen,
-      bgImage: '/images/grammar_fundamentals.png',
+      bgImage: 'images/grammar_fundamentals.png',
     },
     {
       id: 'verbs',
@@ -56,7 +56,7 @@ export const CoursesScreen: React.FC = () => {
       topicsCount: '0 ta ost-mavzu',
       hasSubtopics: false,
       icon: Flame,
-      bgImage: '/images/verbs.svg',
+      bgImage: 'images/verbs.svg',
     },
     {
       id: 'adjectives',
@@ -65,7 +65,7 @@ export const CoursesScreen: React.FC = () => {
       topicsCount: '0 ta ost-mavzu',
       hasSubtopics: false,
       icon: Edit3,
-      bgImage: '/images/adjectives.svg',
+      bgImage: 'images/adjectives.svg',
     },
     {
       id: 'numerals',
@@ -74,7 +74,7 @@ export const CoursesScreen: React.FC = () => {
       topicsCount: '0 ta ost-mavzu',
       hasSubtopics: false,
       icon: BarChart2,
-      bgImage: '/images/numerals.svg',
+      bgImage: 'images/numerals.svg',
     },
     {
       id: 'pronouns',
@@ -83,7 +83,7 @@ export const CoursesScreen: React.FC = () => {
       topicsCount: '0 ta ost-mavzu',
       hasSubtopics: false,
       icon: MessageSquare,
-      bgImage: '/images/pronouns.svg',
+      bgImage: 'images/pronouns.svg',
     },
     {
       id: 'adverbs',
@@ -92,7 +92,7 @@ export const CoursesScreen: React.FC = () => {
       topicsCount: '0 ta ost-mavzu',
       hasSubtopics: false,
       icon: Zap,
-      bgImage: '/images/adverbs.svg',
+      bgImage: 'images/adverbs.svg',
     },
     {
       id: 'prepositions',
@@ -101,7 +101,7 @@ export const CoursesScreen: React.FC = () => {
       topicsCount: '0 ta ost-mavzu',
       hasSubtopics: false,
       icon: Compass,
-      bgImage: '/images/prepositions.svg',
+      bgImage: 'images/prepositions.svg',
     },
     {
       id: 'sentences',
@@ -110,7 +110,7 @@ export const CoursesScreen: React.FC = () => {
       topicsCount: '0 ta ost-mavzu',
       hasSubtopics: false,
       icon: Layers,
-      bgImage: '/images/sentences.svg',
+      bgImage: 'images/sentences.svg',
     },
     {
       id: 'adverbials',
@@ -119,7 +119,7 @@ export const CoursesScreen: React.FC = () => {
       topicsCount: '0 ta ost-mavzu',
       hasSubtopics: false,
       icon: Compass,
-      bgImage: '/images/adverbials.svg',
+      bgImage: 'images/adverbials.svg',
     },
     {
       id: 'articles',
@@ -128,7 +128,7 @@ export const CoursesScreen: React.FC = () => {
       topicsCount: '0 ta ost-mavzu',
       hasSubtopics: false,
       icon: Sparkles,
-      bgImage: '/images/articles.svg',
+      bgImage: 'images/articles.svg',
     },
   ];
 
